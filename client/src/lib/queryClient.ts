@@ -11,11 +11,14 @@ export const queryClient = new QueryClient({
         });
 
         if (!res.ok) {
-          if (res.status >= 500) {
-            throw new Error(`${res.status}: ${res.statusText}`);
+          if (res.status === 404) {
+            throw new Error("Game not found");
           }
-
-          throw new Error(`${res.status}: ${await res.text()}`);
+          if (res.status >= 500) {
+            throw new Error("Server error. Please try again later.");
+          }
+          const errorText = await res.text();
+          throw new Error(errorText || "An unexpected error occurred");
         }
 
         return res.json();

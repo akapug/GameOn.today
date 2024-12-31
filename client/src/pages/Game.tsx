@@ -36,6 +36,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { queryKeys } from "@/lib/queryClient";
 
+interface GameWithDetails extends GameType {
+  players: Player[];
+  sport: Sport;
+}
+
 export default function Game() {
   const [, params] = useRoute("/games/:id");
   const [, setLocation] = useLocation();
@@ -52,24 +57,23 @@ export default function Game() {
 
   const form = useForm<Partial<GameType>>();
 
-  const { data: game, isLoading, error } = useQuery<GameType & { players: Player[]; sport: Sport }>({
-    queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : null,
+  const { data: game, isLoading, error } = useQuery<GameWithDetails>({
+    queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined,
     enabled: !!params?.id,
+    retry: 1,
   });
 
-  // Handle error state with useEffect
   useEffect(() => {
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to load game details",
+        description: error instanceof Error ? error.message : "Failed to load game details",
         variant: "destructive",
       });
       setLocation("/");
     }
   }, [error, toast, setLocation]);
 
-  // Update form values when game data is available
   useEffect(() => {
     if (game) {
       form.reset({
@@ -202,6 +206,43 @@ export default function Game() {
   if (!game) {
     return null;
   }
+
+  const shareGame = async (method: 'copy' | 'facebook' | 'twitter' | 'sms') => {
+    const gameUrl = `${window.location.origin}/games/${game.id}`;
+    const text = `Join our ${game.sport.name} game: ${game.title} at ${game.location}`;
+
+    switch (method) {
+      case 'copy':
+        await navigator.clipboard.writeText(gameUrl);
+        toast({
+          title: "Link Copied",
+          description: "Game link copied to clipboard!",
+        });
+        break;
+      case 'facebook':
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}`,
+          '_blank'
+        );
+        break;
+      case 'twitter':
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(gameUrl)}&text=${encodeURIComponent(text)}`,
+          '_blank'
+        );
+        break;
+      case 'sms':
+        window.open(
+          `sms:?body=${encodeURIComponent(`${text}\n${gameUrl}`)}`,
+          '_blank'
+        );
+        break;
+    }
+  };
+
+  const openInGoogleMaps = (location: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`, '_blank');
+  };
 
   const calculateProgress = () => {
     const total = game.players.reduce((sum, player) => {
