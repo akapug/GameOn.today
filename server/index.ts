@@ -9,34 +9,11 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Production configuration
-if (process.env.NODE_ENV === "production") {
-  // Basic security headers
-  app.use((_req, res, next) => {
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("X-Frame-Options", "DENY");
-    res.setHeader("X-XSS-Protection", "1; mode=block");
-    next();
-  });
-
-  // Serve static files from the dist/public directory with proper MIME types
-  app.use(express.static(path.join(__dirname, "..", "client"), {
-    maxAge: '1y',
-    etag: true,
-    setHeaders: (res, filepath) => {
-      // Set proper MIME types for Vite assets
-      if (filepath.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (filepath.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-    }
-  }));
-}
-
+// Basic middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -68,51 +45,40 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Register API routes first
   const server = registerRoutes(app);
 
-  // Production error handler with improved static file handling
+  // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);
-
-    // Don't leak error details in production
     const isProd = process.env.NODE_ENV === "production";
     const status = err.status || err.statusCode || 500;
     const message = isProd ? "Internal Server Error" : (err.message || "Internal Server Error");
 
-    if (res.headersSent) {
-      return;
+    // Only send response if headers haven't been sent
+    if (!res.headersSent) {
+      if (_req.path.startsWith("/api")) {
+        return res.status(status).json({ message });
+      }
+      res.status(status).send(message);
     }
-
-    // Handle API errors
-    if (_req.path.startsWith("/api")) {
-      return res.status(status).json({ message });
-    }
-
-    // For non-API routes in production serve index.html
-    if (isProd) {
-      return res.sendFile(path.join(__dirname, "..", "client", "index.html"));
-    }
-
-    res.status(status).send(message);
   });
 
-  if (process.env.NODE_ENV === "development") {
+  // Development: Use Vite's dev server
+  if (process.env.NODE_ENV !== "production") {
     await setupVite(app, server);
   } else {
-    // Serve static files from the client directory in development
-  app.use(express.static(path.join(__dirname, "..", "client")));
-  
-  // Production static file serving - catch-all route for SPA
-  app.get("*", (req, res, next) => {
-    // Don't handle API routes here
-    if (req.path.startsWith("/api")) return next();
-    res.sendFile(path.join(__dirname, "..", "client", "index.html"), {}, (err) => {
-      if (err) {
-        console.error("Error sending file:", err);
-        next(err);
-      }
+    // Production: Serve static files from dist/public
+    app.use(express.static(path.join(__dirname, "..", "dist", "public"), {
+      maxAge: '1y',
+      etag: true
+    }));
+
+    // SPA fallback - serve index.html for all non-API routes
+    app.get("*", (req, res, next) => {
+      if (req.path.startsWith("/api")) return next();
+      res.sendFile(path.join(__dirname, "..", "dist", "public", "index.html"));
     });
-  });
   }
 
   const PORT = process.env.PORT || 5000;
