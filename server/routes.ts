@@ -171,5 +171,34 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Get a single game with related data
+  app.get("/api/games/:id", async (req, res) => {
+    try {
+      const game = await db.query.games.findFirst({
+        where: eq(games.id, parseInt(req.params.id, 10)),
+        with: {
+          sport: true,
+          players: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              joinedAt: true
+            }
+          }
+        },
+      });
+
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+
+      res.json(game);
+    } catch (error) {
+      console.error("Failed to fetch game:", error);
+      res.status(500).json({ message: "Failed to fetch game" });
+    }
+  });
+
   return httpServer;
 }
