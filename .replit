@@ -20,3 +20,7 @@ pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
 
 [languages.javascript.languageServer]
 start = ["typescript-language-server", "--stdio"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
