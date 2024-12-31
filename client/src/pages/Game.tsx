@@ -213,12 +213,16 @@ export default function Game() {
   };
 
   const calculateProgress = () => {
-    const total = game.players.reduce((sum, player) => sum + Number(player.likelihood), 0);
+    const total = game.players.reduce((sum, player) => {
+      const likelihood = player.likelihood ? Number(player.likelihood) : 1;
+      return sum + likelihood;
+    }, 0);
     return (total / game.playerThreshold) * 100;
   };
 
   const progressPercentage = calculateProgress();
   const hasMinimumPlayers = progressPercentage >= 100;
+  const canDelete = user && game.creatorId === user.uid;
 
   if (isLoading) {
     return (
@@ -439,6 +443,11 @@ export default function Game() {
                     {game.players.map((player, index) => (
                       <p key={player.id} className="text-sm text-muted-foreground">
                         {index + 1}. {player.name}
+                        {Number(player.likelihood) < 1 && (
+                          <span className="ml-1 text-xs">
+                            ({Math.round(Number(player.likelihood) * 100)}% likely)
+                          </span>
+                        )}
                       </p>
                     ))}
                   </div>

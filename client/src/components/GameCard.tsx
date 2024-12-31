@@ -154,7 +154,10 @@ export default function GameCard({ game }: GameCardProps) {
   };
 
   const calculateProgress = () => {
-    const total = game.players.reduce((sum, player) => sum + Number(player.likelihood), 0);
+    const total = game.players.reduce((sum, player) => {
+      const likelihood = player.likelihood ? Number(player.likelihood) : 1;
+      return sum + likelihood;
+    }, 0);
     return (total / game.playerThreshold) * 100;
   };
 
