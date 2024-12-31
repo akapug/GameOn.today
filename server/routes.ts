@@ -138,7 +138,7 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/games/:id/join", async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, email } = req.body;
+      const { name, email, likelihood } = req.body;
 
       // Validate that the game exists
       const game = await db.query.games.findFirst({
@@ -156,6 +156,7 @@ export function registerRoutes(app: Express): Server {
         gameId: parseInt(id, 10),
         name,
         email,
+        likelihood: likelihood || 1, // Ensure likelihood is properly handled
       }).returning();
 
       // Check if adding this player reaches the threshold

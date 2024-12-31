@@ -71,7 +71,7 @@ export default function CreateGame() {
     <div className="min-h-screen bg-background">
       <header className="p-4 border-b">
         <div className="container flex items-center">
-          <Button variant="ghost" onClick={() => navigate(-1)}>
+          <Button variant="ghost" onClick={() => navigate("/")}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
