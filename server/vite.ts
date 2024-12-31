@@ -76,7 +76,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "public");
+  const distPath = path.resolve(__dirname, "..", "dist", "public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -85,11 +85,6 @@ export function serveStatic(app: Express) {
   }
 
   app.use(express.static(distPath));
-
-  // Serve static assets first
-  app.get(/\.(js|css|ico|png|jpg|jpeg|svg|json)$/, (req, res) => {
-    res.sendFile(path.join(distPath, req.path));
-  });
 
   // For all other routes, serve index.html
   app.get("*", (_req, res) => {
