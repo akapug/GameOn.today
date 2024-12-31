@@ -4,21 +4,28 @@ import { type Sport } from "@db/schema";
 
 interface SportSelectProps {
   value: number;
-  onChange: (value: number) => void;
+  onChange: (value: number | null) => void;
+  allowClear?: boolean;
 }
 
-export default function SportSelect({ value, onChange }: SportSelectProps) {
+export default function SportSelect({ value, onChange, allowClear }: SportSelectProps) {
   const { data: sports = [] } = useQuery<Sport[]>({
     queryKey: ["sports"],
     queryFn: () => fetch("/api/sports").then(res => res.json()),
   });
 
   return (
-    <Select value={value?.toString()} onValueChange={(v) => onChange(parseInt(v, 10))}>
+    <Select 
+      value={value?.toString() || "0"} 
+      onValueChange={(v) => onChange(v === "0" ? null : parseInt(v, 10))}
+    >
       <SelectTrigger>
-        <SelectValue placeholder="Select a sport" />
+        <SelectValue placeholder="Filter by sport" />
       </SelectTrigger>
       <SelectContent>
+        {allowClear && (
+          <SelectItem value="0">All Sports</SelectItem>
+        )}
         {sports.map((sport) => (
           <SelectItem key={sport.id} value={sport.id.toString()}>
             {sport.name}

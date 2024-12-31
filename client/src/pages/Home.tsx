@@ -5,8 +5,13 @@ import { Link } from "wouter";
 import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
+import { useState } from "react";
+import SportSelect from "@/components/SportSelect";
+import { type Game } from "@db/schema";
 
 export default function Home() {
+  const [selectedSport, setSelectedSport] = useState<number | null>(null);
+
   const { data: games = [] } = useQuery({
     queryKey: ["games"],
     queryFn: () => fetch("/api/games").then(res => res.json()),
@@ -14,23 +19,38 @@ export default function Home() {
 
   const now = startOfDay(new Date());
 
-  const todayGames = games
-    .filter(game => isSameDay(new Date(game.date), now))
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  // Filter games by selected sport if one is selected
+  const filterGamesBySport = (games: Game[]) => {
+    if (!selectedSport) return games;
+    return games.filter(game => game.sportId === selectedSport);
+  };
 
-  const upcomingGames = games
-    .filter(game => isAfter(new Date(game.date), now) && !isSameDay(new Date(game.date), now))
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const todayGames = filterGamesBySport(
+    games.filter(game => isSameDay(new Date(game.date), now))
+  ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const archivedGames = games
-    .filter(game => isBefore(new Date(game.date), now))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const upcomingGames = filterGamesBySport(
+    games.filter(game => isAfter(new Date(game.date), now) && !isSameDay(new Date(game.date), now))
+  ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const archivedGames = filterGamesBySport(
+    games.filter(game => isBefore(new Date(game.date), now))
+  ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <div className="min-h-screen bg-background">
       <header className="p-4 border-b">
-        <div className="container flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Sports Games</h1>
+        <div className="container flex justify-between items-center gap-4">
+          <div className="flex items-center gap-4 flex-1">
+            <h1 className="text-2xl font-bold">Sports Games</h1>
+            <div className="w-48">
+              <SportSelect 
+                value={selectedSport || 0}
+                onChange={(value) => setSelectedSport(value || null)}
+                allowClear
+              />
+            </div>
+          </div>
           <Link href="/create">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -40,7 +60,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="container py-6">
+      <main className="container py-6 px-4">
         <Tabs defaultValue="today" className="w-full">
           <TabsList className="w-full justify-start">
             <TabsTrigger value="today" className="relative">
