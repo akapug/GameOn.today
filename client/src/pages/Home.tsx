@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { Link } from "wouter";
 import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } from "date-fns";
+import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
 
 export default function Home() {
   const { data: games = [] } = useQuery({
@@ -12,19 +12,19 @@ export default function Home() {
     queryFn: () => fetch("/api/games").then(res => res.json()),
   });
 
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const now = startOfDay(new Date());
 
-  const todayGames = games.filter(game => 
-    format(new Date(game.date), 'yyyy-MM-dd') === today
-  );
+  const todayGames = games
+    .filter(game => isSameDay(new Date(game.date), now))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const upcomingGames = games.filter(game => 
-    format(new Date(game.date), 'yyyy-MM-dd') > today
-  );
+  const upcomingGames = games
+    .filter(game => isAfter(new Date(game.date), now) && !isSameDay(new Date(game.date), now))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const archivedGames = games.filter(game => 
-    format(new Date(game.date), 'yyyy-MM-dd') < today
-  );
+  const archivedGames = games
+    .filter(game => isBefore(new Date(game.date), now))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,18 +43,48 @@ export default function Home() {
       <main className="container py-6">
         <Tabs defaultValue="today" className="w-full">
           <TabsList className="w-full justify-start">
-            <TabsTrigger value="today">Today's Games</TabsTrigger>
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-            <TabsTrigger value="archive">Archive</TabsTrigger>
+            <TabsTrigger value="today" className="relative">
+              Today's Games
+              {todayGames.length > 0 && (
+                <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                  {todayGames.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="upcoming" className="relative">
+              Upcoming
+              {upcomingGames.length > 0 && (
+                <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                  {upcomingGames.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="archive" className="relative">
+              Archive
+              {archivedGames.length > 0 && (
+                <span className="ml-2 bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
+                  {archivedGames.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="today">
-            <GameList games={todayGames} />
+          <TabsContent value="today" className="mt-6">
+            <GameList 
+              games={todayGames}
+              emptyMessage="No games scheduled for today. Why not create one?"
+            />
           </TabsContent>
-          <TabsContent value="upcoming">
-            <GameList games={upcomingGames} />
+          <TabsContent value="upcoming" className="mt-6">
+            <GameList 
+              games={upcomingGames} 
+              emptyMessage="No upcoming games scheduled. Create a new game to get started!"
+            />
           </TabsContent>
-          <TabsContent value="archive">
-            <GameList games={archivedGames} />
+          <TabsContent value="archive" className="mt-6">
+            <GameList 
+              games={archivedGames}
+              emptyMessage="No past games found."
+            />
           </TabsContent>
         </Tabs>
       </main>
