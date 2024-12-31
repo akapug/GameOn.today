@@ -8,8 +8,8 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "cloudrun"
-build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
+build = ["NODE_ENV=production", "npm", "run", "build"]
+run = ["NODE_ENV=production", "npm", "run", "start"]
 publicDir = "dist/public"
 
 [[deployment.rewrites]]
