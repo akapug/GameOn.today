@@ -6,6 +6,9 @@ import { Toaster } from "@/components/ui/toaster";
 import App from './App';
 import "./index.css";
 
+// Initialize sports table
+fetch("/api/init").catch(console.error);
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

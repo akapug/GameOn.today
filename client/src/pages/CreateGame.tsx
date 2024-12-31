@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,35 +8,53 @@ import { Card, CardContent } from "@/components/ui/card";
 import SportSelect from "@/components/SportSelect";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { type NewGame } from "@db/schema";
 
 export default function CreateGame() {
   const [, navigate] = useLocation();
-  const form = useForm({
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<NewGame>({
     defaultValues: {
       title: "",
       location: "",
       date: "",
-      playerThreshold: "10",
-      sportId: 1,
+      playerThreshold: 10,
+      sportId: undefined,
     },
   });
 
   const createGame = useMutation({
-    mutationFn: async (values: any) => {
+    mutationFn: async (values: NewGame) => {
       const res = await fetch("/api/games", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      
+
       if (!res.ok) {
-        throw new Error("Failed to create game");
+        const error = await res.text();
+        throw new Error(error || "Failed to create game");
       }
-      
+
       return res.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["games"] });
+      toast({
+        title: "Success",
+        description: "Game created successfully",
+      });
       navigate("/");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -110,11 +128,16 @@ export default function CreateGame() {
                 <FormField
                   control={form.control}
                   name="playerThreshold"
-                  render={({ field }) => (
+                  render={({ field: { onChange, ...field } }) => (
                     <FormItem>
                       <FormLabel>Player Threshold</FormLabel>
                       <FormControl>
-                        <Input type="number" min="2" {...field} />
+                        <Input 
+                          type="number" 
+                          min="2" 
+                          onChange={(e) => onChange(parseInt(e.target.value, 10))}
+                          {...field} 
+                        />
                       </FormControl>
                     </FormItem>
                   )}
