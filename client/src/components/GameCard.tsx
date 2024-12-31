@@ -29,6 +29,7 @@ import { type Game, type Sport, type Player } from "@db/schema";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
+import { Link } from "wouter";
 
 interface GameCardProps {
   game: Game & { players: Player[]; sport: Sport };
@@ -142,6 +143,10 @@ export default function GameCard({ game }: GameCardProps) {
     }
   };
 
+  const openInGoogleMaps = (location: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`, '_blank');
+  };
+
   const progressPercentage = (game.players.length / game.playerThreshold) * 100;
   const hasMinimumPlayers = game.players.length >= game.playerThreshold;
   const canDelete = user && game.creatorId === user.uid;
@@ -151,7 +156,9 @@ export default function GameCard({ game }: GameCardProps) {
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold">{game.title}</h3>
+            <Link href={`/games/${game.id}`}>
+              <h3 className="text-lg font-semibold hover:text-primary cursor-pointer">{game.title}</h3>
+            </Link>
             <div className="flex items-center gap-2">
               <p className="text-sm text-muted-foreground">{game.sport.name}</p>
               <span className="text-sm text-muted-foreground">·</span>
@@ -177,7 +184,12 @@ export default function GameCard({ game }: GameCardProps) {
             </div>
             <div className="flex items-center text-sm">
               <MapPin className="mr-2 h-4 w-4" />
-              {game.location}
+              <button
+                onClick={() => openInGoogleMaps(game.location)}
+                className="text-primary hover:underline"
+              >
+                {game.location}
+              </button>
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
