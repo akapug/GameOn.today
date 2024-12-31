@@ -201,18 +201,24 @@ export default function GameCard({ game }: GameCardProps) {
               <Calendar className="mr-2 h-4 w-4" />
               {format(new Date(game.date), "PPP p")}
             </div>
-            <div className="flex items-center text-sm">
-              <MapPin className="mr-2 h-4 w-4" />
-              <button
-                onClick={() => openInGoogleMaps(game.location)}
-                className="text-primary hover:underline"
-              >
-                {game.location}
-              </button>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center">
+                <MapPin className="mr-2 h-4 w-4" />
+                <button
+                  onClick={() => openInGoogleMaps(game.location)}
+                  className="text-primary hover:underline"
+                >
+                  {game.location}
+                </button>
+              </div>
+              {game.weather && (
+                <>
+                  <span className="text-muted-foreground">(Expected weather: </span>
+                  <WeatherDisplay weather={game.weather} />
+                  <span className="text-muted-foreground">)</span>
+                </>
+              )}
             </div>
-            {game.weather && (
-              <WeatherDisplay weather={game.weather} className="ml-6" />
-            )}
             <div className="space-y-2">
               <div className="flex items-center text-sm">
                 <Users className="mr-2 h-4 w-4" />
