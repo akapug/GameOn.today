@@ -211,45 +211,14 @@ export default function GameCard({ game }: GameCardProps) {
                 <div className="flex items-center">
                   <Users className="mr-2 h-4 w-4" />
                   <span>
-                    {progressPercentage.toFixed(1)}% {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} needed
+                    {game.players.length} players {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} needed
                   </span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPlayers(!showPlayers)}
-                >
-                  {showPlayers ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </Button>
               </div>
               <Progress
                 value={progressPercentage}
                 className={`h-2 ${hasMinimumPlayers ? 'bg-green-100' : ''}`}
               />
-              {showPlayers && game.players.length > 0 && (
-                <div className="mt-2 pl-6 space-y-1">
-                  {game.players.map((player, index) => {
-                    // Handle null/undefined case first
-                    const hasLikelihood = player.likelihood !== null && player.likelihood !== undefined;
-                    const isFullyCommitted = !hasLikelihood || Number(player.likelihood) === 1;
-
-                    return (
-                      <p key={player.id} className="text-sm text-muted-foreground">
-                        {index + 1}. {player.name} 
-                        {isFullyCommitted ? (
-                          <span className="ml-1 text-xs text-green-600">
-                            Yes!
-                          </span>
-                        ) : (
-                          <span className="ml-1 text-xs text-yellow-600">
-                            Maybe ({Math.round(Number(player.likelihood) * 100)}%)
-                          </span>
-                        )}
-                      </p>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           </div>
         </div>

@@ -1,21 +1,34 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
 import { useState } from "react";
 import SportSelect from "@/components/SportSelect";
 import { type Game } from "@db/schema";
+import { useAuth } from "@/components/AuthProvider";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function Home() {
   const [selectedSport, setSelectedSport] = useState<number | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [, setLocation] = useLocation();
+  const { user, signInWithGoogle } = useAuth();
 
   const { data: games = [] } = useQuery({
     queryKey: ["games"],
     queryFn: () => fetch("/api/games").then(res => res.json()),
   });
+
+  const handleCreateGame = () => {
+    if (user) {
+      setLocation("/create");
+    } else {
+      setShowAuthDialog(true);
+    }
+  };
 
   const now = startOfDay(new Date());
 
@@ -51,12 +64,26 @@ export default function Home() {
               />
             </div>
           </div>
-          <Link href="/create">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Game
-            </Button>
-          </Link>
+          <Button onClick={handleCreateGame}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Game
+          </Button>
+
+          <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Sign in Required</DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                You need to sign in to create a game. You can still join existing games without signing in.
+              </p>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button onClick={signInWithGoogle}>
+                  Sign in with Google
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </header>
 
