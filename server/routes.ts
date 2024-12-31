@@ -63,6 +63,12 @@ async function sendGameOnNotification(gameId: number) {
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
 
+  // Set default headers for all responses
+  app.use((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  });
+
   // Initialize default sports if none exist
   app.get("/api/init", async (_req, res) => {
     try {
@@ -184,7 +190,8 @@ export function registerRoutes(app: Express): Server {
               id: true,
               name: true,
               email: true,
-              joinedAt: true
+              joinedAt: true,
+              likelihood: true
             }
           }
         },

@@ -22,13 +22,13 @@ export const queryClient = new QueryClient({
             throw new Error(errorText || "An unexpected error occurred");
           }
 
-          const contentType = res.headers.get("content-type");
-          if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("Invalid response format");
+          try {
+            const data = await res.json();
+            return data;
+          } catch (parseError) {
+            console.error('Failed to parse response:', parseError);
+            throw new Error("Failed to parse server response");
           }
-
-          const data = await res.json();
-          return data;
         } catch (error) {
           if (error instanceof SyntaxError) {
             throw new Error("Failed to parse server response");
@@ -38,7 +38,7 @@ export const queryClient = new QueryClient({
       },
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 0, // Changed from Infinity to 0 to ensure fresh data
+      staleTime: 0,
       retry: false,
     },
     mutations: {
@@ -50,8 +50,8 @@ export const queryClient = new QueryClient({
 // Helper function to generate query keys
 export const queryKeys = {
   games: {
-    all: ['api', 'games'],
-    single: (id: number) => ['api', 'games', id.toString()],
+    all: ['/api/games'],
+    single: (id: number) => ['/api/games', id.toString()],
   },
-  sports: ['api', 'sports'],
+  sports: ['/api/sports'],
 };
