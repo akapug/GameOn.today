@@ -76,8 +76,7 @@ export default function Game() {
         body: JSON.stringify({
           name: playerName,
           email: playerEmail,
-          joinType: joinType,
-          likelihood: likelihood
+          likelihood: joinType === "yes" ? 1 : likelihood
         }),
       });
 
@@ -212,6 +211,24 @@ export default function Game() {
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`, '_blank');
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner className="w-8 h-8" />
+      </div>
+    );
+  }
+
+  if (error || !game) {
+    toast({
+      title: "Error",
+      description: "Failed to load game details",
+      variant: "destructive",
+    });
+    setLocation("/");
+    return null;
+  }
+
   const calculateProgress = () => {
     const total = game.players.reduce((sum, player) => {
       const likelihood = player.likelihood ? Number(player.likelihood) : 1;
@@ -223,25 +240,6 @@ export default function Game() {
   const progressPercentage = calculateProgress();
   const hasMinimumPlayers = progressPercentage >= 100;
   const canDelete = user && game.creatorId === user.uid;
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spinner className="w-8 h-8" />
-      </div>
-    );
-  }
-
-  if (error || !game || !game.players) {
-    toast({
-      title: "Error",
-      description: "Failed to load game details",
-      variant: "destructive",
-    });
-    setLocation("/");
-    return null;
-  }
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -429,7 +427,7 @@ export default function Game() {
                 <div className="flex items-center text-sm mb-2">
                   <Users className="mr-2 h-4 w-4" />
                   <span>
-                    {game.players.length} {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} players needed
+                    {game.players?.length || 0} {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} needed
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -440,12 +438,12 @@ export default function Game() {
                     />
                   </div>
                   <div className="pl-6 space-y-1">
-                    {game.players.map((player, index) => (
+                    {game.players?.map((player, index) => (
                       <p key={player.id} className="text-sm text-muted-foreground">
                         {index + 1}. {player.name}
-                        {Number(player.likelihood) < 1 && (
+                        {player.likelihood !== null && Number(player.likelihood) < 1 && (
                           <span className="ml-1 text-xs">
-                            ({Math.round(Number(player.likelihood) * 100)}% likely)
+                            ({(Number(player.likelihood) * 100).toFixed(0)}% likely)
                           </span>
                         )}
                       </p>
