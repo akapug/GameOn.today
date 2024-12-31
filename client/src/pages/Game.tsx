@@ -35,10 +35,13 @@ import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { queryKeys } from "@/lib/queryClient";
+import WeatherDisplay from "@/components/WeatherDisplay";
+import type { WeatherInfo } from "../../../server/services/weather";
 
 interface GameWithDetails extends GameType {
   players: Player[];
   sport: Sport;
+  weather: WeatherInfo | null;
 }
 
 export default function Game() {
@@ -107,8 +110,8 @@ export default function Game() {
     onSuccess: () => {
       // Invalidate both the individual game and the games list
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-      queryClient.invalidateQueries({ 
-        queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined 
+      queryClient.invalidateQueries({
+        queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined
       });
       toast({
         title: "Success",
@@ -438,6 +441,9 @@ export default function Game() {
                   {game.location}
                 </button>
               </div>
+              {game.weather && (
+                <WeatherDisplay weather={game.weather} className="ml-6" />
+              )}
               <div>
                 <div className="flex items-center text-sm mb-2">
                   <Users className="mr-2 h-4 w-4" />

@@ -5,6 +5,7 @@ import { games, players, sports } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { defaultSports } from "../client/src/lib/sports";
 import nodemailer from "nodemailer";
+import { getWeatherForecast, type WeatherInfo } from "./services/weather";
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
@@ -60,6 +61,14 @@ async function sendGameOnNotification(gameId: number) {
   await Promise.all(emailPromises).catch(console.error);
 }
 
+async function getGameWithWeather(game: any) {
+  const weather = await getWeatherForecast(game.location, new Date(game.date));
+  return {
+    ...game,
+    weather
+  };
+}
+
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
 
@@ -111,7 +120,13 @@ export function registerRoutes(app: Express): Server {
           }
         },
       });
-      res.json(allGames);
+
+      // Add weather information to each game
+      const gamesWithWeather = await Promise.all(
+        allGames.map(getGameWithWeather)
+      );
+
+      res.json(gamesWithWeather);
     } catch (error) {
       console.error("Failed to fetch games:", error);
       res.status(500).json({ message: "Failed to fetch games" });
@@ -202,7 +217,8 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "Game not found" });
       }
 
-      res.json(game);
+      const gameWithWeather = await getGameWithWeather(game);
+      res.json(gameWithWeather);
     } catch (error) {
       console.error("Failed to fetch game:", error);
       res.status(500).json({ message: "Failed to fetch game" });

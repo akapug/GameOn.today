@@ -6,11 +6,13 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/components/AuthProvider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
+import type { WeatherInfo } from "../../server/services/weather";
 
 interface GameListProps {
   games: Array<Game & { 
-    players: Array<Player & { likelihood: string | null }>;
+    players: Array<Player>;
     sport: Sport;
+    weather: WeatherInfo | null;
   }>;
   emptyMessage?: string;
 }

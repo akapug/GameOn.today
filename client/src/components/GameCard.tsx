@@ -32,9 +32,15 @@ import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { queryKeys } from "@/lib/queryClient";
+import WeatherDisplay from "./WeatherDisplay";
+import type { WeatherInfo } from "../../server/services/weather";
 
 interface GameCardProps {
-  game: Game & { players: Player[]; sport: Sport };
+  game: Game & { 
+    players: Player[]; 
+    sport: Sport;
+    weather: WeatherInfo | null;
+  };
 }
 
 export default function GameCard({ game }: GameCardProps) {
@@ -204,6 +210,9 @@ export default function GameCard({ game }: GameCardProps) {
                 {game.location}
               </button>
             </div>
+            {game.weather && (
+              <WeatherDisplay weather={game.weather} className="ml-6" />
+            )}
             <div className="space-y-2">
               <div className="flex items-center text-sm">
                 <Users className="mr-2 h-4 w-4" />
