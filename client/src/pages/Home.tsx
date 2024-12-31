@@ -59,6 +59,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      <AuthDialog
+        open={showAuthDialog}
+        onOpenChange={setShowAuthDialog}
+        redirectTo="/create"
+      />
       <main className="container py-6 px-4">
         <Tabs defaultValue="today" className="w-full">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
