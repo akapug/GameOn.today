@@ -430,7 +430,7 @@ export default function Game() {
             <div className="space-y-4">
               <div className="flex items-center text-sm">
                 <Calendar className="mr-2 h-4 w-4" />
-                {format(new Date(game.date), "PPP p")}
+                {format(new Date(game.date), "PPP p", { timeZone: game.timezone })}
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <div className="flex items-center">
