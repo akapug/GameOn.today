@@ -57,6 +57,18 @@ export default function Game() {
     enabled: !!params?.id,
   });
 
+  // Handle error state with useEffect
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load game details",
+        variant: "destructive",
+      });
+      setLocation("/");
+    }
+  }, [error, toast, setLocation]);
+
   // Update form values when game data is available
   useEffect(() => {
     if (game) {
@@ -179,43 +191,6 @@ export default function Game() {
     },
   });
 
-  const shareGame = async (method: 'copy' | 'facebook' | 'twitter' | 'sms') => {
-    const gameUrl = `${window.location.origin}/games/${params?.id}`;
-    const text = `Join our ${game?.sport.name} game: ${game?.title} at ${game?.location}`;
-
-    switch (method) {
-      case 'copy':
-        await navigator.clipboard.writeText(gameUrl);
-        toast({
-          title: "Link Copied",
-          description: "Game link copied to clipboard!",
-        });
-        break;
-      case 'facebook':
-        window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}`,
-          '_blank'
-        );
-        break;
-      case 'twitter':
-        window.open(
-          `https://twitter.com/intent/tweet?url=${encodeURIComponent(gameUrl)}&text=${encodeURIComponent(text)}`,
-          '_blank'
-        );
-        break;
-      case 'sms':
-        window.open(
-          `sms:?body=${encodeURIComponent(`${text}\n${gameUrl}`)}`,
-          '_blank'
-        );
-        break;
-    }
-  };
-
-  const openInGoogleMaps = (location: string) => {
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`, '_blank');
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -224,19 +199,12 @@ export default function Game() {
     );
   }
 
-  if (error || !game) {
-    toast({
-      title: "Error",
-      description: "Failed to load game details",
-      variant: "destructive",
-    });
-    setLocation("/");
+  if (!game) {
     return null;
   }
 
   const calculateProgress = () => {
     const total = game.players.reduce((sum, player) => {
-      // Convert decimal string to number for calculation
       const likelihood = player.likelihood ? Number(player.likelihood) : 1;
       return sum + likelihood;
     }, 0);
@@ -445,7 +413,6 @@ export default function Game() {
                   </div>
                   <div className="pl-6 space-y-1">
                     {game.players?.map((player, index) => {
-                      // Handle null/undefined case first
                       const hasLikelihood = player.likelihood !== null && player.likelihood !== undefined;
                       const isFullyCommitted = !hasLikelihood || Number(player.likelihood) === 1;
 
