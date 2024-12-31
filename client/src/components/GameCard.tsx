@@ -1,6 +1,23 @@
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, ChevronDown, ChevronUp } from "lucide-react";
+import { 
+  Calendar, 
+  MapPin, 
+  Users, 
+  ChevronDown, 
+  ChevronUp, 
+  Share2,
+  Link as LinkIcon,
+  Facebook,
+  Twitter,
+  MessageSquare
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -58,6 +75,39 @@ export default function GameCard({ game }: GameCardProps) {
       });
     },
   });
+
+  const shareGame = async (method: 'copy' | 'facebook' | 'twitter' | 'sms') => {
+    const gameUrl = `${window.location.origin}/games/${game.id}`;
+    const text = `Join our ${game.sport.name} game: ${game.title} at ${game.location}`;
+
+    switch (method) {
+      case 'copy':
+        await navigator.clipboard.writeText(gameUrl);
+        toast({
+          title: "Link Copied",
+          description: "Game link copied to clipboard!",
+        });
+        break;
+      case 'facebook':
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}`,
+          '_blank'
+        );
+        break;
+      case 'twitter':
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(gameUrl)}&text=${encodeURIComponent(text)}`,
+          '_blank'
+        );
+        break;
+      case 'sms':
+        window.open(
+          `sms:?body=${encodeURIComponent(`${text}\n${gameUrl}`)}`,
+          '_blank'
+        );
+        break;
+    }
+  };
 
   const progressPercentage = (game.players.length / game.playerThreshold) * 100;
   const hasMinimumPlayers = game.players.length >= game.playerThreshold;
@@ -121,11 +171,11 @@ export default function GameCard({ game }: GameCardProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex gap-2">
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button 
-              className="w-full" 
+              className="flex-1" 
               variant={hasMinimumPlayers ? "outline" : "default"}
             >
               {hasMinimumPlayers ? "Join Game (Has Enough Players)" : "Join Game"}
@@ -165,6 +215,32 @@ export default function GameCard({ game }: GameCardProps) {
             </form>
           </DialogContent>
         </Dialog>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => shareGame('copy')}>
+              <LinkIcon className="mr-2 h-4 w-4" />
+              Copy Link
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => shareGame('facebook')}>
+              <Facebook className="mr-2 h-4 w-4" />
+              Share on Facebook
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => shareGame('twitter')}>
+              <Twitter className="mr-2 h-4 w-4" />
+              Share on Twitter
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => shareGame('sms')}>
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Share via SMS
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </CardFooter>
     </Card>
   );
