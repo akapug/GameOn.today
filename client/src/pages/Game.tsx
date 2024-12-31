@@ -4,17 +4,18 @@ import { type Game as GameType, type Player, type Sport } from "@db/schema";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Calendar, 
-  MapPin, 
-  Users, 
+import {
+  Calendar,
+  MapPin,
+  Users,
   ArrowLeft,
   Share2,
   LinkIcon,
   Facebook,
   Twitter,
   MessageSquare,
-  Trash2 
+  Trash2,
+  Edit2
 } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -28,6 +29,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/components/AuthProvider";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import SportSelect from "@/components/SportSelect";
 
 export default function Game() {
   const [, params] = useRoute("/games/:id");
@@ -36,9 +40,18 @@ export default function Game() {
   const [playerEmail, setPlayerEmail] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
+  const form = useForm<Partial<GameType>>({
+    defaultValues: {
+      title: game?.title,
+      location: game?.location,
+      date: game?.date,
+      playerThreshold: game?.playerThreshold,
+    },
+  });
 
   const { data: game, isLoading, error } = useQuery<GameType & { players: Player[]; sport: Sport }>({
     queryKey: [`/api/games/${params?.id}`],
@@ -50,9 +63,9 @@ export default function Game() {
       const res = await fetch(`/api/games/${params?.id}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           name: playerName,
-          email: playerEmail 
+          email: playerEmail
         }),
       });
 
@@ -72,6 +85,41 @@ export default function Game() {
       setIsOpen(false);
       setPlayerName("");
       setPlayerEmail("");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const editGame = useMutation({
+    mutationFn: async (values: Partial<GameType>) => {
+      const res = await fetch(`/api/games/${params?.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          creatorId: game?.creatorId,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to update game");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/games/${params?.id}`] });
+      toast({
+        title: "Success",
+        description: "Game updated successfully",
+      });
+      setShowEditDialog(false);
     },
     onError: (error) => {
       toast({
@@ -146,6 +194,10 @@ export default function Game() {
     }
   };
 
+  const openInGoogleMaps = (location: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`, '_blank');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -180,6 +232,85 @@ export default function Game() {
             <h1 className="text-2xl font-bold ml-4">{game.title}</h1>
           </div>
           <div className="flex items-center gap-2">
+            {canDelete && (
+              <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Edit Game</DialogTitle>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit((data) => editGame.mutate(data))} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Title</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Location</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="date"
+                        render={({ field: { value, ...field } }) => (
+                          <FormItem>
+                            <FormLabel>Date & Time</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="datetime-local"
+                                {...field}
+                                value={value ? new Date(value).toISOString().slice(0, 16) : ''}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="playerThreshold"
+                        render={({ field: { onChange, value, ...field } }) => (
+                          <FormItem>
+                            <FormLabel>Player Threshold</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min="2"
+                                {...field}
+                                value={value}
+                                onChange={e => onChange(parseInt(e.target.value, 10))}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <Button type="submit" className="w-full" disabled={editGame.isPending}>
+                        Save Changes
+                      </Button>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -264,7 +395,12 @@ export default function Game() {
               </div>
               <div className="flex items-center text-sm">
                 <MapPin className="mr-2 h-4 w-4" />
-                {game.location}
+                <button
+                  onClick={() => openInGoogleMaps(game.location)}
+                  className="text-primary hover:underline"
+                >
+                  {game.location}
+                </button>
               </div>
               <div>
                 <div className="flex items-center text-sm mb-2">
@@ -275,7 +411,7 @@ export default function Game() {
                 </div>
                 <div className="space-y-2">
                   <div className="bg-secondary rounded-full h-2 overflow-hidden">
-                    <div 
+                    <div
                       className="bg-primary h-full transition-all duration-500 ease-in-out"
                       style={{ width: `${progressPercentage}%` }}
                     />
@@ -292,8 +428,8 @@ export default function Game() {
 
               <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>
-                  <Button 
-                    className="w-full mt-4" 
+                  <Button
+                    className="w-full mt-4"
                     variant={hasMinimumPlayers ? "outline" : "default"}
                   >
                     {hasMinimumPlayers ? "Join Game (Has Enough Players)" : "Join Game"}

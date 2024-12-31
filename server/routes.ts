@@ -227,5 +227,42 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Update a game
+  app.put("/api/games/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, location, date, playerThreshold, creatorId } = req.body;
+
+      // First verify the game exists and creator matches
+      const game = await db.query.games.findFirst({
+        where: eq(games.id, parseInt(id, 10)),
+      });
+
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+
+      if (game.creatorId !== creatorId) {
+        return res.status(403).json({ message: "Only the creator can edit this game" });
+      }
+
+      const [updatedGame] = await db
+        .update(games)
+        .set({
+          title,
+          location,
+          date: new Date(date),
+          playerThreshold,
+        })
+        .where(eq(games.id, parseInt(id, 10)))
+        .returning();
+
+      res.json(updatedGame);
+    } catch (error) {
+      console.error("Failed to update game:", error);
+      res.status(500).json({ message: "Failed to update game" });
+    }
+  });
+
   return httpServer;
 }
