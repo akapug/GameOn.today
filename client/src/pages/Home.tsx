@@ -59,24 +59,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="p-4 border-b">
-        <div className="container">
-          <div className="flex items-center justify-between">
-            <Logo />
-            <AuthDialog
-              open={showAuthDialog}
-              onOpenChange={setShowAuthDialog}
-              redirectTo="/create"
-            />
-          </div>
-        </div>
-      </header>
-
       <main className="container py-6 px-4">
         <div className="flex items-center justify-between mb-4">
           <Tabs defaultValue="today" className="flex-1">
-            <div className="flex items-center justify-between">
-              <TabsList className="justify-start">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <TabsList className="justify-start w-full sm:w-auto">
                 <TabsTrigger value="today" className="relative">
                   Today's Games
                   {todayGames.length > 0 && (
@@ -102,15 +89,15 @@ export default function Home() {
                   )}
                 </TabsTrigger>
               </TabsList>
-              <div className="flex items-center gap-4 ml-4">
-                <div className="w-48">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
+                <div className="w-full sm:w-48">
                   <SportSelect 
                     value={selectedSport || 0} 
                     onChange={(value) => setSelectedSport(value || null)}
                     allowClear
                   />
                 </div>
-                <Button onClick={handleCreateGame}>
+                <Button onClick={handleCreateGame} className="w-full sm:w-auto">
                   <Plus className="mr-2 h-4 w-4" />
                   New Game
                 </Button>
