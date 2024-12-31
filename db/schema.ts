@@ -17,6 +17,7 @@ export const games = pgTable("games", {
   date: timestamp("date").notNull(),
   playerThreshold: integer("player_threshold").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+  deleteToken: text("delete_token").notNull(),
 });
 
 export const players = pgTable("players", {

@@ -5,6 +5,7 @@ import { games, players, sports } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { defaultSports } from "../client/src/lib/sports";
 import nodemailer from "nodemailer";
+import { randomBytes } from "crypto";
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
@@ -122,12 +123,20 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
+      // Generate a random delete token
+      const deleteToken = randomBytes(32).toString('hex');
+
       const newGame = await db.insert(games).values({
         ...req.body,
         date: new Date(req.body.date),
+        deleteToken,
       }).returning();
 
-      res.json(newGame[0]);
+      // Return the delete token only during creation
+      res.json({
+        ...newGame[0],
+        deleteToken,
+      });
     } catch (error) {
       console.error("Failed to create game:", error);
       res.status(500).json({ message: "Failed to create game" });
@@ -197,6 +206,42 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Failed to fetch game:", error);
       res.status(500).json({ message: "Failed to fetch game" });
+    }
+  });
+
+  // Add delete game endpoint
+  app.delete("/api/games/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { deleteToken } = req.body;
+
+      if (!deleteToken) {
+        return res.status(400).json({ message: "Delete token is required" });
+      }
+
+      // First verify the delete token
+      const game = await db.query.games.findFirst({
+        where: eq(games.id, parseInt(id, 10)),
+      });
+
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+
+      if (game.deleteToken !== deleteToken) {
+        return res.status(403).json({ message: "Invalid delete token" });
+      }
+
+      // Delete players first due to foreign key constraint
+      await db.delete(players).where(eq(players.gameId, parseInt(id, 10)));
+
+      // Then delete the game
+      await db.delete(games).where(eq(games.id, parseInt(id, 10)));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete game:", error);
+      res.status(500).json({ message: "Failed to delete game" });
     }
   });
 

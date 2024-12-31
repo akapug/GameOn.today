@@ -41,7 +41,9 @@ export default function CreateGame() {
 
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      localStorage.setItem(`game-${data.id}-token`, data.deleteToken);
+
       queryClient.invalidateQueries({ queryKey: ["games"] });
       toast({
         title: "Success",
@@ -132,11 +134,11 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel>Player Threshold</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          min="2" 
+                        <Input
+                          type="number"
+                          min="2"
                           onChange={(e) => onChange(parseInt(e.target.value, 10))}
-                          {...field} 
+                          {...field}
                         />
                       </FormControl>
                     </FormItem>

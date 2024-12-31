@@ -1,16 +1,17 @@
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Calendar, 
-  MapPin, 
-  Users, 
-  ChevronDown, 
-  ChevronUp, 
+import {
+  Calendar,
+  MapPin,
+  Users,
+  ChevronDown,
+  ChevronUp,
   Share2,
   Link as LinkIcon,
   Facebook,
   Twitter,
-  MessageSquare
+  MessageSquare,
+  Trash2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,15 +39,16 @@ export default function GameCard({ game }: GameCardProps) {
   const [showPlayers, setShowPlayers] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const joinGame = useMutation({
     mutationFn: async () => {
       const res = await fetch(`/api/games/${game.id}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           name: playerName,
-          email: playerEmail 
+          email: playerEmail
         }),
       });
 
@@ -66,6 +68,41 @@ export default function GameCard({ game }: GameCardProps) {
       setIsOpen(false);
       setPlayerName("");
       setPlayerEmail("");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteGame = useMutation({
+    mutationFn: async () => {
+      const deleteToken = localStorage.getItem(`game-${game.id}-token`);
+      if (!deleteToken) throw new Error("You don't have permission to delete this game");
+
+      const res = await fetch(`/api/games/${game.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deleteToken }),
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to delete game");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["games"] });
+      localStorage.removeItem(`game-${game.id}-token`);
+      toast({
+        title: "Success",
+        description: "Game deleted successfully",
+      });
     },
     onError: (error) => {
       toast({
@@ -111,6 +148,7 @@ export default function GameCard({ game }: GameCardProps) {
 
   const progressPercentage = (game.players.length / game.playerThreshold) * 100;
   const hasMinimumPlayers = game.players.length >= game.playerThreshold;
+  const canDelete = Boolean(localStorage.getItem(`game-${game.id}-token`));
 
   return (
     <Card className="w-full">
@@ -146,16 +184,16 @@ export default function GameCard({ game }: GameCardProps) {
                     {game.players.length} {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} players needed
                   </span>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setShowPlayers(!showPlayers)}
                 >
                   {showPlayers ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </Button>
               </div>
-              <Progress 
-                value={progressPercentage} 
+              <Progress
+                value={progressPercentage}
                 className={`h-2 ${hasMinimumPlayers ? 'bg-green-100' : ''}`}
               />
               {showPlayers && game.players.length > 0 && (
@@ -174,8 +212,8 @@ export default function GameCard({ game }: GameCardProps) {
       <CardFooter className="flex gap-2">
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button 
-              className="flex-1" 
+            <Button
+              className="flex-1"
               variant={hasMinimumPlayers ? "outline" : "default"}
             >
               {hasMinimumPlayers ? "Join Game (Has Enough Players)" : "Join Game"}
@@ -241,6 +279,38 @@ export default function GameCard({ game }: GameCardProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {canDelete && (
+          <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon" className="text-red-600 hover:text-red-700">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Game</DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                Are you sure you want to delete this game? This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    deleteGame.mutate();
+                    setShowDeleteConfirm(false);
+                  }}
+                  disabled={deleteGame.isPending}
+                >
+                  Delete
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </CardFooter>
     </Card>
   );
