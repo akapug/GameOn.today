@@ -31,9 +31,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error("Error signing in with Google:", error);
+      const result = await signInWithPopup(auth, googleProvider);
+      return result;
+    } catch (error: any) {
+      if (error.code === 'auth/popup-blocked') {
+        // If popup blocked, try redirect
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        throw error;
+      }
     }
   };
 
