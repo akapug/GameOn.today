@@ -5,6 +5,7 @@ import { useLocation } from "wouter";
 import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
+import Logo from "@/components/Logo";
 import { useState } from "react";
 import SportSelect from "@/components/SportSelect";
 import { type Game, type Player, type Sport } from "@db/schema";
@@ -62,7 +63,7 @@ export default function Home() {
       <header className="p-4 border-b">
         <div className="container flex justify-between items-center gap-4">
           <div className="flex items-center gap-4 flex-1">
-            <h1 className="text-2xl font-bold">Sports Games</h1>
+            <Logo />
             <div className="w-48">
               <SportSelect 
                 value={selectedSport || 0} 
