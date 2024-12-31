@@ -4,24 +4,37 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: async ({ queryKey }) => {
-        // Handle array query keys properly
-        const endpoint = Array.isArray(queryKey) ? queryKey.join('/') : queryKey;
-        const res = await fetch(endpoint, {
-          credentials: "include",
-        });
+        try {
+          // Handle array query keys properly
+          const endpoint = Array.isArray(queryKey) ? queryKey.join('/') : queryKey;
+          const res = await fetch(endpoint, {
+            credentials: "include",
+          });
 
-        if (!res.ok) {
-          if (res.status === 404) {
-            throw new Error("Game not found");
+          if (!res.ok) {
+            if (res.status === 404) {
+              throw new Error("Game not found");
+            }
+            if (res.status >= 500) {
+              throw new Error("Server error. Please try again later.");
+            }
+            const errorText = await res.text();
+            throw new Error(errorText || "An unexpected error occurred");
           }
-          if (res.status >= 500) {
-            throw new Error("Server error. Please try again later.");
+
+          const contentType = res.headers.get("content-type");
+          if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Invalid response format");
           }
-          const errorText = await res.text();
-          throw new Error(errorText || "An unexpected error occurred");
+
+          const data = await res.json();
+          return data;
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            throw new Error("Failed to parse server response");
+          }
+          throw error;
         }
-
-        return res.json();
       },
       refetchInterval: false,
       refetchOnWindowFocus: false,
