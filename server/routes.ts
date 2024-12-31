@@ -105,7 +105,8 @@ export function registerRoutes(app: Express): Server {
               id: true,
               name: true,
               email: true,
-              joinedAt: true
+              joinedAt: true,
+              likelihood: true
             }
           }
         },
