@@ -36,8 +36,8 @@ import WeatherDisplay from "./WeatherDisplay";
 import type { WeatherInfo } from "../../../server/services/weather";
 
 interface GameCardProps {
-  game: Game & { 
-    players: Player[]; 
+  game: Game & {
+    players: Player[];
     sport: Sport;
     weather: WeatherInfo | null;
   };
@@ -123,31 +123,33 @@ export default function GameCard({ game }: GameCardProps) {
 
   const shareGame = async (method: 'copy' | 'facebook' | 'twitter' | 'sms') => {
     const gameUrl = `${window.location.origin}/games/${game.id}`;
-    const text = `Join our ${game.sport.name} game: ${game.title} at ${game.location}`;
+    const text = `Join our ${game.sport.name} game: "${game.title}" on ${format(new Date(game.date), "PPP")} at ${game.location}. We need ${game.playerThreshold} players!`;
 
     switch (method) {
       case 'copy':
-        await navigator.clipboard.writeText(gameUrl);
+        await navigator.clipboard.writeText(`${text}\n\n${gameUrl}`);
         toast({
           title: "Link Copied",
-          description: "Game link copied to clipboard!",
+          description: "Game invitation copied to clipboard!",
         });
         break;
       case 'facebook':
         window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}`,
-          '_blank'
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}&quote=${encodeURIComponent(text)}`,
+          '_blank',
+          'width=550,height=650'
         );
         break;
       case 'twitter':
         window.open(
           `https://twitter.com/intent/tweet?url=${encodeURIComponent(gameUrl)}&text=${encodeURIComponent(text)}`,
-          '_blank'
+          '_blank',
+          'width=550,height=400'
         );
         break;
       case 'sms':
         window.open(
-          `sms:?body=${encodeURIComponent(`${text}\n${gameUrl}`)}`,
+          `sms:?body=${encodeURIComponent(`${text}\n\n${gameUrl}`)}`,
           '_blank'
         );
         break;
@@ -254,6 +256,44 @@ export default function GameCard({ game }: GameCardProps) {
             </div>
           </div>
         </div>
+        <div className="flex gap-2 mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={() => shareGame('facebook')}
+          >
+            <Facebook className="mr-2 h-4 w-4" />
+            Share on Facebook
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={() => shareGame('twitter')}
+          >
+            <Twitter className="mr-2 h-4 w-4" />
+            Tweet
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Share2 className="mr-2 h-4 w-4" />
+                More
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => shareGame('copy')}>
+                <LinkIcon className="mr-2 h-4 w-4" />
+                Copy Link
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => shareGame('sms')}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Share via SMS
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardContent>
       <CardFooter className="flex gap-2">
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -336,32 +376,6 @@ export default function GameCard({ game }: GameCardProps) {
             </form>
           </DialogContent>
         </Dialog>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => shareGame('copy')}>
-              <LinkIcon className="mr-2 h-4 w-4" />
-              Copy Link
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => shareGame('facebook')}>
-              <Facebook className="mr-2 h-4 w-4" />
-              Share on Facebook
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => shareGame('twitter')}>
-              <Twitter className="mr-2 h-4 w-4" />
-              Share on Twitter
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => shareGame('sms')}>
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Share via SMS
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
 
         {canDelete && (
           <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
