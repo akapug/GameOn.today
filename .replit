@@ -10,7 +10,11 @@ channel = "stable-24_05"
 deploymentTarget = "cloudrun"
 build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
-publicDir = "dist"
+publicDir = "dist/public"
+
+[[deployment.rewrites]]
+from = "/api/*"
+to = "/api/*"
 
 [[deployment.rewrites]]
 from = "/*"
