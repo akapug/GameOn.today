@@ -23,6 +23,7 @@ export const players = pgTable("players", {
   id: serial("id").primaryKey(),
   gameId: integer("game_id").references(() => games.id),
   name: text("name").notNull(),
+  email: text("email"),
   phone: text("phone"),
   joinedAt: timestamp("joined_at").defaultNow(),
 });

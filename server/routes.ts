@@ -4,6 +4,18 @@ import { db } from "@db";
 import { games, players, sports } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { defaultSports } from "../client/src/lib/sports";
+import nodemailer from "nodemailer";
+
+// Configure email transporter
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
@@ -39,7 +51,14 @@ export function registerRoutes(app: Express): Server {
       const allGames = await db.query.games.findMany({
         with: {
           sport: true,
-          players: true,
+          players: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              joinedAt: true
+            }
+          }
         },
       });
       res.json(allGames);
@@ -52,7 +71,6 @@ export function registerRoutes(app: Express): Server {
   // Create a new game
   app.post("/api/games", async (req, res) => {
     try {
-      // Validate that the sport exists
       const sport = await db.query.sports.findFirst({
         where: eq(sports.id, req.body.sportId),
       });
@@ -77,11 +95,14 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/games/:id/join", async (req, res) => {
     try {
       const { id } = req.params;
-      const { name } = req.body;
+      const { name, email } = req.body;
 
       // Validate that the game exists
       const game = await db.query.games.findFirst({
         where: eq(games.id, parseInt(id, 10)),
+        with: {
+          sport: true,
+        },
       });
 
       if (!game) {
@@ -91,7 +112,33 @@ export function registerRoutes(app: Express): Server {
       const newPlayer = await db.insert(players).values({
         gameId: parseInt(id, 10),
         name,
+        email,
       }).returning();
+
+      // Send confirmation email if email is provided
+      if (email) {
+        try {
+          await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: `You've joined: ${game.title}`,
+            html: `
+              <h2>Thanks for joining the game!</h2>
+              <p>Game Details:</p>
+              <ul>
+                <li><strong>Sport:</strong> ${game.sport.name}</li>
+                <li><strong>Title:</strong> ${game.title}</li>
+                <li><strong>Location:</strong> ${game.location}</li>
+                <li><strong>Date:</strong> ${new Date(game.date).toLocaleString()}</li>
+              </ul>
+              <p>We'll notify you when the game reaches its minimum player threshold!</p>
+            `,
+          });
+        } catch (emailError) {
+          console.error("Failed to send email:", emailError);
+          // Don't fail the join operation if email fails
+        }
+      }
 
       res.json(newPlayer[0]);
     } catch (error) {

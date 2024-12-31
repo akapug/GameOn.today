@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type Game, type Sport, type Player } from "@db/schema";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
 interface GameCardProps {
   game: Game & { players: Player[]; sport: Sport };
@@ -15,28 +16,46 @@ interface GameCardProps {
 
 export default function GameCard({ game }: GameCardProps) {
   const [playerName, setPlayerName] = useState("");
+  const [playerEmail, setPlayerEmail] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [showPlayers, setShowPlayers] = useState(false);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const joinGame = useMutation({
     mutationFn: async () => {
       const res = await fetch(`/api/games/${game.id}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: playerName }),
+        body: JSON.stringify({ 
+          name: playerName,
+          email: playerEmail 
+        }),
       });
 
       if (!res.ok) {
-        throw new Error("Failed to join game");
+        const error = await res.text();
+        throw new Error(error || "Failed to join game");
       }
 
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["games"] });
+      toast({
+        title: "Success",
+        description: "You've successfully joined the game!",
+      });
       setIsOpen(false);
       setPlayerName("");
+      setPlayerEmail("");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -120,11 +139,26 @@ export default function GameCard({ game }: GameCardProps) {
               e.preventDefault();
               joinGame.mutate();
             }} className="space-y-4">
-              <Input
-                placeholder="Your name"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-              />
+              <div className="space-y-2">
+                <label htmlFor="name" className="text-sm font-medium">Name</label>
+                <Input
+                  id="name"
+                  placeholder="Your name"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium">Email (for game notifications)</label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your.email@example.com"
+                  value={playerEmail}
+                  onChange={(e) => setPlayerEmail(e.target.value)}
+                />
+              </div>
               <Button type="submit" className="w-full" disabled={joinGame.isPending}>
                 Join
               </Button>
