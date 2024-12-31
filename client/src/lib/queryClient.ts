@@ -9,6 +9,10 @@ export const queryClient = new QueryClient({
           const endpoint = Array.isArray(queryKey) ? queryKey.join('/') : queryKey;
           const res = await fetch(endpoint, {
             credentials: "include",
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
           });
 
           if (!res.ok) {
