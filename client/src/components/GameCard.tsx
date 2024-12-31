@@ -1,12 +1,13 @@
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Calendar, MapPin, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type Game, type Sport, type Player } from "@db/schema";
+import { Progress } from "@/components/ui/progress";
 
 interface GameCardProps {
   game: Game & { players: Player[]; sport: Sport };
@@ -15,6 +16,7 @@ interface GameCardProps {
 export default function GameCard({ game }: GameCardProps) {
   const [playerName, setPlayerName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [showPlayers, setShowPlayers] = useState(false);
   const queryClient = useQueryClient();
 
   const joinGame = useMutation({
@@ -38,6 +40,9 @@ export default function GameCard({ game }: GameCardProps) {
     },
   });
 
+  const fillPercentage = (game.players.length / game.playerThreshold) * 100;
+  const isFull = game.players.length >= game.playerThreshold;
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -46,29 +51,61 @@ export default function GameCard({ game }: GameCardProps) {
             <h3 className="text-lg font-semibold">{game.title}</h3>
             <p className="text-sm text-muted-foreground">{game.sport.name}</p>
           </div>
+          {isFull && (
+            <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+              Full
+            </span>
+          )}
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          <div className="flex items-center text-sm">
-            <Calendar className="mr-2 h-4 w-4" />
-            {format(new Date(game.date), "PPP p")}
-          </div>
-          <div className="flex items-center text-sm">
-            <MapPin className="mr-2 h-4 w-4" />
-            {game.location}
-          </div>
-          <div className="flex items-center text-sm">
-            <Users className="mr-2 h-4 w-4" />
-            {game.players.length} / {game.playerThreshold} players
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center text-sm">
+              <Calendar className="mr-2 h-4 w-4" />
+              {format(new Date(game.date), "PPP p")}
+            </div>
+            <div className="flex items-center text-sm">
+              <MapPin className="mr-2 h-4 w-4" />
+              {game.location}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center">
+                  <Users className="mr-2 h-4 w-4" />
+                  <span>{game.players.length} / {game.playerThreshold} players</span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowPlayers(!showPlayers)}
+                >
+                  {showPlayers ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </div>
+              <Progress value={fillPercentage} className="h-2" />
+              {showPlayers && game.players.length > 0 && (
+                <div className="mt-2 pl-6 space-y-1">
+                  {game.players.map((player, index) => (
+                    <p key={player.id} className="text-sm text-muted-foreground">
+                      {index + 1}. {player.name}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>
       <CardFooter>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full" variant="outline">
-              Join Game
+            <Button 
+              className="w-full" 
+              variant="outline"
+              disabled={isFull}
+            >
+              {isFull ? "Game is Full" : "Join Game"}
             </Button>
           </DialogTrigger>
           <DialogContent>
