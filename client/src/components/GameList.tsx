@@ -2,10 +2,6 @@ import GameCard from "./GameCard";
 import { type Game, type Player, type Sport } from "@db/schema";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
-import { useAuth } from "@/components/AuthProvider";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
 import type { WeatherInfo } from "../../server/services/weather";
 
 interface GameListProps {
@@ -15,45 +11,18 @@ interface GameListProps {
     weather: WeatherInfo | null;
   }>;
   emptyMessage?: string;
+  onCreateGame?: () => void;
 }
 
-export default function GameList({ games, emptyMessage = "No games found" }: GameListProps) {
-  const { user, signInWithGoogle } = useAuth();
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [, setLocation] = useLocation();
-
-  const handleCreateGame = () => {
-    if (user) {
-      setLocation("/create");
-    } else {
-      setShowAuthDialog(true);
-    }
-  };
-
-  if (games.length === 0) {
+export default function GameList({ games, emptyMessage = "No games found", onCreateGame }: GameListProps) {
+  if (games.length === 0 && onCreateGame) {
     return (
       <div className="text-center py-12 space-y-4">
         <p className="text-muted-foreground">{emptyMessage}</p>
-        <Button variant="outline" size="sm" onClick={handleCreateGame}>
+        <Button variant="outline" size="sm" onClick={onCreateGame}>
           <Plus className="mr-2 h-4 w-4" />
           Create Game
         </Button>
-
-        <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Sign in Required</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-muted-foreground">
-              You need to sign in to create a game. You can still join existing games without signing in.
-            </p>
-            <div className="flex justify-end gap-2 mt-4">
-              <Button onClick={signInWithGoogle}>
-                Sign in with Google
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     );
   }

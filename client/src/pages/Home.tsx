@@ -9,23 +9,24 @@ import { useState } from "react";
 import SportSelect from "@/components/SportSelect";
 import { type Game, type Player, type Sport } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import AuthDialog from "@/components/AuthDialog";
 import { queryKeys } from "@/lib/queryClient";
+import type { WeatherInfo } from "../../../server/services/weather";
 
 interface GameWithDetails extends Game {
-  players: Array<Player & { likelihood: string | null }>;
+  players: Array<Player>;
   sport: Sport;
+  weather: WeatherInfo | null;
 }
 
 export default function Home() {
   const [selectedSport, setSelectedSport] = useState<number | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [, setLocation] = useLocation();
-  const { user, signInWithGoogle } = useAuth();
+  const { user } = useAuth();
 
   const { data: games = [] } = useQuery<GameWithDetails[]>({
     queryKey: queryKeys.games.all,
-    queryFn: () => fetch("/api/games").then(res => res.json()),
   });
 
   const handleCreateGame = () => {
@@ -75,21 +76,11 @@ export default function Home() {
             New Game
           </Button>
 
-          <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Sign in Required</DialogTitle>
-              </DialogHeader>
-              <p className="text-sm text-muted-foreground">
-                You need to sign in to create a game. You can still join existing games without signing in.
-              </p>
-              <div className="flex justify-end gap-2 mt-4">
-                <Button onClick={signInWithGoogle}>
-                  Sign in with Google
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <AuthDialog
+            open={showAuthDialog}
+            onOpenChange={setShowAuthDialog}
+            redirectTo="/create"
+          />
         </div>
       </header>
 
@@ -125,12 +116,14 @@ export default function Home() {
             <GameList 
               games={todayGames}
               emptyMessage="No games scheduled for today. Why not create one?"
+              onCreateGame={handleCreateGame}
             />
           </TabsContent>
           <TabsContent value="upcoming" className="mt-6">
             <GameList 
               games={upcomingGames} 
               emptyMessage="No upcoming games scheduled. Create a new game to get started!"
+              onCreateGame={handleCreateGame}
             />
           </TabsContent>
           <TabsContent value="archive" className="mt-6">

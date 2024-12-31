@@ -10,46 +10,15 @@ import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type NewGame } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import AuthDialog from "@/components/AuthDialog";
 
 export default function CreateGame() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { user, signInWithGoogle } = useAuth();
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-
-  // Effect to close dialog and proceed with game creation when user signs in
-  useEffect(() => {
-    if (user && showAuthDialog) {
-      setShowAuthDialog(false);
-    }
-  }, [user, showAuthDialog]);
-
-  // Redirect to home if not logged in
-  if (!user) {
-    setShowAuthDialog(true);
-    return (
-      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Sign in Required</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            You need to sign in to create a game. You can still join existing games without signing in.
-          </p>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button onClick={() => {
-              signInWithGoogle();
-            }}>
-              Sign in with Google
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+  const { user } = useAuth();
+  const [showAuthDialog, setShowAuthDialog] = useState(!user);
 
   const form = useForm<NewGame>({
     defaultValues: {
@@ -58,8 +27,8 @@ export default function CreateGame() {
       date: "",
       playerThreshold: 10,
       sportId: undefined,
-      creatorId: user.uid,
-      creatorName: user.displayName || "",
+      creatorId: user?.uid || "",
+      creatorName: user?.displayName || "",
     },
   });
 
@@ -94,6 +63,16 @@ export default function CreateGame() {
       });
     },
   });
+
+  if (!user) {
+    return (
+      <AuthDialog
+        open={showAuthDialog}
+        onOpenChange={setShowAuthDialog}
+        redirectTo="/create"
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
