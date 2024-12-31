@@ -40,8 +40,8 @@ export default function GameCard({ game }: GameCardProps) {
     },
   });
 
-  const fillPercentage = (game.players.length / game.playerThreshold) * 100;
-  const isFull = game.players.length >= game.playerThreshold;
+  const progressPercentage = (game.players.length / game.playerThreshold) * 100;
+  const hasMinimumPlayers = game.players.length >= game.playerThreshold;
 
   return (
     <Card className="w-full">
@@ -51,9 +51,9 @@ export default function GameCard({ game }: GameCardProps) {
             <h3 className="text-lg font-semibold">{game.title}</h3>
             <p className="text-sm text-muted-foreground">{game.sport.name}</p>
           </div>
-          {isFull && (
-            <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
-              Full
+          {hasMinimumPlayers && (
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+              Ready to Play!
             </span>
           )}
         </div>
@@ -73,7 +73,9 @@ export default function GameCard({ game }: GameCardProps) {
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center">
                   <Users className="mr-2 h-4 w-4" />
-                  <span>{game.players.length} / {game.playerThreshold} players</span>
+                  <span>
+                    {game.players.length} {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} players needed
+                  </span>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -83,7 +85,10 @@ export default function GameCard({ game }: GameCardProps) {
                   {showPlayers ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </Button>
               </div>
-              <Progress value={fillPercentage} className="h-2" />
+              <Progress 
+                value={progressPercentage} 
+                className={`h-2 ${hasMinimumPlayers ? 'bg-green-100' : ''}`}
+              />
               {showPlayers && game.players.length > 0 && (
                 <div className="mt-2 pl-6 space-y-1">
                   {game.players.map((player, index) => (
@@ -102,10 +107,9 @@ export default function GameCard({ game }: GameCardProps) {
           <DialogTrigger asChild>
             <Button 
               className="w-full" 
-              variant="outline"
-              disabled={isFull}
+              variant={hasMinimumPlayers ? "outline" : "default"}
             >
-              {isFull ? "Game is Full" : "Join Game"}
+              {hasMinimumPlayers ? "Join Game (Has Enough Players)" : "Join Game"}
             </Button>
           </DialogTrigger>
           <DialogContent>
