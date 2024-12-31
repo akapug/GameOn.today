@@ -7,14 +7,13 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 channel = "stable-24_05"
 
 [deployment]
-deploymentTarget = "cloudrun"
+deploymentTarget = "static"
 build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
-ignorePorts = false
+publicDir = "dist/public"
 
-[[ports]]
-localPort = 5000
-externalPort = 80
+[[deployment.rewrites]]
+from = "/*"
+to = "/index.html"
 
 [[deployment.rewrites]]
 from = "/*"
