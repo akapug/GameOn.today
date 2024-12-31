@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, integer, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
@@ -28,6 +28,7 @@ export const players = pgTable("players", {
   email: text("email"),
   phone: text("phone"),
   joinedAt: timestamp("joined_at").defaultNow(),
+  likelihood: decimal("likelihood").notNull().default('1'),
 });
 
 export const gamesRelations = relations(games, ({ one, many }) => ({

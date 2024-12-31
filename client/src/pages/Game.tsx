@@ -31,6 +31,9 @@ import {
 import { useAuth } from "@/components/AuthProvider";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 export default function Game() {
   const [, params] = useRoute("/games/:id");
@@ -43,6 +46,8 @@ export default function Game() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
+  const [joinType, setJoinType] = useState<"yes" | "maybe">("yes");
+  const [likelihood, setLikelihood] = useState(0.5);
 
   const form = useForm<Partial<GameType>>();
 
@@ -70,7 +75,9 @@ export default function Game() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: playerName,
-          email: playerEmail
+          email: playerEmail,
+          joinType: joinType,
+          likelihood: likelihood
         }),
       });
 
@@ -90,6 +97,8 @@ export default function Game() {
       setIsOpen(false);
       setPlayerName("");
       setPlayerEmail("");
+      setJoinType("yes");
+      setLikelihood(0.5);
     },
     onError: (error) => {
       toast({
@@ -203,6 +212,14 @@ export default function Game() {
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`, '_blank');
   };
 
+  const calculateProgress = () => {
+    const total = game.players.reduce((sum, player) => sum + Number(player.likelihood), 0);
+    return (total / game.playerThreshold) * 100;
+  };
+
+  const progressPercentage = calculateProgress();
+  const hasMinimumPlayers = progressPercentage >= 100;
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -221,9 +238,6 @@ export default function Game() {
     return null;
   }
 
-  const progressPercentage = (game.players.length / game.playerThreshold) * 100;
-  const hasMinimumPlayers = game.players.length >= game.playerThreshold;
-  const canDelete = user && game.creatorId === user.uid;
 
   return (
     <div className="min-h-screen bg-background">
@@ -449,7 +463,42 @@ export default function Game() {
                     joinGame.mutate();
                   }} className="space-y-4">
                     <div className="space-y-2">
-                      <label htmlFor="name" className="text-sm font-medium">Name</label>
+                      <Label>Are you joining?</Label>
+                      <RadioGroup
+                        value={joinType}
+                        onValueChange={(value) => setJoinType(value as "yes" | "maybe")}
+                        className="flex flex-col space-y-1"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="yes" />
+                          <Label htmlFor="yes">Yes, I'm in!</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="maybe" id="maybe" />
+                          <Label htmlFor="maybe">Maybe, depends...</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+
+                    {joinType === "maybe" && (
+                      <div className="space-y-2">
+                        <Label>How likely are you to attend?</Label>
+                        <div className="flex items-center space-x-2">
+                          <Slider
+                            min={10}
+                            max={90}
+                            step={10}
+                            value={[likelihood * 100]}
+                            onValueChange={([value]) => setLikelihood(value / 100)}
+                            className="flex-1"
+                          />
+                          <span className="w-12 text-right">{Math.round(likelihood * 100)}%</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Name</Label>
                       <Input
                         id="name"
                         placeholder="Your name"
@@ -458,8 +507,9 @@ export default function Game() {
                         required
                       />
                     </div>
+
                     <div className="space-y-2">
-                      <label htmlFor="email" className="text-sm font-medium">Email (for game notifications)</label>
+                      <Label htmlFor="email">Email (for game notifications)</Label>
                       <Input
                         id="email"
                         type="email"
@@ -468,6 +518,7 @@ export default function Game() {
                         onChange={(e) => setPlayerEmail(e.target.value)}
                       />
                     </div>
+
                     <Button type="submit" className="w-full" disabled={joinGame.isPending}>
                       Join
                     </Button>
