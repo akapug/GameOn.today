@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -76,68 +75,69 @@ export default function Home() {
       <main className="container py-6 px-4">
         <div className="flex items-center justify-between mb-4">
           <Tabs defaultValue="today" className="flex-1">
-            <TabsList className="justify-start">
-              <TabsTrigger value="today" className="relative">
-                Today's Games
-                {todayGames.length > 0 && (
-                  <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
-                    {todayGames.length}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="upcoming" className="relative">
-                Upcoming
-                {upcomingGames.length > 0 && (
-                  <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
-                    {upcomingGames.length}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="archive" className="relative">
-                Archive
-                {archivedGames.length > 0 && (
-                  <span className="ml-2 bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
-                    {archivedGames.length}
-                  </span>
-                )}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <div className="flex items-center gap-4">
-            <div className="w-48">
-              <SportSelect 
-                value={selectedSport || 0} 
-                onChange={(value) => setSelectedSport(value || null)}
-                allowClear
-              />
+            <div className="flex items-center justify-between">
+              <TabsList className="justify-start">
+                <TabsTrigger value="today" className="relative">
+                  Today's Games
+                  {todayGames.length > 0 && (
+                    <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                      {todayGames.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="upcoming" className="relative">
+                  Upcoming
+                  {upcomingGames.length > 0 && (
+                    <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                      {upcomingGames.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="archive" className="relative">
+                  Archive
+                  {archivedGames.length > 0 && (
+                    <span className="ml-2 bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
+                      {archivedGames.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+              <div className="flex items-center gap-4 ml-4">
+                <div className="w-48">
+                  <SportSelect 
+                    value={selectedSport || 0} 
+                    onChange={(value) => setSelectedSport(value || null)}
+                    allowClear
+                  />
+                </div>
+                <Button onClick={handleCreateGame}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Game
+                </Button>
+              </div>
             </div>
-            <Button onClick={handleCreateGame}>
-              <Plus className="mr-2 h-4 w-4" />
-              New Game
-            </Button>
-          </div>
+            <TabsContent value="today" className="mt-6">
+              <GameList 
+                games={todayGames}
+                emptyMessage="No games scheduled for today. Why not create one?"
+                onCreateGame={handleCreateGame}
+              />
+            </TabsContent>
+            <TabsContent value="upcoming" className="mt-6">
+              <GameList 
+                games={upcomingGames} 
+                emptyMessage="No upcoming games scheduled. Create a new game to get started!"
+                onCreateGame={handleCreateGame}
+              />
+            </TabsContent>
+            <TabsContent value="archive" className="mt-6">
+              <GameList 
+                games={archivedGames}
+                emptyMessage="No past games found."
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-
-        <TabsContent value="today" className="mt-6">
-          <GameList 
-            games={todayGames}
-            emptyMessage="No games scheduled for today. Why not create one?"
-            onCreateGame={handleCreateGame}
-          />
-        </TabsContent>
-        <TabsContent value="upcoming" className="mt-6">
-          <GameList 
-            games={upcomingGames} 
-            emptyMessage="No upcoming games scheduled. Create a new game to get started!"
-            onCreateGame={handleCreateGame}
-          />
-        </TabsContent>
-        <TabsContent value="archive" className="mt-6">
-          <GameList 
-            games={archivedGames}
-            emptyMessage="No past games found."
-          />
-        </TabsContent>
       </main>
     </div>
   );
