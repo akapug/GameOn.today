@@ -155,7 +155,8 @@ export default function GameCard({ game }: GameCardProps) {
 
   const calculateProgress = () => {
     const total = game.players.reduce((sum, player) => {
-      const likelihood = player.likelihood ? parseFloat(player.likelihood.toString()) : 1;
+      // Convert decimal string to number for calculation
+      const likelihood = player.likelihood ? Number(player.likelihood) : 1;
       return sum + likelihood;
     }, 0);
     return (total / game.playerThreshold) * 100;
@@ -227,20 +228,24 @@ export default function GameCard({ game }: GameCardProps) {
               />
               {showPlayers && game.players.length > 0 && (
                 <div className="mt-2 pl-6 space-y-1">
-                  {game.players.map((player, index) => (
-                    <p key={player.id} className="text-sm text-muted-foreground">
-                      {index + 1}. {player.name} 
-                      {parseFloat(player.likelihood?.toString() || "1") === 1 ? (
-                        <span className="ml-1 text-xs text-green-600">
-                          Yes!
-                        </span>
-                      ) : (
-                        <span className="ml-1 text-xs text-yellow-600">
-                          Maybe ({Math.round(parseFloat(player.likelihood?.toString() || "0.5") * 100)}%)
-                        </span>
-                      )}
-                    </p>
-                  ))}
+                  {game.players.map((player, index) => {
+                    // Convert likelihood to number for comparison
+                    const playerLikelihood = player.likelihood ? Number(player.likelihood) : 1;
+                    return (
+                      <p key={player.id} className="text-sm text-muted-foreground">
+                        {index + 1}. {player.name} 
+                        {playerLikelihood === 1 ? (
+                          <span className="ml-1 text-xs text-green-600">
+                            Yes!
+                          </span>
+                        ) : (
+                          <span className="ml-1 text-xs text-yellow-600">
+                            Maybe ({Math.round(playerLikelihood * 100)}%)
+                          </span>
+                        )}
+                      </p>
+                    );
+                  })}
                 </div>
               )}
             </div>
