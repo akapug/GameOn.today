@@ -84,7 +84,11 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // Serve static files from dist/public
   app.use(express.static(distPath));
+  
+  // Serve assets specifically
+  app.use('/assets', express.static(path.join(distPath, 'assets')));
 
   // For all other routes, serve index.html
   app.get("*", (_req, res) => {
