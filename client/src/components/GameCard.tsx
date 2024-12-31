@@ -230,13 +230,13 @@ export default function GameCard({ game }: GameCardProps) {
                   {game.players.map((player, index) => (
                     <p key={player.id} className="text-sm text-muted-foreground">
                       {index + 1}. {player.name} 
-                      {Number(player.likelihood) === 1 ? (
+                      {Number(player.likelihood) === 1 || !player.likelihood ? (
                         <span className="ml-1 text-xs text-green-600">
                           Yes!
                         </span>
                       ) : (
                         <span className="ml-1 text-xs text-yellow-600">
-                          Maybe ({(Number(player.likelihood) * 100).toFixed(0)}%)
+                          Maybe ({Math.round(Number(player.likelihood) * 100)}%)
                         </span>
                       )}
                     </p>
