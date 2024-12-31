@@ -10,6 +10,7 @@ import SportSelect from "@/components/SportSelect";
 import { type Game } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { queryKeys } from "@/lib/queryClient";
 
 export default function Home() {
   const [selectedSport, setSelectedSport] = useState<number | null>(null);
@@ -18,7 +19,7 @@ export default function Home() {
   const { user, signInWithGoogle } = useAuth();
 
   const { data: games = [] } = useQuery({
-    queryKey: ["games"],
+    queryKey: queryKeys.games.all,
     queryFn: () => fetch("/api/games").then(res => res.json()),
   });
 
@@ -58,7 +59,7 @@ export default function Home() {
             <h1 className="text-2xl font-bold">Sports Games</h1>
             <div className="w-48">
               <SportSelect 
-                value={selectedSport || 0}
+                value={selectedSport || 0} 
                 onChange={(value) => setSelectedSport(value || null)}
                 allowClear
               />

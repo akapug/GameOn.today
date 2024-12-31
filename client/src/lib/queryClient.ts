@@ -4,7 +4,9 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: async ({ queryKey }) => {
-        const res = await fetch(queryKey[0] as string, {
+        // Handle array query keys properly
+        const endpoint = Array.isArray(queryKey) ? queryKey.join('/') : queryKey;
+        const res = await fetch(endpoint, {
           credentials: "include",
         });
 
@@ -20,7 +22,7 @@ export const queryClient = new QueryClient({
       },
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      staleTime: 0, // Changed from Infinity to 0 to ensure fresh data
       retry: false,
     },
     mutations: {
@@ -28,3 +30,12 @@ export const queryClient = new QueryClient({
     }
   },
 });
+
+// Helper function to generate query keys
+export const queryKeys = {
+  games: {
+    all: ['api', 'games'],
+    single: (id: number) => ['api', 'games', id.toString()],
+  },
+  sports: ['api', 'sports'],
+};

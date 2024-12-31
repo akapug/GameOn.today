@@ -31,6 +31,7 @@ import { Link } from "wouter";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { queryKeys } from "@/lib/queryClient";
 
 interface GameCardProps {
   game: Game & { players: Player[]; sport: Sport };
@@ -67,7 +68,9 @@ export default function GameCard({ game }: GameCardProps) {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["games"] });
+      // Invalidate both the individual game and the games list
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.id) });
       toast({
         title: "Success",
         description: "You've successfully joined the game!",
@@ -98,7 +101,8 @@ export default function GameCard({ game }: GameCardProps) {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["games"] });
+      // Only need to invalidate the games list since the individual game will be gone
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       toast({
         title: "Success",
         description: "Game deleted successfully",
@@ -152,7 +156,6 @@ export default function GameCard({ game }: GameCardProps) {
 
   const calculateProgress = () => {
     const total = game.players.reduce((sum, player) => {
-      // Convert decimal string to number for calculation
       const likelihood = player.likelihood ? Number(player.likelihood) : 1;
       return sum + likelihood;
     }, 0);
@@ -214,6 +217,20 @@ export default function GameCard({ game }: GameCardProps) {
                 value={progressPercentage}
                 className={`h-2 ${hasMinimumPlayers ? 'bg-green-100' : ''}`}
               />
+              <div className="pl-6 space-y-1">
+                {game.players.map((player, index) => (
+                  <p key={player.id} className="text-sm text-muted-foreground">
+                    {index + 1}. {player.name}
+                    {(!player.likelihood || Number(player.likelihood) === 1) ? (
+                      <span className="ml-1 text-xs text-green-600">Yes!</span>
+                    ) : (
+                      <span className="ml-1 text-xs text-yellow-600">
+                        Maybe ({Math.round(Number(player.likelihood) * 100)}%)
+                      </span>
+                    )}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
         </div>

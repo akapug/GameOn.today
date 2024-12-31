@@ -34,6 +34,7 @@ import { useForm } from "react-hook-form";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { queryKeys } from "@/lib/queryClient";
 
 export default function Game() {
   const [, params] = useRoute("/games/:id");
@@ -52,7 +53,7 @@ export default function Game() {
   const form = useForm<Partial<GameType>>();
 
   const { data: game, isLoading, error } = useQuery<GameType & { players: Player[]; sport: Sport }>({
-    queryKey: [`/api/games/${params?.id}`],
+    queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : null,
     enabled: !!params?.id,
   });
 
@@ -88,7 +89,11 @@ export default function Game() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/games/${params?.id}`] });
+      // Invalidate both the individual game and the games list
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+      queryClient.invalidateQueries({ 
+        queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined 
+      });
       toast({
         title: "Success",
         description: "You've successfully joined the game!",
@@ -127,7 +132,7 @@ export default function Game() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/games/${params?.id}`] });
+      queryClient.invalidateQueries({ queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined });
       toast({
         title: "Success",
         description: "Game updated successfully",
@@ -158,7 +163,7 @@ export default function Game() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["games"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       toast({
         title: "Success",
         description: "Game deleted successfully",
