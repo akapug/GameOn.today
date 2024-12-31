@@ -103,7 +103,7 @@ app.use((req, res, next) => {
     app.get("*", (req, res, next) => {
       // Don't handle API routes here
       if (req.path.startsWith("/api")) return next();
-      res.sendFile(path.join(__dirname, "public", "index.html"));
+      res.sendFile(path.join(__dirname, "..", "public", "index.html"));
     });
   }
 

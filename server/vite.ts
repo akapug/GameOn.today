@@ -92,6 +92,7 @@ export function serveStatic(app: Express) {
 
   // For all other routes, serve index.html
   app.get("*", (_req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
+    const indexPath = path.resolve(__dirname, "..", "client", "index.html");
+    res.sendFile(indexPath);
   });
 }
