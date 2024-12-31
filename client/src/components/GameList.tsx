@@ -1,5 +1,5 @@
 import GameCard from "./GameCard";
-import { type Game } from "@db/schema";
+import { type Game, type Player, type Sport } from "@db/schema";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
@@ -8,7 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useState } from "react";
 
 interface GameListProps {
-  games: (Game & { players: any[]; sport: any; })[];
+  games: Array<Game & { 
+    players: Array<Player & { likelihood: string | null }>;
+    sport: Sport;
+  }>;
   emptyMessage?: string;
 }
 

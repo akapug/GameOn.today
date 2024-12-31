@@ -7,10 +7,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
 import { useState } from "react";
 import SportSelect from "@/components/SportSelect";
-import { type Game } from "@db/schema";
+import { type Game, type Player, type Sport } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { queryKeys } from "@/lib/queryClient";
+
+interface GameWithDetails extends Game {
+  players: Array<Player & { likelihood: string | null }>;
+  sport: Sport;
+}
 
 export default function Home() {
   const [selectedSport, setSelectedSport] = useState<number | null>(null);
@@ -18,7 +23,7 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { user, signInWithGoogle } = useAuth();
 
-  const { data: games = [] } = useQuery({
+  const { data: games = [] } = useQuery<GameWithDetails[]>({
     queryKey: queryKeys.games.all,
     queryFn: () => fetch("/api/games").then(res => res.json()),
   });
@@ -34,7 +39,7 @@ export default function Home() {
   const now = startOfDay(new Date());
 
   // Filter games by selected sport if one is selected
-  const filterGamesBySport = (games: Game[]) => {
+  const filterGamesBySport = (games: GameWithDetails[]) => {
     if (!selectedSport) return games;
     return games.filter(game => game.sportId === selectedSport);
   };
