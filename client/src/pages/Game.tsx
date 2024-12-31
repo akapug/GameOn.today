@@ -441,13 +441,13 @@ export default function Game() {
                     {game.players?.map((player, index) => (
                       <p key={player.id} className="text-sm text-muted-foreground">
                         {index + 1}. {player.name}
-                        {Number(player.likelihood) === 1 ? (
+                        {player.likelihood && Number(player.likelihood) === 1 ? (
                           <span className="ml-1 text-xs text-green-600">
                             Yes!
                           </span>
                         ) : (
                           <span className="ml-1 text-xs text-yellow-600">
-                            Maybe ({Math.round(Number(player.likelihood) * 100)}%)
+                            Maybe ({Math.round(Number(player.likelihood || 0) * 100)}%)
                           </span>
                         )}
                       </p>
