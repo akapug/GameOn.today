@@ -68,7 +68,6 @@ export default function GameCard({ game }: GameCardProps) {
       return res.json();
     },
     onSuccess: () => {
-      // Invalidate both the individual game and the games list
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.id) });
       toast({
@@ -101,7 +100,6 @@ export default function GameCard({ game }: GameCardProps) {
       return res.json();
     },
     onSuccess: () => {
-      // Only need to invalidate the games list since the individual game will be gone
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       toast({
         title: "Success",
@@ -218,18 +216,25 @@ export default function GameCard({ game }: GameCardProps) {
                 className={`h-2 ${hasMinimumPlayers ? 'bg-green-100' : ''}`}
               />
               <div className="pl-6 space-y-1">
-                {game.players.map((player, index) => (
-                  <p key={player.id} className="text-sm text-muted-foreground">
-                    {index + 1}. {player.name}
-                    {(!player.likelihood || Number(player.likelihood) === 1) ? (
-                      <span className="ml-1 text-xs text-green-600">Yes!</span>
-                    ) : (
-                      <span className="ml-1 text-xs text-yellow-600">
-                        Maybe ({Math.round(Number(player.likelihood) * 100)}%)
-                      </span>
-                    )}
-                  </p>
-                ))}
+                {game.players.map((player, index) => {
+                  const hasLikelihood = player.likelihood !== null && player.likelihood !== undefined;
+                  const isFullyCommitted = !hasLikelihood || Number(player.likelihood) === 1;
+
+                  return (
+                    <p key={player.id} className="text-sm text-muted-foreground">
+                      {index + 1}. {player.name}
+                      {isFullyCommitted ? (
+                        <span className="ml-1 text-xs text-green-600">
+                          Yes!
+                        </span>
+                      ) : (
+                        <span className="ml-1 text-xs text-yellow-600">
+                          Maybe ({Math.round(Number(player.likelihood) * 100)}%)
+                        </span>
+                      )}
+                    </p>
+                  );
+                })}
               </div>
             </div>
           </div>
