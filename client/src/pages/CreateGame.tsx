@@ -6,15 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
 import SportSelect from "@/components/SportSelect";
-import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type NewGame } from "@db/schema";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function CreateGame() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  // Redirect to home if not logged in
+  if (!user) {
+    navigate("/");
+    return null;
+  }
 
   const form = useForm<NewGame>({
     defaultValues: {
@@ -23,6 +30,8 @@ export default function CreateGame() {
       date: "",
       playerThreshold: 10,
       sportId: undefined,
+      creatorId: user.uid,
+      creatorName: user.displayName || "",
     },
   });
 
@@ -41,9 +50,7 @@ export default function CreateGame() {
 
       return res.json();
     },
-    onSuccess: (data) => {
-      localStorage.setItem(`game-${data.id}-token`, data.deleteToken);
-
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["games"] });
       toast({
         title: "Success",

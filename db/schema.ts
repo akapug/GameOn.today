@@ -17,7 +17,8 @@ export const games = pgTable("games", {
   date: timestamp("date").notNull(),
   playerThreshold: integer("player_threshold").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-  deleteToken: text("delete_token").notNull(),
+  creatorId: text("creator_id").notNull(), // Firebase Auth UID
+  creatorName: text("creator_name").notNull(),
 });
 
 export const players = pgTable("players", {

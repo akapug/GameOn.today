@@ -11,7 +11,8 @@ import {
   Facebook,
   Twitter,
   MessageSquare,
-  Trash2
+  Trash2,
+  User
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -27,14 +28,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type Game, type Sport, type Player } from "@db/schema";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthProvider";
 
 interface GameCardProps {
   game: Game & { players: Player[]; sport: Sport };
 }
 
 export default function GameCard({ game }: GameCardProps) {
-  const [playerName, setPlayerName] = useState("");
-  const [playerEmail, setPlayerEmail] = useState("");
+  const { user } = useAuth();
+  const [playerName, setPlayerName] = useState(user?.displayName || "");
+  const [playerEmail, setPlayerEmail] = useState(user?.email || "");
   const [isOpen, setIsOpen] = useState(false);
   const [showPlayers, setShowPlayers] = useState(false);
   const queryClient = useQueryClient();
@@ -66,8 +69,6 @@ export default function GameCard({ game }: GameCardProps) {
         description: "You've successfully joined the game!",
       });
       setIsOpen(false);
-      setPlayerName("");
-      setPlayerEmail("");
     },
     onError: (error) => {
       toast({
@@ -80,13 +81,9 @@ export default function GameCard({ game }: GameCardProps) {
 
   const deleteGame = useMutation({
     mutationFn: async () => {
-      const deleteToken = localStorage.getItem(`game-${game.id}-token`);
-      if (!deleteToken) throw new Error("You don't have permission to delete this game");
-
       const res = await fetch(`/api/games/${game.id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deleteToken }),
       });
 
       if (!res.ok) {
@@ -98,7 +95,6 @@ export default function GameCard({ game }: GameCardProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["games"] });
-      localStorage.removeItem(`game-${game.id}-token`);
       toast({
         title: "Success",
         description: "Game deleted successfully",
@@ -148,7 +144,7 @@ export default function GameCard({ game }: GameCardProps) {
 
   const progressPercentage = (game.players.length / game.playerThreshold) * 100;
   const hasMinimumPlayers = game.players.length >= game.playerThreshold;
-  const canDelete = Boolean(localStorage.getItem(`game-${game.id}-token`));
+  const canDelete = user && game.creatorId === user.uid;
 
   return (
     <Card className="w-full">
@@ -156,7 +152,14 @@ export default function GameCard({ game }: GameCardProps) {
         <div className="flex justify-between items-start">
           <div>
             <h3 className="text-lg font-semibold">{game.title}</h3>
-            <p className="text-sm text-muted-foreground">{game.sport.name}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">{game.sport.name}</p>
+              <span className="text-sm text-muted-foreground">·</span>
+              <p className="text-sm text-muted-foreground flex items-center">
+                <User className="mr-1 h-3 w-3" />
+                {game.creatorName}
+              </p>
+            </div>
           </div>
           {hasMinimumPlayers && (
             <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
