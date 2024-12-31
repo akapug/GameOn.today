@@ -4,12 +4,30 @@ import { type Game as GameType, type Player, type Sport } from "@db/schema";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, ArrowLeft } from "lucide-react";
+import { 
+  Calendar, 
+  MapPin, 
+  Users, 
+  ArrowLeft,
+  Share2,
+  LinkIcon,
+  Facebook,
+  Twitter,
+  MessageSquare,
+  Trash2 
+} from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function Game() {
   const [, params] = useRoute("/games/:id");
@@ -17,8 +35,10 @@ export default function Game() {
   const [playerName, setPlayerName] = useState("");
   const [playerEmail, setPlayerEmail] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const { data: game, isLoading, error } = useQuery<GameType & { players: Player[]; sport: Sport }>({
     queryKey: [`/api/games/${params?.id}`],
@@ -62,6 +82,70 @@ export default function Game() {
     },
   });
 
+  const deleteGame = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/games/${params?.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to delete game");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["games"] });
+      toast({
+        title: "Success",
+        description: "Game deleted successfully",
+      });
+      setLocation("/");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const shareGame = async (method: 'copy' | 'facebook' | 'twitter' | 'sms') => {
+    const gameUrl = `${window.location.origin}/games/${params?.id}`;
+    const text = `Join our ${game?.sport.name} game: ${game?.title} at ${game?.location}`;
+
+    switch (method) {
+      case 'copy':
+        await navigator.clipboard.writeText(gameUrl);
+        toast({
+          title: "Link Copied",
+          description: "Game link copied to clipboard!",
+        });
+        break;
+      case 'facebook':
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}`,
+          '_blank'
+        );
+        break;
+      case 'twitter':
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(gameUrl)}&text=${encodeURIComponent(text)}`,
+          '_blank'
+        );
+        break;
+      case 'sms':
+        window.open(
+          `sms:?body=${encodeURIComponent(`${text}\n${gameUrl}`)}`,
+          '_blank'
+        );
+        break;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -82,16 +166,78 @@ export default function Game() {
 
   const progressPercentage = (game.players.length / game.playerThreshold) * 100;
   const hasMinimumPlayers = game.players.length >= game.playerThreshold;
+  const canDelete = user && game.creatorId === user.uid;
 
   return (
     <div className="min-h-screen bg-background">
       <header className="p-4 border-b">
-        <div className="container flex items-center">
-          <Button variant="ghost" onClick={() => setLocation("/")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold ml-4">{game.title}</h1>
+        <div className="container flex items-center justify-between">
+          <div className="flex items-center">
+            <Button variant="ghost" onClick={() => setLocation("/")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            <h1 className="text-2xl font-bold ml-4">{game.title}</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => shareGame('copy')}>
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  Copy Link
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => shareGame('facebook')}>
+                  <Facebook className="mr-2 h-4 w-4" />
+                  Share on Facebook
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => shareGame('twitter')}>
+                  <Twitter className="mr-2 h-4 w-4" />
+                  Share on Twitter
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => shareGame('sms')}>
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Share via SMS
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {canDelete && (
+              <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon" className="text-red-600 hover:text-red-700">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Delete Game</DialogTitle>
+                  </DialogHeader>
+                  <p className="text-sm text-muted-foreground">
+                    Are you sure you want to delete this game? This action cannot be undone.
+                  </p>
+                  <div className="flex justify-end gap-2 mt-4">
+                    <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        deleteGame.mutate();
+                        setShowDeleteConfirm(false);
+                      }}
+                      disabled={deleteGame.isPending}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
         </div>
       </header>
 
