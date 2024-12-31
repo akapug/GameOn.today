@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === "production") {
   });
 
   // Serve static files from the dist/public directory with proper MIME types
-  app.use(express.static(path.join(__dirname, "public"), {
+  app.use(express.static(path.join(__dirname, "..", "public"), {
     maxAge: '1y',
     etag: true,
     setHeaders: (res, filepath) => {
@@ -90,7 +90,7 @@ app.use((req, res, next) => {
 
     // For non-API routes in production serve index.html
     if (isProd) {
-      return res.sendFile(path.join(__dirname, "public", "index.html"));
+      return res.sendFile(path.join(__dirname, "..", "public", "index.html"));
     }
 
     res.status(status).send(message);
