@@ -86,8 +86,13 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  // Serve static assets first
+  app.get(/\.(js|css|ico|png|jpg|jpeg|svg|json)$/, (req, res) => {
+    res.sendFile(path.join(distPath, req.path));
+  });
+
+  // For all other routes, serve index.html
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
   });
 }
