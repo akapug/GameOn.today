@@ -4,10 +4,8 @@ import {
   Calendar,
   MapPin,
   Users,
-  ChevronDown,
-  ChevronUp,
   Share2,
-  Link as LinkIcon,
+  LinkIcon,
   Facebook,
   Twitter,
   MessageSquare,
@@ -45,7 +43,6 @@ export default function GameCard({ game }: GameCardProps) {
   const [joinType, setJoinType] = useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = useState(0.5);
   const [isOpen, setIsOpen] = useState(false);
-  const [showPlayers, setShowPlayers] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -207,13 +204,11 @@ export default function GameCard({ game }: GameCardProps) {
               </button>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center">
-                  <Users className="mr-2 h-4 w-4" />
-                  <span>
-                    {game.players.length} players {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} needed
-                  </span>
-                </div>
+              <div className="flex items-center text-sm">
+                <Users className="mr-2 h-4 w-4" />
+                <span>
+                  {game.players.length} players {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} needed
+                </span>
               </div>
               <Progress
                 value={progressPercentage}
