@@ -99,12 +99,20 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
-    // Production static file serving - catch-all route for SPA
-    app.get("*", (req, res, next) => {
-      // Don't handle API routes here
-      if (req.path.startsWith("/api")) return next();
-      res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+    // Serve static files from the client directory in development
+  app.use(express.static(path.join(__dirname, "..", "client")));
+  
+  // Production static file serving - catch-all route for SPA
+  app.get("*", (req, res, next) => {
+    // Don't handle API routes here
+    if (req.path.startsWith("/api")) return next();
+    res.sendFile(path.join(__dirname, "..", "client", "index.html"), {}, (err) => {
+      if (err) {
+        console.error("Error sending file:", err);
+        next(err);
+      }
     });
+  });
   }
 
   const PORT = process.env.PORT || 5000;
