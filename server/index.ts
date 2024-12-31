@@ -15,17 +15,24 @@ if (process.env.NODE_ENV === "production") {
     next();
   });
 
-  // Serve static files from the dist/public directory
+  // Serve static files from the dist/public directory with proper MIME types
   app.use(express.static(path.join(__dirname, "public"), {
     maxAge: '1y',
     etag: true,
+    setHeaders: (res, filepath) => {
+      // Set proper MIME types for Vite assets
+      if (filepath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (filepath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+    }
   }));
 }
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -88,10 +95,10 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
-    // Production static file serving
-    app.get("*", (req, res) => {
+    // Production static file serving - catch-all route for SPA
+    app.get("*", (req, res, next) => {
       // Don't handle API routes here
-      if (req.path.startsWith("/api")) return;
+      if (req.path.startsWith("/api")) return next();
       res.sendFile(path.join(__dirname, "public", "index.html"));
     });
   }
