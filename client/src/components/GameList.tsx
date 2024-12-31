@@ -2,9 +2,9 @@ import GameCard from "./GameCard";
 import { type Game } from "@db/schema";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import { useAuth } from "@/components/AuthProvider";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 
 interface GameListProps {
@@ -15,10 +15,11 @@ interface GameListProps {
 export default function GameList({ games, emptyMessage = "No games found" }: GameListProps) {
   const { user, signInWithGoogle } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [, setLocation] = useLocation();
 
   const handleCreateGame = () => {
     if (user) {
-      window.location.href = "/create";
+      setLocation("/create");
     } else {
       setShowAuthDialog(true);
     }

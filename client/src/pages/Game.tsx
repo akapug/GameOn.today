@@ -440,18 +440,20 @@ export default function Game() {
                   </div>
                   <div className="pl-6 space-y-1">
                     {game.players?.map((player, index) => {
-                      // Convert likelihood to number for comparison
-                      const playerLikelihood = player.likelihood ? Number(player.likelihood) : 1;
+                      // Handle null/undefined case first
+                      const hasLikelihood = player.likelihood !== null && player.likelihood !== undefined;
+                      const isFullyCommitted = !hasLikelihood || Number(player.likelihood) === 1;
+
                       return (
                         <p key={player.id} className="text-sm text-muted-foreground">
                           {index + 1}. {player.name}
-                          {playerLikelihood === 1 ? (
+                          {isFullyCommitted ? (
                             <span className="ml-1 text-xs text-green-600">
                               Yes!
                             </span>
                           ) : (
                             <span className="ml-1 text-xs text-yellow-600">
-                              Maybe ({Math.round(playerLikelihood * 100)}%)
+                              Maybe ({Math.round(Number(player.likelihood) * 100)}%)
                             </span>
                           )}
                         </p>
