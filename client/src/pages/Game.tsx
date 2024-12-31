@@ -18,7 +18,7 @@ import {
   Edit2
 } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -31,7 +31,6 @@ import {
 import { useAuth } from "@/components/AuthProvider";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import SportSelect from "@/components/SportSelect";
 
 export default function Game() {
   const [, params] = useRoute("/games/:id");
@@ -44,19 +43,25 @@ export default function Game() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
-  const form = useForm<Partial<GameType>>({
-    defaultValues: {
-      title: game?.title,
-      location: game?.location,
-      date: game?.date,
-      playerThreshold: game?.playerThreshold,
-    },
-  });
+
+  const form = useForm<Partial<GameType>>();
 
   const { data: game, isLoading, error } = useQuery<GameType & { players: Player[]; sport: Sport }>({
     queryKey: [`/api/games/${params?.id}`],
     enabled: !!params?.id,
   });
+
+  // Update form values when game data is available
+  useEffect(() => {
+    if (game) {
+      form.reset({
+        title: game.title,
+        location: game.location,
+        date: game.date,
+        playerThreshold: game.playerThreshold,
+      });
+    }
+  }, [game, form]);
 
   const joinGame = useMutation({
     mutationFn: async () => {
