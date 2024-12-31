@@ -232,7 +232,7 @@ export default function GameCard({ game }: GameCardProps) {
                       {index + 1}. {player.name}
                       {player.likelihood !== null && Number(player.likelihood) < 1 && (
                         <span className="ml-1 text-xs">
-                          ({(Number(player.likelihood) * 100).toFixed(0)}% likely)
+                          (Maybe - {(Number(player.likelihood) * 100).toFixed(0)}% likely)
                         </span>
                       )}
                     </p>
