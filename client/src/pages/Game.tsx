@@ -231,7 +231,7 @@ export default function Game() {
 
   const calculateProgress = () => {
     const total = game.players.reduce((sum, player) => {
-      const likelihood = player.likelihood ? Number(player.likelihood) : 1;
+      const likelihood = player.likelihood ? parseFloat(player.likelihood.toString()) : 1;
       return sum + likelihood;
     }, 0);
     return (total / game.playerThreshold) * 100;
@@ -441,7 +441,7 @@ export default function Game() {
                     {game.players?.map((player, index) => (
                       <p key={player.id} className="text-sm text-muted-foreground">
                         {index + 1}. {player.name}
-                        {parseFloat(player.likelihood?.toString() || "1") >= 0.99 ? (
+                        {parseFloat(player.likelihood?.toString() || "1") === 1 ? (
                           <span className="ml-1 text-xs text-green-600">
                             Yes!
                           </span>
