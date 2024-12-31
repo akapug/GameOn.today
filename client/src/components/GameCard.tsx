@@ -207,7 +207,7 @@ export default function GameCard({ game }: GameCardProps) {
                 <div className="flex items-center">
                   <Users className="mr-2 h-4 w-4" />
                   <span>
-                    {game.players.length} {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} players needed
+                    {progressPercentage.toFixed(1)}% {hasMinimumPlayers ? '✓' : '/'} {game.playerThreshold} needed
                   </span>
                 </div>
                 <Button
@@ -227,6 +227,11 @@ export default function GameCard({ game }: GameCardProps) {
                   {game.players.map((player, index) => (
                     <p key={player.id} className="text-sm text-muted-foreground">
                       {index + 1}. {player.name}
+                      {Number(player.likelihood) < 1 && (
+                        <span className="ml-1 text-xs">
+                          ({Math.round(Number(player.likelihood) * 100)}% likely)
+                        </span>
+                      )}
                     </p>
                   ))}
                 </div>
@@ -342,6 +347,7 @@ export default function GameCard({ game }: GameCardProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
         {canDelete && (
           <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
             <DialogTrigger asChild>
