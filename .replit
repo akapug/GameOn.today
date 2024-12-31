@@ -9,16 +9,14 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "static"
 build = ["npm", "run", "build"]
-publicDir = "dist/public"
-hostingPath = "public"
-
-[[deployment.rewrites]]
-from = "/assets/*"
-to = "/assets/*"
+publicDir = "dist"
 
 [[deployment.rewrites]]
 from = "/*"
 to = "/index.html"
 
-[workflows]
-runButton = "Project"
+[languages.javascript]
+pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
+
+[languages.javascript.languageServer]
+start = ["typescript-language-server", "--stdio"]
