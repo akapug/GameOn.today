@@ -12,7 +12,7 @@ export default function Game() {
   const [, setLocation] = useLocation();
 
   const { data: game, isLoading, error } = useQuery<GameType & { players: Player[]; sport: Sport }>({
-    queryKey: ["/api/games", params?.id],
+    queryKey: [`/api/games/${params?.id}`],
     enabled: !!params?.id,
   });
 
@@ -24,7 +24,7 @@ export default function Game() {
     );
   }
 
-  if (error || !game) {
+  if (error || !game || !game.players) {
     setLocation("/");
     return null;
   }
