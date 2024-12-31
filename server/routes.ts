@@ -17,6 +17,49 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+async function sendGameOnNotification(gameId: number) {
+  const game = await db.query.games.findFirst({
+    where: eq(games.id, gameId),
+    with: {
+      sport: true,
+      players: {
+        columns: {
+          email: true,
+          name: true,
+        }
+      }
+    },
+  });
+
+  if (!game) return;
+
+  // Filter out players without email
+  const playersWithEmail = game.players.filter(player => player.email);
+
+  // Send email to all players who provided email
+  const emailPromises = playersWithEmail.map(player =>
+    transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: player.email,
+      subject: `Game On! ${game.title} has enough players!`,
+      html: `
+        <h2>Great news, ${player.name}!</h2>
+        <p>The game you joined has reached its minimum player threshold and is now confirmed to happen!</p>
+        <p>Game Details:</p>
+        <ul>
+          <li><strong>Sport:</strong> ${game.sport.name}</li>
+          <li><strong>Title:</strong> ${game.title}</li>
+          <li><strong>Location:</strong> ${game.location}</li>
+          <li><strong>Date:</strong> ${new Date(game.date).toLocaleString()}</li>
+        </ul>
+        <p>See you at the game!</p>
+      `,
+    })
+  );
+
+  await Promise.all(emailPromises).catch(console.error);
+}
+
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
 
@@ -101,7 +144,7 @@ export function registerRoutes(app: Express): Server {
       const game = await db.query.games.findFirst({
         where: eq(games.id, parseInt(id, 10)),
         with: {
-          sport: true,
+          players: true,
         },
       });
 
@@ -115,29 +158,10 @@ export function registerRoutes(app: Express): Server {
         email,
       }).returning();
 
-      // Send confirmation email if email is provided
-      if (email) {
-        try {
-          await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: email,
-            subject: `You've joined: ${game.title}`,
-            html: `
-              <h2>Thanks for joining the game!</h2>
-              <p>Game Details:</p>
-              <ul>
-                <li><strong>Sport:</strong> ${game.sport.name}</li>
-                <li><strong>Title:</strong> ${game.title}</li>
-                <li><strong>Location:</strong> ${game.location}</li>
-                <li><strong>Date:</strong> ${new Date(game.date).toLocaleString()}</li>
-              </ul>
-              <p>We'll notify you when the game reaches its minimum player threshold!</p>
-            `,
-          });
-        } catch (emailError) {
-          console.error("Failed to send email:", emailError);
-          // Don't fail the join operation if email fails
-        }
+      // Check if adding this player reaches the threshold
+      if (game.players.length + 1 === game.playerThreshold) {
+        // Send notifications to all players
+        await sendGameOnNotification(game.id);
       }
 
       res.json(newPlayer[0]);
