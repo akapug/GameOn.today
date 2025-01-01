@@ -13,6 +13,19 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Enable CORS for development
+if (process.env.NODE_ENV !== "production") {
+  app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(200);
+    }
+    next();
+  });
+}
+
 // Logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
@@ -27,18 +40,16 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
+    let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+    if (capturedJsonResponse) {
+      logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
     }
+
+    if (logLine.length > 80) {
+      logLine = logLine.slice(0, 79) + "…";
+    }
+
+    log(logLine);
   });
 
   next();
@@ -66,10 +77,15 @@ app.use((req, res, next) => {
 
   // Development: Use Vite's dev server
   if (process.env.NODE_ENV !== "production") {
+    log("Starting development server with Vite...");
     await setupVite(app, server);
   } else {
     // Production: Serve static files from dist/public
-    app.use(express.static(path.join(__dirname, "..", "dist", "public"), {
+    log("Starting production server...");
+    const staticPath = path.join(__dirname, "..", "dist", "public");
+    log(`Serving static files from: ${staticPath}`);
+
+    app.use(express.static(staticPath, {
       maxAge: '1y',
       etag: true
     }));
@@ -77,7 +93,7 @@ app.use((req, res, next) => {
     // SPA fallback - serve index.html for all non-API routes
     app.get("*", (req, res, next) => {
       if (req.path.startsWith("/api")) return next();
-      res.sendFile(path.join(__dirname, "..", "dist", "public", "index.html"));
+      res.sendFile(path.join(staticPath, "index.html"));
     });
   }
 
