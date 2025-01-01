@@ -26,7 +26,7 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-// Logging middleware
+// Enhanced logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -40,16 +40,12 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-    if (capturedJsonResponse) {
-      logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-    }
+    const logLine = `${req.method} ${path} ${res.statusCode} ${duration}ms`;
 
-    if (logLine.length > 80) {
-      logLine = logLine.slice(0, 79) + "…";
+    // Log all requests in development, only API requests in production
+    if (process.env.NODE_ENV !== "production" || path.startsWith("/api")) {
+      log(`${logLine}${capturedJsonResponse ? ` :: ${JSON.stringify(capturedJsonResponse)}` : ''}`);
     }
-
-    log(logLine);
   });
 
   next();
@@ -59,7 +55,7 @@ app.use((req, res, next) => {
   // Register API routes first
   const server = registerRoutes(app);
 
-  // Error handling middleware
+  // Error handling middleware with environment-specific responses
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);
     const isProd = process.env.NODE_ENV === "production";
