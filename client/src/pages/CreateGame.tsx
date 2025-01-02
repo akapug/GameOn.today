@@ -3,9 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SportSelect from "@/components/SportSelect";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -13,20 +12,8 @@ import { type NewGame } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import { useState } from "react";
 import AuthDialog from "@/components/AuthDialog";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-
-// Form validation schema
-const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  location: z.string().min(1, "Location is required"),
-  date: z.string().min(1, "Date is required"),
-  timezone: z.string(),
-  playerThreshold: z.number().min(2, "Must have at least 2 players"),
-  sportId: z.number({ required_error: "Please select a sport" }),
-  creatorId: z.string(),
-  creatorName: z.string(),
-});
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function CreateGame() {
   const [, navigate] = useLocation();
@@ -35,24 +22,25 @@ export default function CreateGame() {
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  console.log('[CreateGame] Component mounted, user:', user?.uid);
+
+  const form = useForm<NewGame>({
     defaultValues: {
+      sportId: undefined,
       title: "",
       location: "",
-      date: "",
+      date: new Date().toISOString().slice(0, 16),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      playerThreshold: 10,
-      sportId: undefined,
+      playerThreshold: 2,
+      notes: "",  // Optional field
       creatorId: user?.uid || "",
-      creatorName: user?.displayName || "",
+      creatorName: user?.displayName || ""
     }
   });
 
   const createGame = useMutation({
     mutationFn: async (values: NewGame) => {
-      console.log('Mutation started with values:', values);
-
+      console.log('[CreateGame] Mutation started with values:', values);
       const res = await fetch("/api/games", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -61,15 +49,16 @@ export default function CreateGame() {
 
       if (!res.ok) {
         const errorText = await res.text();
-        console.error('Game creation failed:', errorText);
+        console.error('[CreateGame] API error:', errorText);
         throw new Error(errorText || "Failed to create game");
       }
 
-      const data = await res.json();
-      console.log('Game created successfully:', data);
-      return data;
+      const result = await res.json();
+      console.log('[CreateGame] API success:', result);
+      return result;
     },
     onSuccess: () => {
+      console.log('[CreateGame] Mutation succeeded, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ["games"] });
       toast({
         title: "Success",
@@ -78,7 +67,7 @@ export default function CreateGame() {
       navigate("/");
     },
     onError: (error) => {
-      console.error('Game creation error:', error);
+      console.error('[CreateGame] Mutation error:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create game",
@@ -87,16 +76,11 @@ export default function CreateGame() {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log('Form submitted with data:', data);
+  const handleFormSubmit = (data: NewGame) => {
+    console.log('[CreateGame] Form submitted with data:', data);
 
     if (!user?.uid) {
-      console.error('No user found during submission');
-      toast({
-        title: "Error",
-        description: "You must be logged in to create a game",
-        variant: "destructive",
-      });
+      console.error('[CreateGame] No user found during submission');
       return;
     }
 
@@ -110,15 +94,10 @@ export default function CreateGame() {
         creatorName: user.displayName || ''
       };
 
-      console.log('Submitting game data:', gameData);
-      await createGame.mutateAsync(gameData);
+      console.log('[CreateGame] Processed game data:', gameData);
+      createGame.mutate(gameData);
     } catch (error) {
-      console.error('Form submission error:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create game",
-        variant: "destructive",
-      });
+      console.error('[CreateGame] Error processing form data:', error);
     }
   };
 
@@ -148,18 +127,23 @@ export default function CreateGame() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form 
+                onSubmit={(e) => {
+                  console.log('[CreateGame] Raw form submit event triggered');
+                  e.preventDefault();
+                  form.handleSubmit(handleFormSubmit)(e);
+                }}
+                className="space-y-6"
+              >
                 <FormField
                   control={form.control}
                   name="sportId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sport</FormLabel>
-                      <SportSelect 
-                        value={field.value?.toString()} 
-                        onValueChange={(value) => field.onChange(Number(value))}
-                      />
-                      <FormMessage />
+                      <FormLabel>Sport *</FormLabel>
+                      <FormControl>
+                        <SportSelect {...field} />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
@@ -169,11 +153,10 @@ export default function CreateGame() {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title</FormLabel>
+                      <FormLabel>Title *</FormLabel>
                       <FormControl>
                         <Input placeholder="Game title..." {...field} />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -183,11 +166,10 @@ export default function CreateGame() {
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location</FormLabel>
+                      <FormLabel>Location *</FormLabel>
                       <FormControl>
                         <Input placeholder="Game location..." {...field} />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -197,11 +179,13 @@ export default function CreateGame() {
                   name="date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date & Time</FormLabel>
+                      <FormLabel>Date & Time *</FormLabel>
                       <FormControl>
-                        <Input type="datetime-local" {...field} />
+                        <Input 
+                          type="datetime-local" 
+                          {...field} 
+                        />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -211,8 +195,12 @@ export default function CreateGame() {
                   name="timezone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Timezone</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <FormLabel>Timezone *</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value}
+                        defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select timezone" />
                         </SelectTrigger>
@@ -224,7 +212,26 @@ export default function CreateGame() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notes</FormLabel>
+                      <FormDescription>
+                        Optional: Add any additional details about the game
+                      </FormDescription>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Add any additional details about the game..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
@@ -234,7 +241,7 @@ export default function CreateGame() {
                   name="playerThreshold"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Player Threshold</FormLabel>
+                      <FormLabel>Player Threshold *</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -243,15 +250,19 @@ export default function CreateGame() {
                           onChange={(e) => field.onChange(Number(e.target.value))}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                <div className="text-sm text-muted-foreground mb-4">
+                  * Required fields
+                </div>
+
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={createGame.isPending || !user}
+                  disabled={createGame.isPending}
+                  onClick={() => console.log('[CreateGame] Submit button clicked')}
                 >
                   {createGame.isPending ? 'Creating...' : 'Create Game'}
                 </Button>
