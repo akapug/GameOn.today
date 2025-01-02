@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
@@ -98,7 +97,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
     mutationFn: async (values: { playerId: number; name: string; email: string; likelihood: number }) => {
       const responseToken = user?.uid || localStorage.getItem(`response-token-${values.playerId}`);
       if (!responseToken) throw new Error("Not authorized to edit");
-      
+
       const res = await fetch(`/api/games/${game.id}/players/${values.playerId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -121,7 +120,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           <div>
             <Link href={`/games/${game.id}`}>
               <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                {format(new Date(game.date), "EEEE")} {game.sport.name}
+                {game.title || `${format(new Date(game.date), "EEEE")} ${game.sport.name}`}
               </h3>
             </Link>
             <div className="text-sm text-muted-foreground">
@@ -141,19 +140,23 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             <Calendar className="mr-2 h-4 w-4" />
             {format(new Date(game.date), "PPP p")}
           </div>
-          
-          <div className="flex items-center gap-2 text-sm">
-            <MapPin className="mr-2 h-4 w-4" />
-            <button
-              onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(game.location)}`, '_blank')}
-              className="text-primary hover:underline"
-            >
-              {game.location}
-            </button>
+
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center">
+              <MapPin className="mr-2 h-4 w-4" />
+              <button
+                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(game.location)}`, '_blank')}
+                className="text-primary hover:underline"
+              >
+                {game.location}
+              </button>
+            </div>
             {game.weather && (
-              <span className="text-muted-foreground">
-                (Expected: <WeatherDisplay weather={game.weather} />)
-              </span>
+              <div className="flex items-center ml-6">
+                <span className="text-muted-foreground">
+                  Expected: <WeatherDisplay weather={game.weather} />
+                </span>
+              </div>
             )}
           </div>
 
