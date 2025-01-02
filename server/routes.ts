@@ -150,13 +150,15 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
-      // Keep the date string exactly as provided by the client
-      // This preserves the time in the selected timezone
+      // Create a Date object with the timezone information
+      // This ensures the date is stored correctly in the database with timezone
+      const gameDate = new Date(date);
+
       const gameData = {
         sportId: Number(sportId),
         title: String(title),
         location: String(location),
-        date: String(date),  // Store exactly as provided
+        date: gameDate,  // Store as Date object, PostgreSQL will handle timezone
         timezone: String(timezone),
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
@@ -287,13 +289,14 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Only the creator can edit this game" });
       }
 
-      // Keep the date string exactly as provided by the client
+      const gameDate = new Date(date);
+
       const [updatedGame] = await db
         .update(games)
         .set({
           title,
           location,
-          date: String(date),  // Store exactly as provided
+          date: gameDate,  // Store as Date object
           playerThreshold,
         })
         .where(eq(games.id, parseInt(id, 10)))

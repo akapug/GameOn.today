@@ -17,7 +17,7 @@ import {
   Trash2,
   Edit2
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -58,7 +58,14 @@ export default function Game() {
   const [joinType, setJoinType] = useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = useState(0.5);
 
-  const form = useForm<Partial<GameType>>();
+  const form = useForm<Partial<GameType>>({
+    defaultValues: {
+      title: game?.title,
+      location: game?.location,
+      date: game?.date ? new Date(game.date).toISOString().slice(0, 16) : undefined,
+      playerThreshold: game?.playerThreshold,
+    },
+  });
 
   const { data: game, isLoading, error } = useQuery<GameWithDetails>({
     queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined,
@@ -108,7 +115,6 @@ export default function Game() {
       return res.json();
     },
     onSuccess: () => {
-      // Invalidate both the individual game and the games list
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       queryClient.invalidateQueries({
         queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined
@@ -134,7 +140,8 @@ export default function Game() {
 
   const editGame = useMutation({
     mutationFn: async (values: Partial<GameType>) => {
-      const dateStr = values.date ? new Date(values.date).toISOString() : undefined;
+      const dateStr = values.date;
+
       const res = await fetch(`/api/games/${params?.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -320,7 +327,7 @@ export default function Game() {
                               <Input
                                 type="datetime-local"
                                 {...field}
-                                value={value ? new Date(value).toISOString().slice(0, 16) : ''}
+                                value={value || ''}
                               />
                             </FormControl>
                           </FormItem>
@@ -432,7 +439,10 @@ export default function Game() {
             <div className="space-y-4">
               <div className="flex items-center text-sm">
                 <Calendar className="mr-2 h-4 w-4" />
-                {format(new Date(game.date), "PPP p", { timeZone: game.timezone })}
+                {format(
+                  utcToZonedTime(new Date(game.date), game.timezone),
+                  "PPP p"
+                )}
                 <span className="ml-2 text-muted-foreground">({game.timezone})</span>
               </div>
               <div className="flex items-center gap-2 text-sm">

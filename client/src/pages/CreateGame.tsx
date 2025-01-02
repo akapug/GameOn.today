@@ -23,7 +23,17 @@ const createGameSchema = z.object({
   title: z.string().min(1, "Title is required"),
   location: z.string().min(1, "Location is required"),
   date: z.string().min(1, "Date is required"),
-  timezone: z.string().min(1, "Timezone is required"),
+  timezone: z.string().refine(
+    (tz) => {
+      try {
+        Intl.DateTimeFormat(undefined, { timeZone: tz });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    { message: "Invalid timezone" }
+  ),
   playerThreshold: z.number().min(2, "At least 2 players are required"),
   notes: z.string().optional(),
   creatorId: z.string(),

@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { format } from "date-fns";
+import { format, zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -199,7 +199,11 @@ export default function GameCard({ game }: GameCardProps) {
           <div className="space-y-2">
             <div className="flex items-center text-sm">
               <Calendar className="mr-2 h-4 w-4" />
-              {format(new Date(game.date), "PPP p", { timeZone: game.timezone })}
+              {format(
+                utcToZonedTime(new Date(game.date), game.timezone),
+                "PPP p"
+              )}
+              <span className="ml-2 text-muted-foreground">({game.timezone})</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <div className="flex items-center">

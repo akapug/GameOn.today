@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -6,6 +5,7 @@ import { useLocation } from "wouter";
 import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
 import { useState } from "react";
 import SportSelect from "@/components/SportSelect";
 import { type Game, type Player, type Sport } from "@db/schema";
@@ -18,6 +18,7 @@ interface GameWithDetails extends Game {
   players: Array<Player>;
   sport: Sport;
   weather: WeatherInfo | null;
+  timezone: string; // Added timezone property
 }
 
 export default function Home() {
@@ -46,15 +47,24 @@ export default function Home() {
   };
 
   const todayGames = filterGamesBySport(
-    games.filter(game => isSameDay(new Date(game.date), now))
+    games.filter(game => {
+      const gameDate = utcToZonedTime(new Date(game.date), game.timezone);
+      return isSameDay(gameDate, now);
+    })
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const upcomingGames = filterGamesBySport(
-    games.filter(game => isAfter(new Date(game.date), now) && !isSameDay(new Date(game.date), now))
+    games.filter(game => {
+      const gameDate = utcToZonedTime(new Date(game.date), game.timezone);
+      return isAfter(gameDate, now) && !isSameDay(gameDate, now);
+    })
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const archivedGames = filterGamesBySport(
-    games.filter(game => isBefore(new Date(game.date), now))
+    games.filter(game => {
+      const gameDate = utcToZonedTime(new Date(game.date), game.timezone);
+      return isBefore(gameDate, now);
+    })
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
