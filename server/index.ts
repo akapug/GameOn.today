@@ -84,6 +84,7 @@ app.get("/api/health", (_req, res) => {
     const PORT = process.env.PORT || 5000;
     server.listen(PORT, "0.0.0.0", () => {
       log(`Server running on port ${PORT}`);
+      log("Development server is ready and waiting for changes...");
     });
 
   } catch (error) {
