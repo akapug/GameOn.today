@@ -1,7 +1,6 @@
 import { forwardRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSports } from "@/lib/sports";
-import { type ControllerRenderProps } from "react-hook-form";
 
 interface SportSelectProps {
   value?: number;
@@ -21,8 +20,8 @@ const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>(({
   return (
     <Select
       ref={ref}
-      value={value?.toString() || ""}
-      onValueChange={(val) => onChange?.(val ? Number(val) : null)}
+      value={value?.toString() || "0"}
+      onValueChange={(val) => onChange?.(val === "0" ? null : Number(val))}
       required={required}
     >
       <SelectTrigger>
@@ -30,7 +29,7 @@ const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>(({
       </SelectTrigger>
       <SelectContent>
         {allowClear && (
-          <SelectItem value="">All Sports</SelectItem>
+          <SelectItem value="0">All Sports</SelectItem>
         )}
         {sports?.map((sport) => (
           <SelectItem key={sport.id} value={sport.id.toString()}>
