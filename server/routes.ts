@@ -123,7 +123,8 @@ export function registerRoutes(app: Express): Server {
               name: true,
               email: true,
               joinedAt: true,
-              likelihood: true
+              likelihood: true,
+              responseToken: true
             }
           }
         },
@@ -311,7 +312,8 @@ export function registerRoutes(app: Express): Server {
               name: true,
               email: true,
               joinedAt: true,
-              likelihood: true
+              likelihood: true,
+              responseToken: true
             }
           }
         },
