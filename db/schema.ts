@@ -15,7 +15,6 @@ export const games = pgTable("games", {
   title: text("title").notNull(),
   location: text("location").notNull(),
   date: timestamp("date").notNull(),
-  notes: text("notes"),
   timezone: text("timezone").notNull(),
   notes: text("notes"),
   playerThreshold: integer("player_threshold").notNull(),

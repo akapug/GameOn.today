@@ -150,16 +150,22 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
+      // Parse the date in the specified timezone
+      const gameDate = new Date(date);
+      if (isNaN(gameDate.getTime())) {
+        return res.status(400).json({ message: "Invalid date format" });
+      }
+
       const gameData = {
         sportId: Number(sportId),
         title: String(title),
         location: String(location),
-        date: new Date(date),
+        date: gameDate, // Store the date as is, with timezone info
         timezone: String(timezone),
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
         creatorName: String(creatorName || ''),
-        notes: notes ? String(notes) : null, // Make notes optional
+        notes: notes ? String(notes) : null,
       };
 
       const [newGame] = await db.insert(games).values(gameData).returning();

@@ -38,13 +38,17 @@ export default function CreateGame() {
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
 
+  // Get current date in local time zone
+  const now = new Date();
+  const defaultDate = now.toLocaleDateString('en-CA') + 'T' + now.toLocaleTimeString('en-CA', { hour12: false }).slice(0, 5);
+
   const form = useForm<FormData>({
     resolver: zodResolver(createGameSchema),
     defaultValues: {
       sportId: 0,
       title: "",
       location: "",
-      date: new Date().toISOString().slice(0, 16), // Reset to simple ISO format
+      date: defaultDate,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       playerThreshold: 2,
       notes: "",
@@ -58,7 +62,17 @@ export default function CreateGame() {
       const res = await fetch("/api/games", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          sportId: Number(values.sportId),
+          playerThreshold: Number(values.playerThreshold),
+          // Keep the date string as is, let server handle timezone
+          date: values.date,
+          creatorId: user?.uid,
+          creatorName: user?.displayName || '',
+          timezone: values.timezone,
+          notes: values.notes || null
+        }),
       });
 
       if (!res.ok) {
@@ -84,28 +98,6 @@ export default function CreateGame() {
       });
     },
   });
-
-  const handleFormSubmit = (data: FormData) => {
-    if (!user?.uid) {
-      return;
-    }
-
-    // Create a date object in the selected timezone
-    const selectedDate = new Date(data.date);
-    const gameData = {
-      ...data,
-      sportId: Number(data.sportId),
-      playerThreshold: Number(data.playerThreshold),
-      // Convert to ISO string while preserving the selected timezone
-      date: new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000)).toISOString(),
-      creatorId: user.uid,
-      creatorName: user.displayName || '',
-      timezone: data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-      notes: data.notes || null
-    };
-
-    createGame.mutate(gameData);
-  };
 
   if (!user) {
     return (
@@ -133,7 +125,7 @@ export default function CreateGame() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit((data) => createGame.mutate(data))} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="sportId"
@@ -180,18 +172,13 @@ export default function CreateGame() {
                 <FormField
                   control={form.control}
                   name="date"
-                  render={({ field: { value, onChange, ...field } }) => (
+                  render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date & Time *</FormLabel>
                       <FormControl>
                         <Input
                           type="datetime-local"
                           {...field}
-                          value={value}
-                          onChange={(e) => {
-                            // Directly use the selected value without timezone conversion
-                            onChange(e.target.value);
-                          }}
                           required
                         />
                       </FormControl>
@@ -259,7 +246,7 @@ export default function CreateGame() {
                           min="2"
                           {...field}
                           value={value}
-                          onChange={e => onChange(Number(e.target.value))}
+                          onChange={e => onChange(parseInt(e.target.value, 10))}
                           required
                         />
                       </FormControl>
