@@ -14,18 +14,30 @@ const getDb = () => {
 
   const connect = async () => {
     try {
-      return drizzle({
+      if (!process.env.DATABASE_URL) {
+        throw new Error("DATABASE_URL is not set");
+      }
+      
+      console.log("Attempting database connection...");
+      const client = drizzle({
         connection: process.env.DATABASE_URL,
         schema,
         ws: ws,
       });
-    } catch (error) {
+      
+      // Test the connection
+      await client.select().from(schema.sports).limit(1);
+      console.log("Database connection successful");
+      return client;
+    } catch (error: any) {
+      console.error("Database connection error:", error.message);
       if (currentTry < maxRetries) {
         currentTry++;
         console.log(`Retrying database connection (attempt ${currentTry}/${maxRetries})...`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * currentTry));
         return await connect();
       }
-      throw error;
+      throw new Error(`Failed to connect to database: ${error.message}`);
     }
   };
 
