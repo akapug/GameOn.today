@@ -51,9 +51,28 @@ export async function getWeatherForecast(location: string, date: Date): Promise<
       return null;
     }
 
-    // Find the forecast closest to the game date
-    const targetTime = date.getTime();
-    const closestForecast = data.list.reduce((prev: any, curr: any) => {
+    // Find forecast for the same day, closest to the game time
+    const targetDate = new Date(date);
+    const targetDay = targetDate.getUTCDate();
+    const targetMonth = targetDate.getUTCMonth();
+    const targetYear = targetDate.getUTCFullYear();
+    
+    // Filter forecasts for the same day first
+    const sameDayForecasts = data.list.filter((forecast: any) => {
+      const forecastDate = new Date(forecast.dt * 1000);
+      return forecastDate.getUTCDate() === targetDay &&
+             forecastDate.getUTCMonth() === targetMonth &&
+             forecastDate.getUTCFullYear() === targetYear;
+    });
+
+    if (sameDayForecasts.length === 0) {
+      console.error('No forecasts available for target date');
+      return null;
+    }
+
+    // Find closest time on the same day
+    const targetTime = targetDate.getTime();
+    const closestForecast = sameDayForecasts.reduce((prev: any, curr: any) => {
       const prevDiff = Math.abs(new Date(prev.dt * 1000).getTime() - targetTime);
       const currDiff = Math.abs(new Date(curr.dt * 1000).getTime() - targetTime);
       return currDiff < prevDiff ? curr : prev;
