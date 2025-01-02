@@ -36,11 +36,17 @@ const getDb = () => {
       console.log("Database connection successful");
       return client;
     } catch (error: any) {
+      const errorMsg = error.message.toLowerCase();
+      if (errorMsg.includes('endpoint is disabled') || errorMsg.includes('paused')) {
+        console.error("Database connection error: Database appears to be paused. This may be due to billing issues or inactivity.");
+        throw new Error("Database is paused - please check your database status and billing information in the Replit Database tool");
+      }
+      
       console.error("Database connection error:", error.message);
       if (currentTry < maxRetries) {
         currentTry++;
         const delay = Math.min(1000 * Math.pow(2, currentTry), 10000); // Exponential backoff
-        console.log(`Retrying database connection (attempt ${currentTry}/${maxRetries}) in ${delay}ms...`);
+        console.log(`Retrying connection (attempt ${currentTry}/${maxRetries}) in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return await connect();
       }
