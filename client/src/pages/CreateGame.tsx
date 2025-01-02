@@ -32,10 +32,6 @@ export default function CreateGame() {
       sportId: undefined,
       creatorId: user?.uid || "",
       creatorName: user?.displayName || "",
-      status: "scheduled",
-      createdAt: new Date().toISOString(),
-      confirmedPlayers: [],
-      maybeParticipants: []
     },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
@@ -113,7 +109,16 @@ export default function CreateGame() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit((data) => createGame.mutate(data))} className="space-y-6">
+              <form onSubmit={form.handleSubmit((data) => {
+                // Ensure all required fields are present and properly formatted
+                const gameData = {
+                  ...data,
+                  sportId: Number(data.sportId),
+                  playerThreshold: Number(data.playerThreshold),
+                  date: new Date(data.date).toISOString(),
+                };
+                createGame.mutate(gameData);
+              })} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="sportId"
