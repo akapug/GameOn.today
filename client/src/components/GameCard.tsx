@@ -395,44 +395,54 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
         </DropdownMenu>
 
         {canDelete && (
-          <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="icon" className="text-red-600">
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Delete Game</DialogTitle>
-              </DialogHeader>
-              <p>Are you sure you want to delete this game? This action cannot be undone.</p>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-                  Cancel
+          <>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setLocation(`/games/${game.id}/edit`)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+
+            <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon" className="text-red-600">
+                  <Trash2 className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    fetch(`/api/games/${game.id}`, { method: "DELETE" })
-                      .then(() => {
-                        queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-                        toast({ title: "Success", description: "Game deleted successfully" });
-                      })
-                      .catch(() => {
-                        toast({
-                          title: "Error",
-                          description: "Failed to delete game",
-                          variant: "destructive",
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Delete Game</DialogTitle>
+                </DialogHeader>
+                <p>Are you sure you want to delete this game? This action cannot be undone.</p>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      fetch(`/api/games/${game.id}`, { method: "DELETE" })
+                        .then(() => {
+                          queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                          toast({ title: "Success", description: "Game deleted successfully" });
+                        })
+                        .catch(() => {
+                          toast({
+                            title: "Error",
+                            description: "Failed to delete game",
+                            variant: "destructive",
+                          });
                         });
-                      });
-                    setShowDeleteConfirm(false);
-                  }}
-                >
-                  Delete
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+                      setShowDeleteConfirm(false);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </>
         )}
       </CardFooter>
     </Card>
