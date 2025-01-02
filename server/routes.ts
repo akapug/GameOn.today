@@ -136,14 +136,14 @@ export function registerRoutes(app: Express): Server {
   // Create a new game
   app.post("/api/games", async (req, res) => {
     try {
-      console.log("Creating game with data:", req.body);
+      const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName } = req.body;
       
-      if (!req.body.sportId) {
-        return res.status(400).json({ message: "Sport ID is required" });
+      if (!sportId || !title || !location || !date || !playerThreshold || !creatorId) {
+        return res.status(400).json({ message: "Missing required fields" });
       }
 
       const sport = await db.query.sports.findFirst({
-        where: eq(sports.id, parseInt(req.body.sportId)),
+        where: eq(sports.id, Number(sportId)),
       });
 
       if (!sport) {
@@ -151,21 +151,17 @@ export function registerRoutes(app: Express): Server {
       }
 
       const gameData = {
-        sportId: parseInt(req.body.sportId),
-        title: req.body.title,
-        location: req.body.location,
-        date: new Date(req.body.date),
-        timezone: req.body.timezone,
-        playerThreshold: parseInt(req.body.playerThreshold),
-        creatorId: req.body.creatorId,
-        creatorName: req.body.creatorName
+        sportId: Number(sportId),
+        title: String(title),
+        location: String(location),
+        date: new Date(date),
+        timezone: String(timezone || 'UTC'),
+        playerThreshold: Number(playerThreshold),
+        creatorId: String(creatorId),
+        creatorName: String(creatorName || '')
       };
 
-      console.log("Inserting game with data:", gameData);
-      
       const newGame = await db.insert(games).values(gameData).returning();
-      console.log("Game created successfully:", newGame[0]);
-
       res.json(newGame[0]);
     } catch (error) {
       console.error("Failed to create game:", error);
