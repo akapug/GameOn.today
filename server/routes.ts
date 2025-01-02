@@ -155,7 +155,7 @@ export function registerRoutes(app: Express): Server {
         title: String(title),
         location: String(location),
         date: new Date(date),
-        timezone: String(timezone || 'UTC'),
+        timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
         creatorName: String(creatorName || '')
