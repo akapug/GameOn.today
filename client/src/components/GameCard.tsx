@@ -397,13 +397,79 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
         {canDelete && (
           <>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setLocation(`/games/${game.id}/edit`)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Game</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  fetch(`/api/games/${game.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      title: game.title,
+                      location: game.location,
+                      date: game.date,
+                      playerThreshold: game.playerThreshold,
+                      creatorId: game.creatorId
+                    }),
+                  })
+                    .then((res) => {
+                      if (!res.ok) throw new Error("Failed to update game");
+                      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                      toast({ title: "Success", description: "Game updated successfully" });
+                    })
+                    .catch((error) => {
+                      toast({
+                        title: "Error",
+                        description: error.message,
+                        variant: "destructive",
+                      });
+                    });
+                }} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                      defaultValue={game.title}
+                      onChange={(e) => game.title = e.target.value}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Location</Label>
+                    <Input
+                      defaultValue={game.location}
+                      onChange={(e) => game.location = e.target.value}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Date & Time</Label>
+                    <Input
+                      type="datetime-local"
+                      defaultValue={new Date(game.date).toISOString().slice(0, 16)}
+                      onChange={(e) => game.date = new Date(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Player Threshold</Label>
+                    <Input
+                      type="number"
+                      min="2"
+                      defaultValue={game.playerThreshold}
+                      onChange={(e) => game.playerThreshold = parseInt(e.target.value, 10)}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full">
+                    Save Changes
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
 
             <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
               <DialogTrigger asChild>
