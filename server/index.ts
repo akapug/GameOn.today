@@ -1,12 +1,12 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { isDatabaseConnected, getDb } from "./services/database";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -37,28 +37,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Check database connection for API routes only
-app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
-  if (!isDatabaseConnected()) {
-    try {
-      // Attempt to initialize database connection without running migrations
-      getDb();
-      next();
-    } catch (error) {
-      return res.status(503).json({ 
-        message: "Database connection not available",
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  } else {
-    next();
-  }
+// Health check endpoint that doesn't require database
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok" });
 });
 
 (async () => {
   try {
     const server = registerRoutes(app);
 
+    // Global error handler
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       console.error("Server error:", err);
       const status = err.status || err.statusCode || 500;

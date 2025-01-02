@@ -7,7 +7,7 @@ import { createDbConnection } from "@db";
 // Single database instance
 let dbInstance: ReturnType<typeof createDbConnection> | null = null;
 
-// Get or create database connection
+// Get or create database connection without any migrations
 export const getDb = () => {
   if (!dbInstance) {
     try {
@@ -22,39 +22,23 @@ export const getDb = () => {
   return dbInstance;
 };
 
-// Check if database is connected
-export const isDatabaseConnected = () => {
-  try {
-    if (!dbInstance) {
-      return false;
-    }
-    // Don't actually test the connection, just check if we have an instance
-    return true;
-  } catch (error) {
-    log(`Database connection check failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    return false;
-  }
-};
-
-// Initialize database with connection only
-export const initializeDatabase = async () => {
-  try {
-    if (!dbInstance) {
-      log("Initializing database connection...");
-      dbInstance = createDbConnection();
-      log("Database connection initialized successfully");
-    }
-    return true;
-  } catch (error) {
-    log(`Database initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    throw error;
-  }
-};
-
 // Close database connection if needed
 export const closeDb = () => {
   if (dbInstance) {
     log("Closing database connection");
     dbInstance = null;
   }
+};
+
+// Separate migration database instance
+export const getMigrationDb = () => {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL must be set to run migrations");
+  }
+
+  return drizzle({
+    connection: process.env.DATABASE_URL,
+    schema,
+    ws: ws,
+  });
 };

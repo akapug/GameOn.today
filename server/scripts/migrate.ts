@@ -1,7 +1,6 @@
-import { drizzle } from "drizzle-orm/neon-serverless";
 import { migrate } from "drizzle-orm/neon-serverless/migrator";
-import ws from "ws";
 import { log } from "../vite";
+import { getMigrationDb } from "../services/database";
 
 async function runMigrations() {
   if (!process.env.DATABASE_URL) {
@@ -10,12 +9,8 @@ async function runMigrations() {
 
   log("Starting database migrations...");
 
-  const db = drizzle({
-    connection: process.env.DATABASE_URL,
-    ws: ws,
-  });
-
   try {
+    const db = getMigrationDb();
     await migrate(db, { migrationsFolder: "./migrations" });
     log("Migrations completed successfully");
     process.exit(0);
