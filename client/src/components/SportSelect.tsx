@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { sports } from "@/lib/sports"
+import { defaultSports } from "@/lib/sports"
 import { forwardRef } from "react"
 
 const SportSelect = forwardRef((props: any, ref) => {
@@ -32,7 +32,7 @@ const SportSelect = forwardRef((props: any, ref) => {
             !value && "text-muted-foreground"
           )}
         >
-          {value ? sports.find((sport) => sport.id === Number(value))?.name : "Select sport..."}
+          {value ? defaultSports.find((_, index) => index + 1 === Number(value))?.name : "Select sport..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
@@ -40,11 +40,11 @@ const SportSelect = forwardRef((props: any, ref) => {
           <CommandInput placeholder="Search sports..." />
           <CommandEmpty>No sport found.</CommandEmpty>
           <CommandGroup>
-            {sports.map((sport) => (
+            {defaultSports.map((sport, index) => (
               <CommandItem
-                key={sport.id}
+                key={index + 1}
                 onSelect={() => {
-                  onChange(sport.id.toString());
+                  onChange((index + 1).toString());
                 }}
               >
                 <Check
