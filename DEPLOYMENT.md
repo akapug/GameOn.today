@@ -1,0 +1,5 @@
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+   VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+   VITE_FIREBASE_APP_ID=your_firebase_app_id
+   VITE_OPENWEATHER_API_KEY=your_openweather_api_key
+   NODE_ENV=development
