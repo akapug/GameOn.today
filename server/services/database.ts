@@ -26,6 +26,7 @@ export const initializeDatabase = async (maxRetries = 3, initialDelay = 1000) =>
       const db = getMigrationDb();
       // Test the connection with a simple query
       await db.execute(sql`SELECT 1`);
+      console.log('Database connection established successfully');
       return db;
     } catch (error) {
       lastError = error;
@@ -39,8 +40,8 @@ export const initializeDatabase = async (maxRetries = 3, initialDelay = 1000) =>
     }
   }
 
-  throw lastError;
+  throw new Error(`Failed to initialize database after ${maxRetries} attempts: ${lastError?.message}`);
 };
 
-// Re-export the main db connection functions with better error handling
+// Re-export the main db connection functions
 export { getDb, resetDb } from "@db";
