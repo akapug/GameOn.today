@@ -1,11 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { db } from "@db";
 import { games, players, sports } from "@db/schema";
+import { getDb } from "./services/database";
 import { eq } from "drizzle-orm";
 import { defaultSports } from "../client/src/lib/sports";
 import nodemailer from "nodemailer";
-import { getWeatherForecast, type WeatherInfo } from "./services/weather";
+import { getWeatherForecast } from "./services/weather";
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
@@ -19,6 +19,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendGameOnNotification(gameId: number) {
+  const db = getDb();
   const game = await db.query.games.findFirst({
     where: eq(games.id, gameId),
     with: {
@@ -81,6 +82,7 @@ export function registerRoutes(app: Express): Server {
   // Initialize default sports if none exist
   app.get("/api/init", async (_req, res) => {
     try {
+      const db = getDb();
       const existingSports = await db.select().from(sports);
       if (existingSports.length === 0) {
         await db.insert(sports).values(defaultSports);
@@ -95,6 +97,7 @@ export function registerRoutes(app: Express): Server {
   // Get all sports
   app.get("/api/sports", async (_req, res) => {
     try {
+      const db = getDb();
       const allSports = await db.select().from(sports);
       res.json(allSports);
     } catch (error) {
@@ -106,6 +109,7 @@ export function registerRoutes(app: Express): Server {
   // Get all games with related data
   app.get("/api/games", async (_req, res) => {
     try {
+      const db = getDb();
       const allGames = await db.query.games.findMany({
         with: {
           sport: true,
@@ -136,6 +140,7 @@ export function registerRoutes(app: Express): Server {
   // Update the game creation endpoint to handle the datetime correctly
   app.post("/api/games", async (req, res) => {
     try {
+      const db = getDb();
       const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName, notes } = req.body;
 
       if (!sportId || !title || !location || !date || !playerThreshold || !creatorId || !timezone) {
@@ -177,6 +182,7 @@ export function registerRoutes(app: Express): Server {
   // Join a game
   app.post("/api/games/:id/join", async (req, res) => {
     try {
+      const db = getDb();
       const { id } = req.params;
       const { name, email, likelihood } = req.body;
 
@@ -215,6 +221,7 @@ export function registerRoutes(app: Express): Server {
   // Get a single game with related data
   app.get("/api/games/:id", async (req, res) => {
     try {
+      const db = getDb();
       const game = await db.query.games.findFirst({
         where: eq(games.id, parseInt(req.params.id, 10)),
         with: {
@@ -246,6 +253,7 @@ export function registerRoutes(app: Express): Server {
   // Delete game endpoint
   app.delete("/api/games/:id", async (req, res) => {
     try {
+      const db = getDb();
       const { id } = req.params;
 
       // First verify the game exists and creator matches
@@ -273,6 +281,7 @@ export function registerRoutes(app: Express): Server {
   // Update a game
   app.put("/api/games/:id", async (req, res) => {
     try {
+      const db = getDb();
       const { id } = req.params;
       const { title, location, date, playerThreshold, creatorId } = req.body;
 

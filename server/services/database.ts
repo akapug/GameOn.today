@@ -4,37 +4,42 @@ import * as schema from "@db/schema";
 import { log } from "../vite";
 import { createDbConnection } from "@db";
 
+// Single database instance
 let dbInstance: ReturnType<typeof createDbConnection> | null = null;
 
-export const initializeDatabase = async () => {
-  try {
-    if (dbInstance) {
-      return dbInstance;
-    }
-
-    log("Attempting database connection...");
-    dbInstance = createDbConnection();
-
-    // Simple connection test
-    await dbInstance.query.users.findFirst();
-    log("Database connection established successfully");
-    return dbInstance;
-  } catch (error) {
-    log(`Database initialization error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    dbInstance = null;
-    return null;
-  }
-};
-
-// Export a function to get the database instance
+// Get or create database connection
 export const getDb = () => {
   if (!dbInstance) {
-    dbInstance = createDbConnection();
+    try {
+      log("Initializing database connection...");
+      dbInstance = createDbConnection();
+      log("Database connection initialized successfully");
+    } catch (error) {
+      log(`Database connection error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw error;
+    }
   }
   return dbInstance;
 };
 
-// Add a function to check database connection status
+// Check if database is connected
 export const isDatabaseConnected = () => {
-  return dbInstance !== null;
+  try {
+    if (!dbInstance) {
+      return false;
+    }
+    // Don't actually test the connection, just check if we have an instance
+    return true;
+  } catch (error) {
+    log(`Database connection check failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    return false;
+  }
+};
+
+// Close database connection if needed
+export const closeDb = () => {
+  if (dbInstance) {
+    log("Closing database connection");
+    dbInstance = null;
+  }
 };
