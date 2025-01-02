@@ -1,47 +1,19 @@
+
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SportSelect from "@/components/SportSelect";
-import { ArrowLeft, Clock } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type NewGame } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AuthDialog from "@/components/AuthDialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle } from "lucide-react";
-
-const createGameSchema = z.object({
-  sportId: z.number().min(1, "Please select a sport"),
-  title: z.string().min(1, "Title is required"),
-  location: z.string().min(1, "Location is required"),
-  date: z.string().min(1, "Date is required"),
-  timezone: z.string().refine(
-    (tz) => {
-      try {
-        Intl.DateTimeFormat(undefined, { timeZone: tz });
-        return true;
-      } catch (e) {
-        return false;
-      }
-    },
-    { message: "Invalid timezone" }
-  ),
-  playerThreshold: z.number().min(2, "At least 2 players are required"),
-  notes: z.string().optional(),
-  creatorId: z.string(),
-  creatorName: z.string()
-});
-
-type FormData = z.infer<typeof createGameSchema>;
 
 export default function CreateGame() {
   const [, navigate] = useLocation();
@@ -49,63 +21,42 @@ export default function CreateGame() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
-  const [showTimezoneAlert, setShowTimezoneAlert] = useState(true);
-  const [showTimezoneWarning, setShowTimezoneWarning] = useState(false);
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  // Format current time in user's timezone for the datetime-local input
-  const now = new Date();
-  const defaultDate = now.toLocaleString('sv-SE', { timeZone: userTimezone }).slice(0, 16);
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(createGameSchema),
+  const form = useForm<NewGame>({
     defaultValues: {
-      sportId: 0,
       title: "",
       location: "",
-      date: defaultDate,
-      timezone: userTimezone,
-      playerThreshold: 2,
-      notes: "",
+      date: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      playerThreshold: 10,
+      sportId: undefined,
       creatorId: user?.uid || "",
-      creatorName: user?.displayName || ""
-    }
+      creatorName: user?.displayName || "",
+    },
+    resolver: async (data) => {
+      const errors: Record<string, { message: string }> = {};
+      
+      if (!data.title?.trim()) errors.title = { message: "Title is required" };
+      if (!data.location?.trim()) errors.location = { message: "Location is required" };
+      if (!data.date) errors.date = { message: "Date is required" };
+      if (!data.sportId) errors.sportId = { message: "Sport is required" };
+      if (!data.playerThreshold || data.playerThreshold <= 1) {
+        errors.playerThreshold = { message: "Player threshold must be greater than 1" };
+      }
+      
+      return {
+        values: data,
+        errors: Object.keys(errors).length > 0 ? errors : {},
+      };
+    },
   });
 
-  // Effect to update timezone warnings
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'timezone') {
-        const selectedTimezone = value.timezone;
-        if (selectedTimezone && selectedTimezone !== userTimezone) {
-          setShowTimezoneWarning(true);
-          setShowTimezoneAlert(false);
-        } else {
-          setShowTimezoneWarning(false);
-        }
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form, userTimezone]);
-
   const createGame = useMutation({
-    mutationFn: async (values: FormData) => {
-      // Keep the date exactly as selected in the form
-      const dateStr = values.date;
-
+    mutationFn: async (values: NewGame) => {
       const res = await fetch("/api/games", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...values,
-          sportId: Number(values.sportId),
-          playerThreshold: Number(values.playerThreshold),
-          date: dateStr,
-          timezone: values.timezone,
-          creatorId: user?.uid,
-          creatorName: user?.displayName || "",
-          notes: values.notes || null
-        }),
+        body: JSON.stringify(values),
       });
 
       if (!res.ok) {
@@ -116,7 +67,7 @@ export default function CreateGame() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/games"] });
+      queryClient.invalidateQueries({ queryKey: ["games"] });
       toast({
         title: "Success",
         description: "Game created successfully",
@@ -126,7 +77,7 @@ export default function CreateGame() {
     onError: (error) => {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create game",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -157,41 +108,24 @@ export default function CreateGame() {
       <main className="container py-6">
         <Card>
           <CardContent className="pt-6">
-            {showTimezoneAlert && (
-              <Alert className="mb-6">
-                <Clock className="h-4 w-4" />
-                <AlertDescription>
-                  Using your detected timezone: <strong>{userTimezone}</strong>. 
-                  All times will be displayed in this timezone unless changed below.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {showTimezoneWarning && (
-              <Alert className="mb-6" variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  Warning: You've selected a different timezone than your local timezone ({userTimezone}).
-                  Make sure this is intentional to avoid confusion with game times.
-                </AlertDescription>
-              </Alert>
-            )}
-
             <Form {...form}>
-              <form onSubmit={form.handleSubmit((data) => createGame.mutate(data))} className="space-y-6">
+              <form onSubmit={form.handleSubmit((data) => {
+                // Ensure all required fields are present and properly formatted
+                const gameData = {
+                  ...data,
+                  sportId: Number(data.sportId),
+                  playerThreshold: Number(data.playerThreshold),
+                  date: new Date(data.date).toISOString(),
+                };
+                createGame.mutate(gameData);
+              })} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="sportId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sport *</FormLabel>
-                      <FormControl>
-                        <SportSelect
-                          value={field.value}
-                          onChange={field.onChange}
-                          required
-                        />
-                      </FormControl>
+                      <FormLabel>Sport</FormLabel>
+                      <SportSelect {...field} />
                     </FormItem>
                   )}
                 />
@@ -201,9 +135,9 @@ export default function CreateGame() {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title *</FormLabel>
+                      <FormLabel>Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="Game title..." {...field} required />
+                        <Input placeholder="Game title..." {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -214,79 +148,45 @@ export default function CreateGame() {
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location *</FormLabel>
+                      <FormLabel>Location</FormLabel>
                       <FormControl>
-                        <Input placeholder="Game location..." {...field} required />
+                        <Input placeholder="Game location..." {...field} />
                       </FormControl>
                     </FormItem>
                   )}
                 />
 
-                <div className="grid gap-6 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="date"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Date & Time *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="datetime-local"
-                            {...field}
-                            required
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Select the exact time for the game
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="timezone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Timezone *</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          defaultValue={userTimezone}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select timezone" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Intl.supportedValuesOf('timeZone').map((tz) => (
-                              <SelectItem key={tz} value={tz}>
-                                {tz}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date & Time</FormLabel>
+                      <FormControl>
+                        <Input type="datetime-local" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
-                  name="notes"
+                  name="timezone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Notes</FormLabel>
-                      <FormDescription>
-                        Optional: Add any additional details about the game
-                      </FormDescription>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Add any additional details about the game..."
-                          className="min-h-[100px]"
-                          {...field}
-                        />
-                      </FormControl>
+                      <FormLabel>Timezone</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select timezone" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Intl.supportedValuesOf('timeZone').map((tz) => (
+                            <SelectItem key={tz} value={tz}>
+                              {tz}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormItem>
                   )}
                 />
@@ -294,33 +194,23 @@ export default function CreateGame() {
                 <FormField
                   control={form.control}
                   name="playerThreshold"
-                  render={({ field: { onChange, value, ...field } }) => (
+                  render={({ field: { onChange, ...field } }) => (
                     <FormItem>
-                      <FormLabel>Player Threshold *</FormLabel>
+                      <FormLabel>Player Threshold</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           min="2"
+                          onChange={(e) => onChange(parseInt(e.target.value, 10))}
                           {...field}
-                          value={value}
-                          onChange={e => onChange(parseInt(e.target.value, 10))}
-                          required
                         />
                       </FormControl>
                     </FormItem>
                   )}
                 />
 
-                <div className="text-sm text-muted-foreground mb-4">
-                  * Required fields
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={createGame.isPending}
-                >
-                  {createGame.isPending ? 'Creating...' : 'Create Game'}
+                <Button type="submit" className="w-full" disabled={createGame.isPending}>
+                  Create Game
                 </Button>
               </form>
             </Form>

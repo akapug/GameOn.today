@@ -14,10 +14,8 @@ export const games = pgTable("games", {
   sportId: integer("sport_id").references(() => sports.id),
   title: text("title").notNull(),
   location: text("location").notNull(),
-  // Store the date as timestamptz to properly handle timezone information
-  date: timestamp("date", { withTimezone: true }).notNull(),
-  timezone: text("timezone").notNull(),
-  notes: text("notes"),
+  date: timestamp("date").notNull(),
+  
   playerThreshold: integer("player_threshold").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   creatorId: text("creator_id").notNull(), // Firebase Auth UID

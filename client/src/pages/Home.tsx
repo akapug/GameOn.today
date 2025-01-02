@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -5,15 +6,12 @@ import { useLocation } from "wouter";
 import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
-import { format as formatInTimeZone, zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 import { useState } from "react";
 import SportSelect from "@/components/SportSelect";
 import { type Game, type Player, type Sport } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import AuthDialog from "@/components/AuthDialog";
 import { queryKeys } from "@/lib/queryClient";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
 import type { WeatherInfo } from "../../../server/services/weather";
 
 interface GameWithDetails extends Game {
@@ -27,7 +25,6 @@ export default function Home() {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [, setLocation] = useLocation();
   const { user } = useAuth();
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const { data: games = [] } = useQuery<GameWithDetails[]>({
     queryKey: queryKeys.games.all,
@@ -48,39 +45,16 @@ export default function Home() {
     return games.filter(game => game.sportId === selectedSport);
   };
 
-  // Show warning if any games are in different timezones
-  const hasGamesInDifferentTimezones = games.some(game => game.timezone !== userTimezone);
-
-  const getGameDateInTimezone = (game: GameWithDetails) => {
-    const date = new Date(game.date);
-    try {
-      const dateStr = zonedTimeToUtc(date, game.timezone);
-      return dateStr;
-    } catch (error) {
-      console.error('Error converting date:', error);
-      return date; // Fallback to original date if conversion fails
-    }
-  };
-
   const todayGames = filterGamesBySport(
-    games.filter(game => {
-      const gameDate = getGameDateInTimezone(game);
-      return isSameDay(gameDate, now);
-    })
+    games.filter(game => isSameDay(new Date(game.date), now))
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const upcomingGames = filterGamesBySport(
-    games.filter(game => {
-      const gameDate = getGameDateInTimezone(game);
-      return isAfter(gameDate, now) && !isSameDay(gameDate, now);
-    })
+    games.filter(game => isAfter(new Date(game.date), now) && !isSameDay(new Date(game.date), now))
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const archivedGames = filterGamesBySport(
-    games.filter(game => {
-      const gameDate = getGameDateInTimezone(game);
-      return isBefore(gameDate, now);
-    })
+    games.filter(game => isBefore(new Date(game.date), now))
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
@@ -91,15 +65,6 @@ export default function Home() {
         redirectTo="/create"
       />
       <main className="container py-6 px-4">
-        {hasGamesInDifferentTimezones && (
-          <Alert className="mb-6" variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              Some games are scheduled in different timezones. Please check each game's timezone carefully.
-              Your current timezone is: {userTimezone}
-            </AlertDescription>
-          </Alert>
-        )}
         <Tabs defaultValue="today" className="w-full">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <TabsList className="justify-start w-full sm:w-auto">

@@ -1,12 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { getDb } from "./services/database";
+import { db } from "@db";
 import { games, players, sports } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { defaultSports } from "../client/src/lib/sports";
 import nodemailer from "nodemailer";
-import { getWeatherForecast } from "./services/weather";
-import { sql } from "drizzle-orm";
+import { getWeatherForecast, type WeatherInfo } from "./services/weather";
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
@@ -20,64 +19,54 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendGameOnNotification(gameId: number) {
-  try {
-    const db = getDb();
-    const game = await db.query.games.findFirst({
-      where: eq(games.id, gameId),
-      with: {
-        sport: true,
-        players: {
-          columns: {
-            email: true,
-            name: true,
-          }
+  const game = await db.query.games.findFirst({
+    where: eq(games.id, gameId),
+    with: {
+      sport: true,
+      players: {
+        columns: {
+          email: true,
+          name: true,
         }
-      },
-    });
+      }
+    },
+  });
 
-    if (!game) return;
+  if (!game) return;
 
-    // Filter out players without email
-    const playersWithEmail = game.players.filter(player => player.email);
+  // Filter out players without email
+  const playersWithEmail = game.players.filter(player => player.email);
 
-    // Send email to all players who provided email
-    const emailPromises = playersWithEmail.map(player =>
-      transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: player.email,
-        subject: `Game On! ${game.title} has enough players!`,
-        html: `
-          <h2>Great news, ${player.name}!</h2>
-          <p>The game you joined has reached its minimum player threshold and is now confirmed to happen!</p>
-          <p>Game Details:</p>
-          <ul>
-            <li><strong>Sport:</strong> ${game.sport.name}</li>
-            <li><strong>Title:</strong> ${game.title}</li>
-            <li><strong>Location:</strong> ${game.location}</li>
-            <li><strong>Date:</strong> ${new Date(game.date).toLocaleString()}</li>
-          </ul>
-          <p>See you at the game!</p>
-        `,
-      })
-    );
+  // Send email to all players who provided email
+  const emailPromises = playersWithEmail.map(player =>
+    transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: player.email,
+      subject: `Game On! ${game.title} has enough players!`,
+      html: `
+        <h2>Great news, ${player.name}!</h2>
+        <p>The game you joined has reached its minimum player threshold and is now confirmed to happen!</p>
+        <p>Game Details:</p>
+        <ul>
+          <li><strong>Sport:</strong> ${game.sport.name}</li>
+          <li><strong>Title:</strong> ${game.title}</li>
+          <li><strong>Location:</strong> ${game.location}</li>
+          <li><strong>Date:</strong> ${new Date(game.date).toLocaleString()}</li>
+        </ul>
+        <p>See you at the game!</p>
+      `,
+    })
+  );
 
-    await Promise.all(emailPromises).catch(console.error);
-  } catch (error) {
-    console.error('Failed to send game notification:', error);
-  }
+  await Promise.all(emailPromises).catch(console.error);
 }
 
 async function getGameWithWeather(game: any) {
-  try {
-    const weather = await getWeatherForecast(game.location, new Date(game.date));
-    return {
-      ...game,
-      weather
-    };
-  } catch (error) {
-    console.error('Failed to fetch weather data:', error);
-    return game;
-  }
+  const weather = await getWeatherForecast(game.location, new Date(game.date));
+  return {
+    ...game,
+    weather
+  };
 }
 
 export function registerRoutes(app: Express): Server {
@@ -89,49 +78,9 @@ export function registerRoutes(app: Express): Server {
     next();
   });
 
-  // Add database connection error handler middleware
-  app.use(async (req, res, next) => {
-    if (req.path.startsWith('/api') && req.path !== '/api/health') {
-      try {
-        // Test database connection before proceeding
-        await getDb();
-        next();
-      } catch (error) {
-        console.error('Database connection error:', error);
-        res.status(503).json({ 
-          message: "Database service temporarily unavailable. Please try again later.",
-          error: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
-      }
-    } else {
-      next();
-    }
-  });
-
-  // Add health check endpoint that includes database status
-  app.get("/api/health", async (_req, res) => {
-    const health = {
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      database: "unknown"
-    };
-
-    try {
-      const db = await getDb();
-      await db.execute(sql`SELECT 1`);
-      health.database = "connected";
-    } catch (error) {
-      health.database = "disconnected";
-      console.error('Health check - Database error:', error);
-    }
-
-    res.json(health);
-  });
-
   // Initialize default sports if none exist
   app.get("/api/init", async (_req, res) => {
     try {
-      const db = await getDb();
       const existingSports = await db.select().from(sports);
       if (existingSports.length === 0) {
         await db.insert(sports).values(defaultSports);
@@ -146,7 +95,6 @@ export function registerRoutes(app: Express): Server {
   // Get all sports
   app.get("/api/sports", async (_req, res) => {
     try {
-      const db = getDb();
       const allSports = await db.select().from(sports);
       res.json(allSports);
     } catch (error) {
@@ -158,7 +106,6 @@ export function registerRoutes(app: Express): Server {
   // Get all games with related data
   app.get("/api/games", async (_req, res) => {
     try {
-      const db = getDb();
       const allGames = await db.query.games.findMany({
         with: {
           sport: true,
@@ -186,13 +133,12 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Update the game creation endpoint to handle the datetime correctly
+  // Create a new game
   app.post("/api/games", async (req, res) => {
     try {
-      const db = getDb();
-      const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName, notes } = req.body;
-
-      if (!sportId || !title || !location || !date || !playerThreshold || !creatorId || !timezone) {
+      const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName } = req.body;
+      
+      if (!sportId || !title || !location || !date || !playerThreshold || !creatorId) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
@@ -204,24 +150,19 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
-      // Create a Date object with the timezone information
-      // This ensures the date is stored correctly in the database with timezone
-      const gameDate = new Date(date);
-
       const gameData = {
         sportId: Number(sportId),
         title: String(title),
         location: String(location),
-        date: gameDate,  // Store as Date object, PostgreSQL will handle timezone
-        timezone: String(timezone),
+        date: new Date(date),
+        timezone: String(timezone || 'UTC'),
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
-        creatorName: String(creatorName || ''),
-        notes: notes ? String(notes) : null,
+        creatorName: String(creatorName || '')
       };
 
-      const [newGame] = await db.insert(games).values(gameData).returning();
-      res.json(newGame);
+      const newGame = await db.insert(games).values(gameData).returning();
+      res.json(newGame[0]);
     } catch (error) {
       console.error("Failed to create game:", error);
       res.status(500).json({ message: `Failed to create game: ${error.message}` });
@@ -231,7 +172,6 @@ export function registerRoutes(app: Express): Server {
   // Join a game
   app.post("/api/games/:id/join", async (req, res) => {
     try {
-      const db = getDb();
       const { id } = req.params;
       const { name, email, likelihood } = req.body;
 
@@ -270,7 +210,6 @@ export function registerRoutes(app: Express): Server {
   // Get a single game with related data
   app.get("/api/games/:id", async (req, res) => {
     try {
-      const db = getDb();
       const game = await db.query.games.findFirst({
         where: eq(games.id, parseInt(req.params.id, 10)),
         with: {
@@ -302,7 +241,6 @@ export function registerRoutes(app: Express): Server {
   // Delete game endpoint
   app.delete("/api/games/:id", async (req, res) => {
     try {
-      const db = getDb();
       const { id } = req.params;
 
       // First verify the game exists and creator matches
@@ -330,7 +268,6 @@ export function registerRoutes(app: Express): Server {
   // Update a game
   app.put("/api/games/:id", async (req, res) => {
     try {
-      const db = getDb();
       const { id } = req.params;
       const { title, location, date, playerThreshold, creatorId } = req.body;
 
@@ -347,14 +284,12 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Only the creator can edit this game" });
       }
 
-      const gameDate = new Date(date);
-
       const [updatedGame] = await db
         .update(games)
         .set({
           title,
           location,
-          date: gameDate,  // Store as Date object
+          date: new Date(date),
           playerThreshold,
         })
         .where(eq(games.id, parseInt(id, 10)))

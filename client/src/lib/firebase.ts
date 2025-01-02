@@ -36,22 +36,6 @@ export const googleProvider = new GoogleAuthProvider();
 // Enhanced logging for deployment troubleshooting
 if (import.meta.env.DEV) {
   console.log('Firebase initialized in development mode');
-  console.log('Current domain:', window.location.hostname);
 } else {
   console.log('Firebase initialized in production mode');
-  console.log('Current domain:', window.location.hostname);
 }
-
-// Add error logging for auth state changes
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    console.log('User signed in:', user.email);
-  } else {
-    console.log('User signed out');
-  }
-}, (error) => {
-  console.error('Auth state change error:', error);
-  if (error.code === 'auth/unauthorized-domain') {
-    console.error('Domain not authorized. Please add', window.location.hostname, 'to Firebase Console > Authentication > Settings > Authorized domains');
-  }
-});

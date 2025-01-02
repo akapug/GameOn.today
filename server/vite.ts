@@ -85,19 +85,14 @@ export function serveStatic(app: Express) {
   }
 
   // Serve static files from dist/public
-  app.use(express.static(distPath, {
-    index: false // Don't serve index.html for directory requests
-  }));
+  app.use(express.static(distPath));
   
-  // Serve assets specifically with proper cache headers
-  app.use('/assets', express.static(path.join(distPath, 'assets'), {
-    maxAge: '1y',
-    immutable: true
-  }));
+  // Serve assets specifically
+  app.use('/assets', express.static(path.join(distPath, 'assets')));
 
   // For all other routes, serve index.html
   app.get("*", (_req, res) => {
-    const indexPath = path.resolve(distPath, "index.html");
+    const indexPath = path.resolve(__dirname, "..", "client", "index.html");
     res.sendFile(indexPath);
   });
 }

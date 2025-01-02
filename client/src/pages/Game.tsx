@@ -15,11 +15,9 @@ import {
   Twitter,
   MessageSquare,
   Trash2,
-  Edit2,
-  AlertTriangle
+  Edit2
 } from "lucide-react";
 import { format } from "date-fns";
-import { zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -39,8 +37,6 @@ import { Label } from "@/components/ui/label";
 import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "@/components/WeatherDisplay";
 import type { WeatherInfo } from "../../../server/services/weather";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-
 
 interface GameWithDetails extends GameType {
   players: Player[];
@@ -62,14 +58,7 @@ export default function Game() {
   const [joinType, setJoinType] = useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = useState(0.5);
 
-  const form = useForm<Partial<GameType>>({
-    defaultValues: {
-      title: game?.title,
-      location: game?.location,
-      date: game?.date ? new Date(game.date).toISOString().slice(0, 16) : undefined,
-      playerThreshold: game?.playerThreshold,
-    },
-  });
+  const form = useForm<Partial<GameType>>();
 
   const { data: game, isLoading, error } = useQuery<GameWithDetails>({
     queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined,
@@ -119,6 +108,7 @@ export default function Game() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidate both the individual game and the games list
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       queryClient.invalidateQueries({
         queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined
@@ -144,14 +134,11 @@ export default function Game() {
 
   const editGame = useMutation({
     mutationFn: async (values: Partial<GameType>) => {
-      const dateStr = values.date;
-
       const res = await fetch(`/api/games/${params?.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...values,
-          date: dateStr,
           creatorId: game?.creatorId,
         }),
       });
@@ -272,9 +259,6 @@ export default function Game() {
   const hasMinimumPlayers = progressPercentage >= 100;
   const canDelete = user && game.creatorId === user.uid;
 
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const isInDifferentTimezone = game && userTimezone !== game.timezone;
-
   return (
     <div className="min-h-screen bg-background">
       <header className="p-4 border-b">
@@ -334,7 +318,7 @@ export default function Game() {
                               <Input
                                 type="datetime-local"
                                 {...field}
-                                value={value || ''}
+                                value={value ? new Date(value).toISOString().slice(0, 16) : ''}
                               />
                             </FormControl>
                           </FormItem>
@@ -442,24 +426,11 @@ export default function Game() {
               )}
             </div>
           </CardHeader>
-          {isInDifferentTimezone && (
-            <Alert className="mb-4" variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                This game is scheduled in {game.timezone}, which is different from your timezone ({userTimezone}).
-                Please note all times shown are in the game's timezone.
-              </AlertDescription>
-            </Alert>
-          )}
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center text-sm">
                 <Calendar className="mr-2 h-4 w-4" />
-                {format(
-                  utcToZonedTime(new Date(game.date), game.timezone),
-                  "PPP p"
-                )}
-                <span className="ml-2 text-muted-foreground">({game.timezone})</span>
+                {format(new Date(game.date), "PPP p", { timeZone: game.timezone })}
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <div className="flex items-center">

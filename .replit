@@ -8,12 +8,12 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "cloudrun"
-build = ["sh", "-c", "NODE_ENV=production npm run build"]
-run = ["sh", "-c", "NODE_ENV=production node dist/index.js"]
+build = ["NODE_ENV=production", "npm", "run", "build"]
+run = "npm run start"
 
 [[deployment.rewrites]]
 from = "/api/*"
-to = "/api/$1"
+to = "/api/*"
 
 [[deployment.rewrites]]
 from = "/*"
@@ -24,9 +24,6 @@ pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
 
 [languages.javascript.languageServer]
 start = ["typescript-language-server", "--stdio"]
-
-[[ports]]
-localPort = 3000
 
 [[ports]]
 localPort = 5000

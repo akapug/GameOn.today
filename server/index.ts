@@ -1,16 +1,29 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { initializeDatabase } from "./services/database";
+import path from "path";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// Basic middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Logging middleware
+// Enhanced logging middleware for debugging static asset serving
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
+
+  // Debug logging for static asset requests in production
+  if (process.env.NODE_ENV === 'production') {
+    log(`Incoming request: ${req.method} ${path}`);
+    log(`Headers: ${JSON.stringify(req.headers)}`);
+  }
+
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
@@ -21,88 +34,117 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
+    if (process.env.NODE_ENV !== "production" || path.startsWith("/api")) {
+      log(`${req.method} ${path} ${res.statusCode} ${duration}ms${
+        capturedJsonResponse ? ` :: ${JSON.stringify(capturedJsonResponse)}` : ''
+      }`);
+    }
 
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
+    // Debug logging for responses in production
+    if (process.env.NODE_ENV === 'production') {
+      log(`Response sent: ${res.statusCode} for ${path} in ${duration}ms`);
+      log(`Response headers: ${JSON.stringify(res.getHeaders())}`);
     }
   });
 
   next();
 });
 
-// Health check endpoint that doesn't require database
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok" });
-});
-
-// Handle cleanup on process termination
-function cleanup() {
-  process.exit(0);
-}
-
-process.on('SIGINT', cleanup);
-process.on('SIGTERM', cleanup);
-
 (async () => {
-  try {
-    // First, create the HTTP server
-    const server = registerRoutes(app);
+  // Register API routes first
+  const server = registerRoutes(app);
 
-    // Initialize database connection in background
-    initializeDatabase()
-      .then(() => {
-        log("Database connection established");
-      })
-      .catch((error) => {
-        log(`Warning: Database initialization failed: ${error.message}`);
-        log("Server will continue running, but database operations may fail");
-      });
+  // Error handling middleware
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    console.error("Server error:", err);
+    const isProd = process.env.NODE_ENV === "production";
+    const status = err.status || err.statusCode || 500;
+    const message = isProd ? "Internal Server Error" : (err.message || "Internal Server Error");
 
-    // Global error handler
-    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-      console.error("Server error:", err);
-      const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
-
-      if (!res.headersSent) {
-        if (_req.path.startsWith("/api")) {
-          return res.status(status).json({ message });
-        }
-        res.status(status).send(message);
+    if (!res.headersSent) {
+      if (_req.path.startsWith("/api")) {
+        return res.status(status).json({ message });
       }
-    });
+      res.status(status).send(message);
+    }
+  });
 
-    // Setup Vite for development or static files for production
-    if (app.get("env") === "development") {
-      await setupVite(app, server);
-    } else {
-      serveStatic(app);
+  if (process.env.NODE_ENV !== "production") {
+    log("Starting development server with Vite...");
+    await setupVite(app, server);
+  } else {
+    // Production: Serve static files with enhanced error handling
+    log("Starting production server...");
+    const staticPath = path.join(__dirname, "..", "dist", "public");
+    log(`Serving static files from: ${staticPath}`);
+
+    // Verify static directory exists
+    try {
+      const fs = await import('fs');
+      if (!fs.existsSync(staticPath)) {
+        throw new Error(`Static directory not found: ${staticPath}`);
+      }
+      log(`Static directory exists and is accessible`);
+    } catch (error) {
+      console.error('Static directory verification failed:', error);
+      process.exit(1);
     }
 
-    // ALWAYS serve the app on port 5000
-    // this serves both the API and the client
-    const PORT = 5000;
-    server.listen(PORT, "0.0.0.0", () => {
-      log(`serving on port ${PORT}`);
-    }).on('error', (error: any) => {
-      if (error.code === 'EADDRINUSE') {
-        log(`Port ${PORT} is already in use. Please make sure no other instances are running.`);
-        process.exit(1);
-      } else {
-        throw error;
+    // First, serve the assets directory with appropriate cache headers
+    app.use('/assets', express.static(path.join(staticPath, 'assets'), {
+      maxAge: '1y',
+      etag: true,
+      index: false,
+      setHeaders: (res, path) => {
+        // Set proper content types for common file types
+        if (path.endsWith('.js')) {
+          res.setHeader('Content-Type', 'application/javascript');
+          log(`Serving JavaScript file: ${path}`);
+        } else if (path.endsWith('.css')) {
+          res.setHeader('Content-Type', 'text/css');
+          log(`Serving CSS file: ${path}`);
+        }
       }
+    }));
+
+    // Then serve other static files
+    app.use(express.static(staticPath, {
+      maxAge: '1d',
+      etag: true,
+      index: false
+    }));
+
+    // Add specific error handling for static assets
+    app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+      if (req.path.startsWith('/assets/')) {
+        log(`Static asset error: ${err.message} for ${req.path}`);
+        return res.status(404).send('Asset not found');
+      }
+      next(err);
     });
 
-  } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
+    // Finally, handle all other routes
+    app.get("*", (req, res, next) => {
+      // Skip API routes
+      if (req.path.startsWith("/api")) return next();
+
+      log(`Serving index.html for path: ${req.path}`);
+      // Send index.html for all other routes (SPA fallback)
+      res.sendFile(path.join(staticPath, "index.html"), {
+        headers: {
+          'Content-Type': 'text/html',
+        }
+      }, (err) => {
+        if (err) {
+          log(`Error serving index.html: ${err.message}`);
+          next(err);
+        }
+      });
+    });
   }
+
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, "0.0.0.0", () => {
+    log(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
+  });
 })();
