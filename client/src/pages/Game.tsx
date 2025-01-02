@@ -134,7 +134,7 @@ export default function Game() {
 
   const editGame = useMutation({
     mutationFn: async (values: Partial<GameType>) => {
-      const dateStr = values.date ? new Date(values.date).toISOString() : undefined;
+      const dateStr = values.date ? new Date(new Date(values.date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString() : undefined;
       const res = await fetch(`/api/games/${params?.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
