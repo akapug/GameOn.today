@@ -32,12 +32,45 @@ export default function CreateGame() {
       creatorId: user?.uid || "",
       creatorName: user?.displayName || "",
     },
-    validate: {
-      title: (value) => !!value || "Title is required",
-      location: (value) => !!value || "Location is required",
-      date: (value) => !!value || "Date is required",
-      sportId: (value) => !!value || "Sport is required",
-      playerThreshold: (value) => value > 1 || "Player threshold must be greater than 1"
+    defaultValues: {
+      title: "",
+      location: "",
+      date: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      playerThreshold: 10,
+
+  const form = useForm<NewGame>({
+    defaultValues: {
+      title: "",
+      location: "",
+      date: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      playerThreshold: 10,
+      sportId: undefined,
+      creatorId: user?.uid || "",
+      creatorName: user?.displayName || "",
+    },
+    resolver: async (data) => {
+      const errors: Record<string, { message: string }> = {};
+      
+      if (!data.title) errors.title = { message: "Title is required" };
+      if (!data.location) errors.location = { message: "Location is required" };
+      if (!data.date) errors.date = { message: "Date is required" };
+      if (!data.sportId) errors.sportId = { message: "Sport is required" };
+      if (!data.playerThreshold || data.playerThreshold <= 1) {
+        errors.playerThreshold = { message: "Player threshold must be greater than 1" };
+      }
+      
+      return {
+        values: data,
+        errors,
+      };
+    },
+  });
+
+      sportId: undefined,
+      creatorId: user?.uid || "",
+      creatorName: user?.displayName || "",
     }
   });
 
