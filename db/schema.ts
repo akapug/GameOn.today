@@ -20,6 +20,7 @@ export const games = pgTable("games", {
   createdAt: timestamp("created_at").defaultNow(),
   creatorId: text("creator_id").notNull(), // Firebase Auth UID
   creatorName: text("creator_name").notNull(),
+  timezone: text("timezone").notNull(),
 });
 
 export const players = pgTable("players", {
