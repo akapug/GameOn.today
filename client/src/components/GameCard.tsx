@@ -351,6 +351,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           {hasMinimumPlayers ? "Join Game (Has Enough Players)" : "Join Game"}
         </Button>
 
+        {/* Share Button */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
@@ -395,121 +396,123 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Edit Button */}
         {canDelete && (
-          <>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Edit Game</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={(e) => {
-                  e.preventDefault();
-                  fetch(`/api/games/${game.id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      title: game.title,
-                      location: game.location,
-                      date: game.date,
-                      playerThreshold: game.playerThreshold,
-                      creatorId: game.creatorId
-                    }),
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Edit className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Edit Game</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                fetch(`/api/games/${game.id}`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    title: game.title,
+                    location: game.location,
+                    date: game.date,
+                    playerThreshold: game.playerThreshold,
+                    creatorId: game.creatorId
+                  }),
+                })
+                  .then((res) => {
+                    if (!res.ok) throw new Error("Failed to update game");
+                    queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                    toast({ title: "Success", description: "Game updated successfully" });
                   })
-                    .then((res) => {
-                      if (!res.ok) throw new Error("Failed to update game");
-                      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-                      toast({ title: "Success", description: "Game updated successfully" });
-                    })
-                    .catch((error) => {
-                      toast({
-                        title: "Error",
-                        description: error.message,
-                        variant: "destructive",
-                      });
+                  .catch((error) => {
+                    toast({
+                      title: "Error",
+                      description: error.message,
+                      variant: "destructive",
                     });
-                }} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      defaultValue={game.title}
-                      onChange={(e) => game.title = e.target.value}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Location</Label>
-                    <Input
-                      defaultValue={game.location}
-                      onChange={(e) => game.location = e.target.value}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Date & Time</Label>
-                    <Input
-                      type="datetime-local"
-                      defaultValue={new Date(game.date).toISOString().slice(0, 16)}
-                      onChange={(e) => game.date = new Date(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Player Threshold</Label>
-                    <Input
-                      type="number"
-                      min="2"
-                      defaultValue={game.playerThreshold}
-                      onChange={(e) => game.playerThreshold = parseInt(e.target.value, 10)}
-                    />
-                  </div>
-                  <Button type="submit" className="w-full">
-                    Save Changes
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="icon" className="text-red-600">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Delete Game</DialogTitle>
-                </DialogHeader>
-                <p>Are you sure you want to delete this game? This action cannot be undone.</p>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      fetch(`/api/games/${game.id}`, { method: "DELETE" })
-                        .then(() => {
-                          queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-                          toast({ title: "Success", description: "Game deleted successfully" });
-                        })
-                        .catch(() => {
-                          toast({
-                            title: "Error",
-                            description: "Failed to delete game",
-                            variant: "destructive",
-                          });
-                        });
-                      setShowDeleteConfirm(false);
-                    }}
-                  >
-                    Delete
-                  </Button>
+                  });
+              }} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    defaultValue={game.title}
+                    onChange={(e) => game.title = e.target.value}
+                  />
                 </div>
-              </DialogContent>
-            </Dialog>
-          </>
+                <div className="space-y-2">
+                  <Label>Location</Label>
+                  <Input
+                    defaultValue={game.location}
+                    onChange={(e) => game.location = e.target.value}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Date & Time</Label>
+                  <Input
+                    type="datetime-local"
+                    defaultValue={new Date(game.date).toISOString().slice(0, 16)}
+                    onChange={(e) => game.date = new Date(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Player Threshold</Label>
+                  <Input
+                    type="number"
+                    min="2"
+                    defaultValue={game.playerThreshold}
+                    onChange={(e) => game.playerThreshold = parseInt(e.target.value, 10)}
+                  />
+                </div>
+                <Button type="submit" className="w-full">
+                  Save Changes
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Delete Button */}
+        {canDelete && (
+          <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon" className="text-red-600">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Game</DialogTitle>
+              </DialogHeader>
+              <p>Are you sure you want to delete this game? This action cannot be undone.</p>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    fetch(`/api/games/${game.id}`, { method: "DELETE" })
+                      .then(() => {
+                        queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                        toast({ title: "Success", description: "Game deleted successfully" });
+                      })
+                      .catch(() => {
+                        toast({
+                          title: "Error",
+                          description: "Failed to delete game",
+                          variant: "destructive",
+                        });
+                      });
+                    setShowDeleteConfirm(false);
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         )}
       </CardFooter>
     </Card>

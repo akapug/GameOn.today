@@ -270,12 +270,10 @@ export default function Game() {
             </Button>
             <h1 className="text-2xl font-bold ml-4">{game.title}</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => setLocation("/")}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-          </div>
+          <Button variant="ghost" onClick={() => setLocation("/")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
         </div>
       </header>
 
