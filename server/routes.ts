@@ -254,6 +254,38 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Delete player response
+  app.delete("/api/games/:gameId/players/:playerId", async (req, res) => {
+    try {
+      const { gameId, playerId } = req.params;
+      const responseToken = req.headers.authorization?.replace('Bearer ', '');
+
+      if (!responseToken) {
+        return res.status(401).json({ message: "Authorization token required" });
+      }
+
+      const [deletedPlayer] = await db
+        .delete(players)
+        .where(
+          and(
+            eq(players.id, parseInt(playerId, 10)),
+            eq(players.gameId, parseInt(gameId, 10)),
+            eq(players.responseToken, responseToken)
+          )
+        )
+        .returning();
+
+      if (!deletedPlayer) {
+        return res.status(404).json({ message: "Player not found or unauthorized" });
+      }
+
+      return res.json(deletedPlayer);
+    } catch (error) {
+      console.error("Failed to delete player response:", error);
+      return res.status(500).json({ message: "Failed to delete response" });
+    }
+  });
+
   // Edit player response
   app.put("/api/games/:gameId/players/:playerId", async (req, res) => {
     try {
