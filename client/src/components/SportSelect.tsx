@@ -3,29 +3,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSports } from "@/lib/sports";
 import { type ControllerRenderProps } from "react-hook-form";
 
-// Properly type the props to match react-hook-form's expectations
-interface SportSelectProps extends Partial<ControllerRenderProps> {
-  value?: string | number;
-  onValueChange?: (value: number) => void;
+interface SportSelectProps {
+  value?: number;
+  onChange?: (value: number | null) => void;
+  required?: boolean;
+  allowClear?: boolean;
 }
 
-const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>(({ value, onValueChange, ...props }, ref) => {
+const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>(({ 
+  value, 
+  onChange,
+  required,
+  allowClear 
+}, ref) => {
   const { data: sports } = useSports();
-
-  // Ensure we're working with strings for the select component
-  const stringValue = value?.toString();
 
   return (
     <Select
-      {...props}
       ref={ref}
-      value={stringValue}
-      onValueChange={(val) => onValueChange?.(Number(val))}
+      value={value?.toString() || ""}
+      onValueChange={(val) => onChange?.(val ? Number(val) : null)}
+      required={required}
     >
       <SelectTrigger>
         <SelectValue placeholder="Select a sport" />
       </SelectTrigger>
       <SelectContent>
+        {allowClear && (
+          <SelectItem value="">All Sports</SelectItem>
+        )}
         {sports?.map((sport) => (
           <SelectItem key={sport.id} value={sport.id.toString()}>
             {sport.name}

@@ -136,9 +136,9 @@ export function registerRoutes(app: Express): Server {
   // Create a new game
   app.post("/api/games", async (req, res) => {
     try {
-      const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName } = req.body;
-      
-      if (!sportId || !title || !location || !date || !playerThreshold || !creatorId) {
+      const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName, notes } = req.body;
+
+      if (!sportId || !title || !location || !date || !playerThreshold || !creatorId || !timezone) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
@@ -155,14 +155,15 @@ export function registerRoutes(app: Express): Server {
         title: String(title),
         location: String(location),
         date: new Date(date),
-        timezone: String(timezone || 'UTC'),
+        timezone: String(timezone),
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
-        creatorName: String(creatorName || '')
+        creatorName: String(creatorName || ''),
+        notes: notes ? String(notes) : null, // Make notes optional
       };
 
-      const newGame = await db.insert(games).values(gameData).returning();
-      res.json(newGame[0]);
+      const [newGame] = await db.insert(games).values(gameData).returning();
+      res.json(newGame);
     } catch (error) {
       console.error("Failed to create game:", error);
       res.status(500).json({ message: `Failed to create game: ${error.message}` });
