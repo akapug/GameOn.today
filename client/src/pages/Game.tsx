@@ -37,6 +37,7 @@ import { Label } from "@/components/ui/label";
 import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "@/components/WeatherDisplay";
 import type { WeatherInfo } from "../../../server/services/weather";
+import GameCard from "@/components/GameCard";
 
 interface GameWithDetails extends GameType {
   players: Player[];
