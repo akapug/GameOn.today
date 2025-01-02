@@ -278,21 +278,7 @@ export default function Game() {
       </header>
 
       <main className="container py-6 px-4">
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-lg font-semibold">{game.title}</h2>
-                <p className="text-sm text-muted-foreground">{game.sport.name}</p>
-              </div>
-              {hasMinimumPlayers && (
-                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                  Ready to Play!
-                </span>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
+        <GameCard game={game} fullscreen={true} />
             <div className="space-y-4">
               <div className="flex items-center text-sm">
                 <Calendar className="mr-2 h-4 w-4" />
@@ -435,9 +421,7 @@ export default function Game() {
                 </DialogContent>
               </Dialog>
             </div>
-          </CardContent>
-        </Card>
-      </main>
+          </main>
     </div>
   );
 }
