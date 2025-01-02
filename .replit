@@ -8,16 +8,12 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "cloudrun"
-build = ["NODE_ENV=production", "npm", "run", "build"]
-run = ["sh", "-c", "npm run start"]
+build = ["sh", "-c", "NODE_ENV=production npm run build"]
+run = ["sh", "-c", "NODE_ENV=production node dist/server/index.js"]
 
 [[deployment.rewrites]]
 from = "/api/*"
-to = "/api/*"
-
-[[deployment.rewrites]]
-from = "/assets/*"
-to = "/assets/*"
+to = "/api/$1"
 
 [[deployment.rewrites]]
 from = "/*"
