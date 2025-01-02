@@ -32,7 +32,7 @@ const SportSelect = forwardRef((props: any, ref) => {
             !value && "text-muted-foreground"
           )}
         >
-          {value ? defaultSports.find((_, index) => index + 1 === Number(value))?.name : "Select sport..."}
+          {value === 0 ? "All sports" : value ? defaultSports.find((_, index) => index + 1 === Number(value))?.name : "Select sport..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
@@ -40,6 +40,19 @@ const SportSelect = forwardRef((props: any, ref) => {
           <CommandInput placeholder="Search sports..." />
           <CommandEmpty>No sport found.</CommandEmpty>
           <CommandGroup>
+            <CommandItem
+              onSelect={() => {
+                onChange(0);
+              }}
+            >
+              <Check
+                className={cn(
+                  "mr-2 h-4 w-4",
+                  value === 0 ? "opacity-100" : "opacity-0"
+                )}
+              />
+              All sports
+            </CommandItem>
             {defaultSports.map((sport, index) => (
               <CommandItem
                 key={index + 1}
