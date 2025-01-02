@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Link } from "wouter";
 import Home from "./pages/Home";
 import CreateGame from "./pages/CreateGame";
 import Game from "./pages/Game";
