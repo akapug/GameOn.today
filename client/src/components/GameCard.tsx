@@ -58,13 +58,13 @@ export default function GameCard({ game }: GameCardProps) {
 
   const canEditResponse = (player: Player) => {
     if (!player.responseToken) return false;
-    
-    // Check authentication case
+
+    // For authenticated users, check if the response token matches their UID
     if (user?.uid) {
       return player.responseToken === user.uid;
     }
-    
-    // Check localStorage case
+
+    // For non-authenticated users, check localStorage
     const storedToken = localStorage.getItem(`response-token-${player.id}`);
     return Boolean(storedToken && storedToken === player.responseToken);
   };
@@ -96,8 +96,7 @@ export default function GameCard({ game }: GameCardProps) {
         throw new Error(errorData.message || `Failed to update response: ${res.status}`);
       }
 
-      const data = await res.json();
-      return data;
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
@@ -142,14 +141,16 @@ export default function GameCard({ game }: GameCardProps) {
         throw new Error(errorData.message || "Failed to join game");
       }
 
-      return res.json();
-    },
-    onSuccess: (data) => {
+      const data = await res.json();
+
       // Store the response token in localStorage for non-authenticated users
       if (!user?.uid && data.responseToken) {
         localStorage.setItem(`response-token-${data.id}`, data.responseToken);
       }
 
+      return data;
+    },
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.id) });
       toast({
@@ -336,7 +337,6 @@ export default function GameCard({ game }: GameCardProps) {
                             setEditingPlayer(null);
                           } else {
                             setEditingPlayer(player);
-                            // Initialize form with existing values when opening edit dialog
                             setPlayerName(player.name);
                             setPlayerEmail(player.email || '');
                             const isFullyCommitted = !player.likelihood || Number(player.likelihood) === 1;

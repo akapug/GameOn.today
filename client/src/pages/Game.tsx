@@ -57,6 +57,7 @@ export default function Game() {
   const { user } = useAuth();
   const [joinType, setJoinType] = useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = useState(0.5);
+  const [editingPlayer, setEditingPlayer] = useState<Player | null>(null); // Added state for editing
 
   const form = useForm<Partial<GameType>>();
 
@@ -108,7 +109,6 @@ export default function Game() {
       return res.json();
     },
     onSuccess: () => {
-      // Invalidate both the individual game and the games list
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       queryClient.invalidateQueries({
         queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined
@@ -197,6 +197,17 @@ export default function Game() {
       });
     },
   });
+
+  const canEditResponse = (player: Player) => {
+    if (!player.responseToken) return false;
+
+    if (user?.uid) {
+      return player.responseToken === user.uid;
+    }
+
+    const storedToken = localStorage.getItem(`response-token-${player.id}`);
+    return Boolean(storedToken && storedToken === player.responseToken);
+  };
 
   if (isLoading) {
     return (
@@ -468,20 +479,39 @@ export default function Game() {
                     {game.players?.map((player, index) => {
                       const hasLikelihood = player.likelihood !== null && player.likelihood !== undefined;
                       const isFullyCommitted = !hasLikelihood || Number(player.likelihood) === 1;
+                      const canEdit = canEditResponse(player);
 
                       return (
-                        <p key={player.id} className="text-sm text-muted-foreground">
-                          {index + 1}. {player.name}
-                          {isFullyCommitted ? (
-                            <span className="ml-1 text-xs text-green-600">
-                              Yes!
-                            </span>
-                          ) : (
-                            <span className="ml-1 text-xs text-yellow-600">
-                              Maybe ({Math.round(Number(player.likelihood) * 100)}%)
-                            </span>
+                        <div key={player.id} className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">
+                            {index + 1}. {player.name}
+                            {isFullyCommitted ? (
+                              <span className="ml-1 text-xs text-green-600">
+                                Yes!
+                              </span>
+                            ) : (
+                              <span className="ml-1 text-xs text-yellow-600">
+                                Maybe ({Math.round(Number(player.likelihood) * 100)}%)
+                              </span>
+                            )}
+                          </p>
+                          {canEdit && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setEditingPlayer(player);
+                                setPlayerName(player.name);
+                                setPlayerEmail(player.email || '');
+                                const isFullyCommitted = !player.likelihood || Number(player.likelihood) === 1;
+                                setJoinType(isFullyCommitted ? "yes" : "maybe");
+                                setLikelihood(!isFullyCommitted ? Number(player.likelihood) : 0.5);
+                              }}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
                           )}
-                        </p>
+                        </div>
                       );
                     })}
                   </div>
