@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -32,24 +33,6 @@ export default function CreateGame() {
       creatorId: user?.uid || "",
       creatorName: user?.displayName || "",
     },
-    defaultValues: {
-      title: "",
-      location: "",
-      date: "",
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      playerThreshold: 10,
-
-  const form = useForm<NewGame>({
-    defaultValues: {
-      title: "",
-      location: "",
-      date: "",
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      playerThreshold: 10,
-      sportId: undefined,
-      creatorId: user?.uid || "",
-      creatorName: user?.displayName || "",
-    },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
       
@@ -66,12 +49,6 @@ export default function CreateGame() {
         errors,
       };
     },
-  });
-
-      sportId: undefined,
-      creatorId: user?.uid || "",
-      creatorName: user?.displayName || "",
-    }
   });
 
   const createGame = useMutation({
