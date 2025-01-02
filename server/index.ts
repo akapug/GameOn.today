@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Enable CORS for development
+// Enable CORS for development only
 if (process.env.NODE_ENV !== "production") {
   app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -62,7 +62,6 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = isProd ? "Internal Server Error" : (err.message || "Internal Server Error");
 
-    // Only send response if headers haven't been sent
     if (!res.headersSent) {
       if (_req.path.startsWith("/api")) {
         return res.status(status).json({ message });
@@ -71,22 +70,26 @@ app.use((req, res, next) => {
     }
   });
 
-  // Development: Use Vite's dev server
   if (process.env.NODE_ENV !== "production") {
+    // Development: Use Vite's dev server
     log("Starting development server with Vite...");
     await setupVite(app, server);
   } else {
-    // Production: Serve static files from dist/public
+    // Production: Serve static files
     log("Starting production server...");
-    const staticPath = path.join(__dirname, "..", "dist", "public");
+    const staticPath = path.join(__dirname, "public");
     log(`Serving static files from: ${staticPath}`);
 
+    // Serve static files with caching headers
     app.use(express.static(staticPath, {
       maxAge: '1y',
       etag: true
     }));
 
-    // SPA fallback - serve index.html for all non-API routes
+    // Serve assets specifically
+    app.use('/assets', express.static(path.join(staticPath, 'assets')));
+
+    // For all other routes, serve index.html
     app.get("*", (req, res, next) => {
       if (req.path.startsWith("/api")) return next();
       res.sendFile(path.join(staticPath, "index.html"));

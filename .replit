@@ -10,7 +10,6 @@ channel = "stable-24_05"
 deploymentTarget = "cloudrun"
 build = ["NODE_ENV=production", "npm", "run", "build"]
 run = "npm run start"
-publicDir = "dist/public"
 
 [[deployment.rewrites]]
 from = "/api/*"
