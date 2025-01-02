@@ -70,11 +70,14 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
         body: JSON.stringify({
           name: playerName,
           email: playerEmail,
-          likelihood: joinType === "yes" ? 1 : likelihood,
+          likelihood: joinType === "yes" ? 1 : (joinType === "no" ? 0 : likelihood),
           uid: user?.uid,
         }),
       });
-      if (!res.ok) throw new Error("Failed to join game");
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to join game");
+      }
       return res.json();
     },
     onSuccess: (data) => {
