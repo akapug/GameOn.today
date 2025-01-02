@@ -57,8 +57,13 @@ export default function GameCard({ game }: GameCardProps) {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
 
   const canEditResponse = (player: Player) => {
+    // First check if user is authenticated and owns this response
+    if (user?.uid === player.responseToken) {
+      return true;
+    }
+    // For non-authenticated users, check localStorage token
     const storedToken = localStorage.getItem(`response-token-${player.id}`);
-    return (user?.uid === player.responseToken) || (storedToken === player.responseToken);
+    return storedToken && storedToken === player.responseToken;
   };
 
   const editResponse = useMutation({
@@ -66,7 +71,7 @@ export default function GameCard({ game }: GameCardProps) {
       const responseToken = user?.uid || localStorage.getItem(`response-token-${values.playerId}`);
 
       if (!responseToken) {
-        throw new Error("No authorization token found");
+        throw new Error("You are not authorized to edit this response. If you joined while signed out, try using the same browser.");
       }
 
       const res = await fetch(`/api/games/${game.id}/players/${values.playerId}`, {
@@ -88,7 +93,8 @@ export default function GameCard({ game }: GameCardProps) {
         throw new Error(errorData.message || `Failed to update response: ${res.status}`);
       }
 
-      return res.json();
+      const data = await res.json();
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
@@ -98,6 +104,10 @@ export default function GameCard({ game }: GameCardProps) {
         description: "Response updated successfully!",
       });
       setEditingPlayer(null);
+      setPlayerName("");
+      setPlayerEmail("");
+      setJoinType("yes");
+      setLikelihood(0.5);
     },
     onError: (error) => {
       toast({
@@ -112,7 +122,10 @@ export default function GameCard({ game }: GameCardProps) {
     mutationFn: async () => {
       const res = await fetch(`/api/games/${game.id}/join`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({
           name: playerName,
           email: playerEmail,
@@ -122,14 +135,15 @@ export default function GameCard({ game }: GameCardProps) {
       });
 
       if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error || "Failed to join game");
+        const errorData = await res.json().catch(() => ({ message: "Failed to parse error response" }));
+        throw new Error(errorData.message || "Failed to join game");
       }
 
       return res.json();
     },
     onSuccess: (data) => {
-      if (!user?.uid) {
+      // Store the response token in localStorage for non-authenticated users
+      if (!user?.uid && data.responseToken) {
         localStorage.setItem(`response-token-${data.id}`, data.responseToken);
       }
 
@@ -140,6 +154,10 @@ export default function GameCard({ game }: GameCardProps) {
         description: "You've successfully joined the game!",
       });
       setIsOpen(false);
+      setPlayerName("");
+      setPlayerEmail("");
+      setJoinType("yes");
+      setLikelihood(0.5);
     },
     onError: (error) => {
       toast({
@@ -311,8 +329,17 @@ export default function GameCard({ game }: GameCardProps) {
                       </p>
                       {canEdit && (
                         <Dialog open={editingPlayer?.id === player.id} onOpenChange={(open) => {
-                          if (!open) setEditingPlayer(null);
-                          else setEditingPlayer(player);
+                          if (!open) {
+                            setEditingPlayer(null);
+                          } else {
+                            setEditingPlayer(player);
+                            // Initialize form with existing values when opening edit dialog
+                            setPlayerName(player.name);
+                            setPlayerEmail(player.email || '');
+                            const isFullyCommitted = !player.likelihood || Number(player.likelihood) === 1;
+                            setJoinType(isFullyCommitted ? "yes" : "maybe");
+                            setLikelihood(!isFullyCommitted ? Number(player.likelihood) : 0.5);
+                          }
                         }}>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="sm">

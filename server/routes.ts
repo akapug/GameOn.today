@@ -181,12 +181,26 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/games/:id/join", async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, email, likelihood } = req.body;
-      const responseToken = req.body.uid || crypto.randomUUID(); // Use Firebase UID if available, otherwise generate token
+      const { name, email, likelihood, uid } = req.body;
+
+      console.log("Join game request:", { id, name, email, likelihood, uid });
+
+      if (!name) {
+        return res.status(400).json({ message: "Name is required" });
+      }
+
+      // Validate game ID
+      const gameId = parseInt(id, 10);
+      if (isNaN(gameId)) {
+        return res.status(400).json({ message: "Invalid game ID" });
+      }
+
+      // Generate response token - either use Firebase UID or generate UUID
+      const responseToken = uid || crypto.randomUUID();
 
       // Validate that the game exists
       const game = await db.query.games.findFirst({
-        where: eq(games.id, parseInt(id, 10)),
+        where: eq(games.id, gameId),
         with: {
           players: true,
         },
@@ -196,24 +210,41 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "Game not found" });
       }
 
-      const newPlayer = await db.insert(players).values({
-        gameId: parseInt(id, 10),
-        name,
-        email,
-        likelihood: likelihood || 1,
-        responseToken,
-      }).returning();
-
-      // Check if adding this player reaches the threshold
-      if (game.players.length + 1 === game.playerThreshold) {
-        // Send notifications to all players
-        await sendGameOnNotification(game.id);
+      // Check if player with same email already exists
+      if (email) {
+        const existingPlayer = game.players.find(p => p.email === email);
+        if (existingPlayer) {
+          return res.status(400).json({ message: "You have already joined this game" });
+        }
       }
 
-      res.json({ ...newPlayer[0], responseToken }); // Return the token to be stored in localStorage
+      try {
+        const [newPlayer] = await db.insert(players).values({
+          gameId: gameId,
+          name: name.trim(),
+          email: email?.trim(),
+          likelihood: likelihood || 1,
+          responseToken,
+        }).returning();
+
+        console.log("New player created:", newPlayer);
+
+        // Check if adding this player reaches the threshold
+        if (game.players.length + 1 === game.playerThreshold) {
+          // Send notifications to all players but don't wait for it
+          sendGameOnNotification(game.id).catch(error => {
+            console.error("Failed to send notifications:", error);
+          });
+        }
+
+        res.json({ ...newPlayer, responseToken }); // Return the token to be stored in localStorage
+      } catch (dbError) {
+        console.error("Database error when joining game:", dbError);
+        return res.status(500).json({ message: "Failed to join game. Please try again." });
+      }
     } catch (error) {
-      console.error("Failed to join game:", error);
-      res.status(500).json({ message: "Failed to join game" });
+      console.error("Error in join game route:", error);
+      res.status(500).json({ message: "An unexpected error occurred. Please try again." });
     }
   });
 
