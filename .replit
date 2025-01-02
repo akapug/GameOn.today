@@ -9,7 +9,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 build = ["NODE_ENV=production", "npm", "run", "build"]
-run = ["sh", "-c", "npm run db:push"]
+run = ["sh", "-c", "npm run start"]
 
 [[deployment.rewrites]]
 from = "/api/*"
