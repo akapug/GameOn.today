@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "./WeatherDisplay";
@@ -30,6 +30,7 @@ interface GameCardProps {
 
 export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const [playerName, setPlayerName] = React.useState(user?.displayName || "");
   const [playerEmail, setPlayerEmail] = React.useState(user?.email || "");
   const [joinType, setJoinType] = React.useState<"yes" | "maybe">("yes");
