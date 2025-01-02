@@ -9,7 +9,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 const getDb = () => {
-  const maxRetries = 3;
+  const maxRetries = 5;
   let currentTry = 0;
 
   const connect = async () => {
@@ -19,8 +19,14 @@ const getDb = () => {
       }
       
       console.log("Attempting database connection...");
+      // Use connection pooling URL
+      const poolUrl = process.env.DATABASE_URL.replace('.aws-eu-central-1', '-pooler.aws-eu-central-1')
+                                            .replace('.aws-eu-west-1', '-pooler.aws-eu-west-1')
+                                            .replace('.aws-us-east-1', '-pooler.aws-us-east-1')
+                                            .replace('.aws-us-west-2', '-pooler.aws-us-west-2');
+      
       const client = drizzle({
-        connection: process.env.DATABASE_URL,
+        connection: poolUrl,
         schema,
         ws: ws,
       });
@@ -33,8 +39,9 @@ const getDb = () => {
       console.error("Database connection error:", error.message);
       if (currentTry < maxRetries) {
         currentTry++;
-        console.log(`Retrying database connection (attempt ${currentTry}/${maxRetries})...`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * currentTry));
+        const delay = Math.min(1000 * Math.pow(2, currentTry), 10000); // Exponential backoff
+        console.log(`Retrying database connection (attempt ${currentTry}/${maxRetries}) in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
         return await connect();
       }
       throw new Error(`Failed to connect to database: ${error.message}`);
