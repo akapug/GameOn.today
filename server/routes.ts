@@ -136,23 +136,40 @@ export function registerRoutes(app: Express): Server {
   // Create a new game
   app.post("/api/games", async (req, res) => {
     try {
+      console.log("Creating game with data:", req.body);
+      
+      if (!req.body.sportId) {
+        return res.status(400).json({ message: "Sport ID is required" });
+      }
+
       const sport = await db.query.sports.findFirst({
-        where: eq(sports.id, req.body.sportId),
+        where: eq(sports.id, parseInt(req.body.sportId)),
       });
 
       if (!sport) {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
-      const newGame = await db.insert(games).values({
-        ...req.body,
+      const gameData = {
+        sportId: parseInt(req.body.sportId),
+        title: req.body.title,
+        location: req.body.location,
         date: new Date(req.body.date),
-      }).returning();
+        timezone: req.body.timezone,
+        playerThreshold: parseInt(req.body.playerThreshold),
+        creatorId: req.body.creatorId,
+        creatorName: req.body.creatorName
+      };
+
+      console.log("Inserting game with data:", gameData);
+      
+      const newGame = await db.insert(games).values(gameData).returning();
+      console.log("Game created successfully:", newGame[0]);
 
       res.json(newGame[0]);
     } catch (error) {
       console.error("Failed to create game:", error);
-      res.status(500).json({ message: "Failed to create game" });
+      res.status(500).json({ message: `Failed to create game: ${error.message}` });
     }
   });
 
