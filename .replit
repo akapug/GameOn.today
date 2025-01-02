@@ -16,6 +16,10 @@ from = "/api/*"
 to = "/api/*"
 
 [[deployment.rewrites]]
+from = "/assets/*"
+to = "/assets/*"
+
+[[deployment.rewrites]]
 from = "/*"
 to = "/index.html"
 
@@ -31,28 +35,3 @@ localPort = 3000
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[workflows]
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Database Migration"
-
-[[workflows.workflow]]
-name = "Database Migration"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run db:push"
