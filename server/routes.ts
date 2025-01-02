@@ -198,6 +198,11 @@ export function registerRoutes(app: Express): Server {
       // Generate response token - either use Firebase UID or generate UUID
       const responseToken = uid || crypto.randomUUID();
 
+      // Ensure responseToken is never null
+      if (!responseToken) {
+        return res.status(400).json({ message: "Unable to generate response token" });
+      }
+
       // Validate that the game exists
       const game = await db.query.games.findFirst({
         where: eq(games.id, gameId),
@@ -224,7 +229,7 @@ export function registerRoutes(app: Express): Server {
           name: name.trim(),
           email: email?.trim(),
           likelihood: likelihood || 1,
-          responseToken,
+          responseToken: responseToken,
         }).returning();
 
         console.log("New player created:", newPlayer);
