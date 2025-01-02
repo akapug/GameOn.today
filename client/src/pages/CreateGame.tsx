@@ -32,12 +32,16 @@ export default function CreateGame() {
       sportId: undefined,
       creatorId: user?.uid || "",
       creatorName: user?.displayName || "",
+      status: "scheduled",
+      createdAt: new Date().toISOString(),
+      confirmedPlayers: [],
+      maybeParticipants: []
     },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
       
-      if (!data.title) errors.title = { message: "Title is required" };
-      if (!data.location) errors.location = { message: "Location is required" };
+      if (!data.title?.trim()) errors.title = { message: "Title is required" };
+      if (!data.location?.trim()) errors.location = { message: "Location is required" };
       if (!data.date) errors.date = { message: "Date is required" };
       if (!data.sportId) errors.sportId = { message: "Sport is required" };
       if (!data.playerThreshold || data.playerThreshold <= 1) {
@@ -46,7 +50,7 @@ export default function CreateGame() {
       
       return {
         values: data,
-        errors,
+        errors: Object.keys(errors).length > 0 ? errors : {},
       };
     },
   });
