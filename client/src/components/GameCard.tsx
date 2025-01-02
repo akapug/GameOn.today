@@ -57,13 +57,16 @@ export default function GameCard({ game }: GameCardProps) {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
 
   const canEditResponse = (player: Player) => {
-    // For authenticated users, check their uid matches response token
-    if (user?.uid && player.responseToken === user.uid) {
-      return true;
+    if (!player.responseToken) return false;
+    
+    // Check authentication case
+    if (user?.uid) {
+      return player.responseToken === user.uid;
     }
-    // For non-authenticated users, check if they have the matching token in localStorage
+    
+    // Check localStorage case
     const storedToken = localStorage.getItem(`response-token-${player.id}`);
-    return storedToken && storedToken === player.responseToken;
+    return Boolean(storedToken && storedToken === player.responseToken);
   };
 
   const editResponse = useMutation({
