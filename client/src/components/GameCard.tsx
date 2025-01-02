@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { format, zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
+import { format, utcToZonedTime } from "date-fns-tz";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -169,6 +169,8 @@ export default function GameCard({ game }: GameCardProps) {
   const progressPercentage = calculateProgress();
   const hasMinimumPlayers = progressPercentage >= 100;
   const canDelete = user && game.creatorId === user.uid;
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const isInDifferentTimezone = userTimezone !== game.timezone;
 
   return (
     <Card className="w-full">
@@ -200,10 +202,22 @@ export default function GameCard({ game }: GameCardProps) {
             <div className="flex items-center text-sm">
               <Calendar className="mr-2 h-4 w-4" />
               {format(
-                utcToZonedTime(new Date(game.date), game.timezone),
-                "PPP p"
+                utcToZonedTime(
+                  new Date(game.date),
+                  game.timezone
+                ),
+                "PPP p zzz",
+                { timeZone: game.timezone }
               )}
-              <span className="ml-2 text-muted-foreground">({game.timezone})</span>
+              {isInDifferentTimezone && (
+                <span className="ml-2 text-yellow-600 text-xs">
+                  (Your time: {format(
+                    utcToZonedTime(new Date(game.date), userTimezone),
+                    "p",
+                    { timeZone: userTimezone }
+                  )})
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2 text-sm">
               <div className="flex items-center">

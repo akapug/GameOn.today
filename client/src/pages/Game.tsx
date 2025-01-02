@@ -15,7 +15,8 @@ import {
   Twitter,
   MessageSquare,
   Trash2,
-  Edit2
+  Edit2,
+  AlertTriangle
 } from "lucide-react";
 import { format, zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
 import { useState, useEffect } from "react";
@@ -37,6 +38,8 @@ import { Label } from "@/components/ui/label";
 import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "@/components/WeatherDisplay";
 import type { WeatherInfo } from "../../../server/services/weather";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
 
 interface GameWithDetails extends GameType {
   players: Player[];
@@ -268,6 +271,9 @@ export default function Game() {
   const hasMinimumPlayers = progressPercentage >= 100;
   const canDelete = user && game.creatorId === user.uid;
 
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const isInDifferentTimezone = game && userTimezone !== game.timezone;
+
   return (
     <div className="min-h-screen bg-background">
       <header className="p-4 border-b">
@@ -435,6 +441,15 @@ export default function Game() {
               )}
             </div>
           </CardHeader>
+          {isInDifferentTimezone && (
+            <Alert className="mb-4" variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                This game is scheduled in {game.timezone}, which is different from your timezone ({userTimezone}).
+                Please note all times shown are in the game's timezone.
+              </AlertDescription>
+            </Alert>
+          )}
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center text-sm">

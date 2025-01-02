@@ -12,13 +12,14 @@ import { type Game, type Player, type Sport } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import AuthDialog from "@/components/AuthDialog";
 import { queryKeys } from "@/lib/queryClient";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 import type { WeatherInfo } from "../../../server/services/weather";
 
 interface GameWithDetails extends Game {
   players: Array<Player>;
   sport: Sport;
   weather: WeatherInfo | null;
-  timezone: string; // Added timezone property
 }
 
 export default function Home() {
@@ -26,6 +27,7 @@ export default function Home() {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const { data: games = [] } = useQuery<GameWithDetails[]>({
     queryKey: queryKeys.games.all,
@@ -45,6 +47,9 @@ export default function Home() {
     if (!selectedSport) return games;
     return games.filter(game => game.sportId === selectedSport);
   };
+
+  // Show warning if any games are in different timezones
+  const hasGamesInDifferentTimezones = games.some(game => game.timezone !== userTimezone);
 
   const todayGames = filterGamesBySport(
     games.filter(game => {
@@ -75,6 +80,15 @@ export default function Home() {
         redirectTo="/create"
       />
       <main className="container py-6 px-4">
+        {hasGamesInDifferentTimezones && (
+          <Alert className="mb-6" variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Some games are scheduled in different timezones. Please check each game's timezone carefully.
+              Your current timezone is: {userTimezone}
+            </AlertDescription>
+          </Alert>
+        )}
         <Tabs defaultValue="today" className="w-full">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <TabsList className="justify-start w-full sm:w-auto">

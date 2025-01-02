@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertTriangle } from "lucide-react";
 
 const createGameSchema = z.object({
   sportId: z.number().min(1, "Please select a sport"),
@@ -49,6 +50,7 @@ export default function CreateGame() {
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
   const [showTimezoneAlert, setShowTimezoneAlert] = useState(true);
+  const [showTimezoneWarning, setShowTimezoneWarning] = useState(false);
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   // Format current time in user's timezone for the datetime-local input
@@ -70,11 +72,17 @@ export default function CreateGame() {
     }
   });
 
-  // Effect to update timezone alert visibility
+  // Effect to update timezone warnings
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
-      if (name === 'timezone' && value.timezone !== userTimezone) {
-        setShowTimezoneAlert(false);
+      if (name === 'timezone') {
+        const selectedTimezone = value.timezone;
+        if (selectedTimezone && selectedTimezone !== userTimezone) {
+          setShowTimezoneWarning(true);
+          setShowTimezoneAlert(false);
+        } else {
+          setShowTimezoneWarning(false);
+        }
       }
     });
     return () => subscription.unsubscribe();
@@ -155,6 +163,16 @@ export default function CreateGame() {
                 <AlertDescription>
                   Using your detected timezone: <strong>{userTimezone}</strong>. 
                   All times will be displayed in this timezone unless changed below.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {showTimezoneWarning && (
+              <Alert className="mb-6" variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Warning: You've selected a different timezone than your local timezone ({userTimezone}).
+                  Make sure this is intentional to avoid confusion with game times.
                 </AlertDescription>
               </Alert>
             )}
