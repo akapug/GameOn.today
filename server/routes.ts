@@ -1,11 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { getDb } from "@db";
+import { getDb } from "./services/database";
 import { games, players, sports } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { defaultSports } from "../client/src/lib/sports";
 import nodemailer from "nodemailer";
 import { getWeatherForecast } from "./services/weather";
+import { sql } from "drizzle-orm";
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
@@ -88,10 +89,49 @@ export function registerRoutes(app: Express): Server {
     next();
   });
 
+  // Add database connection error handler middleware
+  app.use(async (req, res, next) => {
+    if (req.path.startsWith('/api') && req.path !== '/api/health') {
+      try {
+        // Test database connection before proceeding
+        await getDb();
+        next();
+      } catch (error) {
+        console.error('Database connection error:', error);
+        res.status(503).json({ 
+          message: "Database service temporarily unavailable. Please try again later.",
+          error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+      }
+    } else {
+      next();
+    }
+  });
+
+  // Add health check endpoint that includes database status
+  app.get("/api/health", async (_req, res) => {
+    const health = {
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      database: "unknown"
+    };
+
+    try {
+      const db = await getDb();
+      await db.execute(sql`SELECT 1`);
+      health.database = "connected";
+    } catch (error) {
+      health.database = "disconnected";
+      console.error('Health check - Database error:', error);
+    }
+
+    res.json(health);
+  });
+
   // Initialize default sports if none exist
   app.get("/api/init", async (_req, res) => {
     try {
-      const db = getDb();
+      const db = await getDb();
       const existingSports = await db.select().from(sports);
       if (existingSports.length === 0) {
         await db.insert(sports).values(defaultSports);

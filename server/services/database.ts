@@ -16,11 +16,12 @@ export const getMigrationDb = () => {
   });
 };
 
-// Initialize database connection with retries
-export const initializeDatabase = async (retries = 3, delay = 1000) => {
+// Initialize database connection with retries and backoff
+export const initializeDatabase = async (maxRetries = 3, initialDelay = 1000) => {
   let lastError;
+  let delay = initialDelay;
 
-  for (let i = 0; i < retries; i++) {
+  for (let i = 0; i < maxRetries; i++) {
     try {
       const db = getMigrationDb();
       // Test the connection with a simple query
@@ -29,8 +30,11 @@ export const initializeDatabase = async (retries = 3, delay = 1000) => {
     } catch (error) {
       lastError = error;
       console.error(`Database connection attempt ${i + 1} failed:`, error);
-      if (i < retries - 1) {
+
+      if (i < maxRetries - 1) {
+        // Exponential backoff
         await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2; // Double the delay for next retry
       }
     }
   }
@@ -38,5 +42,5 @@ export const initializeDatabase = async (retries = 3, delay = 1000) => {
   throw lastError;
 };
 
-// Re-export the main db connection functions
+// Re-export the main db connection functions with better error handling
 export { getDb, resetDb } from "@db";
