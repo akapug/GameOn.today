@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
-import { zonedTimeToUtc, utcToZonedTime } from "date-fns-tz";
+import { format } from 'date-fns-tz';
 import { useState } from "react";
 import SportSelect from "@/components/SportSelect";
 import { type Game, type Player, type Sport } from "@db/schema";
@@ -51,23 +51,37 @@ export default function Home() {
   // Show warning if any games are in different timezones
   const hasGamesInDifferentTimezones = games.some(game => game.timezone !== userTimezone);
 
+  const getGameDateInTimezone = (game: GameWithDetails) => {
+    const date = new Date(game.date);
+    try {
+      // Format the date in game's timezone and parse it back to a Date
+      const dateStr = format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx", {
+        timeZone: game.timezone
+      });
+      return new Date(dateStr);
+    } catch (error) {
+      console.error('Error converting date:', error);
+      return date; // Fallback to original date if conversion fails
+    }
+  };
+
   const todayGames = filterGamesBySport(
     games.filter(game => {
-      const gameDate = utcToZonedTime(new Date(game.date), game.timezone);
+      const gameDate = getGameDateInTimezone(game);
       return isSameDay(gameDate, now);
     })
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const upcomingGames = filterGamesBySport(
     games.filter(game => {
-      const gameDate = utcToZonedTime(new Date(game.date), game.timezone);
+      const gameDate = getGameDateInTimezone(game);
       return isAfter(gameDate, now) && !isSameDay(gameDate, now);
     })
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const archivedGames = filterGamesBySport(
     games.filter(game => {
-      const gameDate = utcToZonedTime(new Date(game.date), game.timezone);
+      const gameDate = getGameDateInTimezone(game);
       return isBefore(gameDate, now);
     })
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
