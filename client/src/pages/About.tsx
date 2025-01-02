@@ -17,7 +17,7 @@ export default function About() {
         <h1 className="text-3xl font-bold mb-6">About GameOn</h1>
         <div className="prose prose-slate dark:prose-invert">
           <p className="text-lg mb-4">
-            GameOn is a platform designed primarily for organizing ultimate frisbee games and events, though it works great for other sports too. Whether you're organizing pickup, league games, or scrimmages, GameOn streamlines the process.
+            GameOn is a platform designed primarily for organizing ultimate frisbee games and events, though it works great for other sports too. It's built primarily for pickup at this point, but could easily be expanded to handle team scrimmages or leagues!
           </p>
           <ul className="space-y-2 mb-6">
             <li>Create and join local ultimate games (or any other sport)</li>
