@@ -43,19 +43,13 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-// Cleanup function to be called on process termination
+// Handle cleanup on process termination
 function cleanup() {
-  log("Server shutting down...");
   process.exit(0);
 }
 
-// Register cleanup handlers
 process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught exception:', err);
-  cleanup();
-});
 
 (async () => {
   try {
@@ -86,84 +80,26 @@ process.on('uncaughtException', (err) => {
       }
     });
 
-    // Setup appropriate server mode
-    if (process.env.NODE_ENV !== "production") {
-      log("Starting development server with Vite...");
-      // Setup Vite in middleware mode before starting the server
+    // Setup Vite for development or static files for production
+    if (app.get("env") === "development") {
       await setupVite(app, server);
     } else {
-      log("Starting production server...");
       serveStatic(app);
     }
 
-    // Always use port 5000 as specified in the development guidelines
+    // ALWAYS serve the app on port 5000
+    // this serves both the API and the client
     const PORT = 5000;
-    const MAX_RETRIES = 3;
-    let currentTry = 0;
-
-    const startServer = () => {
-      // First check if the port is in use
-      const net = require('net');
-      const testServer = net.createServer()
-        .once('error', (err: any) => {
-          if (err.code === 'EADDRINUSE') {
-            log(`Port ${PORT} is already in use. Attempting to force close...`);
-            // Try to force close the port
-            testServer.once('close', () => {
-              net.createConnection({ port: PORT })
-                .on('error', () => {
-                  // Port is actually free now, start server
-                  startServerOnPort();
-                })
-                .on('connect', () => {
-                  // Port is still in use
-                  currentTry++;
-                  if (currentTry < MAX_RETRIES) {
-                    log(`Attempt ${currentTry + 1} to free port ${PORT}...`);
-                    setTimeout(startServer, 1000);
-                  } else {
-                    log(`Failed to free port ${PORT} after ${MAX_RETRIES} attempts.`);
-                    log("Please manually kill any process using port 5000 and try again.");
-                    process.exit(1);
-                  }
-                });
-            })
-            .close();
-          } else {
-            console.error('Server error:', err);
-            process.exit(1);
-          }
-        })
-        .once('listening', () => {
-          testServer.once('close', () => {
-            startServerOnPort();
-          }).close();
-        })
-        .listen(PORT);
-    };
-
-    const startServerOnPort = () => {
-      server.listen(PORT, "0.0.0.0", () => {
-        log(`Server running on port ${PORT}`);
-        if (process.env.NODE_ENV !== "production") {
-          log("Development server is ready and waiting for changes...");
-        }
-      }).on('error', (error: any) => {
-        console.error("Failed to start server:", error);
+    server.listen(PORT, "0.0.0.0", () => {
+      log(`serving on port ${PORT}`);
+    }).on('error', (error: any) => {
+      if (error.code === 'EADDRINUSE') {
+        log(`Port ${PORT} is already in use. Please make sure no other instances are running.`);
         process.exit(1);
-      });
-    };
-
-    // Before starting a new server instance, attempt to cleanup any existing one
-    process.on('exit', () => {
-      try {
-        server.close();
-      } catch (error) {
-        // Ignore errors during cleanup
+      } else {
+        throw error;
       }
     });
-
-    startServer();
 
   } catch (error) {
     console.error("Failed to start server:", error);
