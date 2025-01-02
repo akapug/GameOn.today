@@ -13,11 +13,16 @@ export function getDb() {
       );
     }
 
-    dbInstance = drizzle({
-      connection: process.env.DATABASE_URL,
-      schema,
-      ws: ws,
-    });
+    try {
+      dbInstance = drizzle({
+        connection: process.env.DATABASE_URL,
+        schema,
+        ws: ws,
+      });
+    } catch (error) {
+      console.error('Failed to initialize database connection:', error);
+      throw error;
+    }
   }
   return dbInstance;
 }

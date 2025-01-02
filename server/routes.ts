@@ -19,74 +19,68 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendGameOnNotification(gameId: number) {
-  const db = getDb();
-  const game = await db.query.games.findFirst({
-    where: eq(games.id, gameId),
-    with: {
-      sport: true,
-      players: {
-        columns: {
-          email: true,
-          name: true,
+  try {
+    const db = getDb();
+    const game = await db.query.games.findFirst({
+      where: eq(games.id, gameId),
+      with: {
+        sport: true,
+        players: {
+          columns: {
+            email: true,
+            name: true,
+          }
         }
-      }
-    },
-  });
+      },
+    });
 
-  if (!game) return;
+    if (!game) return;
 
-  // Filter out players without email
-  const playersWithEmail = game.players.filter(player => player.email);
+    // Filter out players without email
+    const playersWithEmail = game.players.filter(player => player.email);
 
-  // Send email to all players who provided email
-  const emailPromises = playersWithEmail.map(player =>
-    transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: player.email,
-      subject: `Game On! ${game.title} has enough players!`,
-      html: `
-        <h2>Great news, ${player.name}!</h2>
-        <p>The game you joined has reached its minimum player threshold and is now confirmed to happen!</p>
-        <p>Game Details:</p>
-        <ul>
-          <li><strong>Sport:</strong> ${game.sport.name}</li>
-          <li><strong>Title:</strong> ${game.title}</li>
-          <li><strong>Location:</strong> ${game.location}</li>
-          <li><strong>Date:</strong> ${new Date(game.date).toLocaleString()}</li>
-        </ul>
-        <p>See you at the game!</p>
-      `,
-    })
-  );
+    // Send email to all players who provided email
+    const emailPromises = playersWithEmail.map(player =>
+      transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: player.email,
+        subject: `Game On! ${game.title} has enough players!`,
+        html: `
+          <h2>Great news, ${player.name}!</h2>
+          <p>The game you joined has reached its minimum player threshold and is now confirmed to happen!</p>
+          <p>Game Details:</p>
+          <ul>
+            <li><strong>Sport:</strong> ${game.sport.name}</li>
+            <li><strong>Title:</strong> ${game.title}</li>
+            <li><strong>Location:</strong> ${game.location}</li>
+            <li><strong>Date:</strong> ${new Date(game.date).toLocaleString()}</li>
+          </ul>
+          <p>See you at the game!</p>
+        `,
+      })
+    );
 
-  await Promise.all(emailPromises).catch(console.error);
+    await Promise.all(emailPromises).catch(console.error);
+  } catch (error) {
+    console.error('Failed to send game notification:', error);
+  }
 }
 
 async function getGameWithWeather(game: any) {
-  const weather = await getWeatherForecast(game.location, new Date(game.date));
-  return {
-    ...game,
-    weather
-  };
+  try {
+    const weather = await getWeatherForecast(game.location, new Date(game.date));
+    return {
+      ...game,
+      weather
+    };
+  } catch (error) {
+    console.error('Failed to fetch weather data:', error);
+    return game;
+  }
 }
 
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
-
-  // Add database initialization endpoint
-  app.get("/api/init/db", async (_req, res) => {
-    try {
-      // This will trigger lazy database connection if not already connected
-      const db = getDb();
-      res.json({ status: "Database connection initialized" });
-    } catch (error) {
-      console.error("Failed to initialize database:", error);
-      res.status(500).json({ 
-        message: "Failed to initialize database",
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
 
   // Set default headers for all responses
   app.use((req, res, next) => {

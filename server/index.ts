@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initializeDatabase } from "./services/database";
 
 const app = express();
 app.use(express.json());
@@ -44,7 +45,18 @@ app.get("/api/health", (_req, res) => {
 
 (async () => {
   try {
+    // Register routes without waiting for database initialization
     const server = registerRoutes(app);
+
+    // Initialize database connection in background
+    initializeDatabase()
+      .then(() => {
+        log("Database connection established");
+      })
+      .catch((error) => {
+        log(`Warning: Database initialization failed: ${error.message}`);
+        log("Server will continue running, but database operations may fail");
+      });
 
     // Global error handler
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
