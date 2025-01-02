@@ -16,8 +16,11 @@ export interface WeatherInfo {
 
 async function getCoordinates(location: string): Promise<{ lat: number; lon: number } | null> {
   try {
+    // Add country code to improve accuracy, defaulting to US
+    const searchQuery = location.includes(',') ? location : `${location},US`;
+    
     const response = await nodeFetch(
-      `${BASE_URL}geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${API_KEY}`
+      `${BASE_URL}geo/1.0/direct?q=${encodeURIComponent(searchQuery)}&limit=5&appid=${API_KEY}`
     );
     const data = await response.json() as any[];
 
@@ -26,9 +29,17 @@ async function getCoordinates(location: string): Promise<{ lat: number; lon: num
       return null;
     }
 
+    // Try to find the most relevant result
+    const bestMatch = data.find(loc => 
+      loc.country === 'US' && 
+      loc.name.toLowerCase() === location.split(',')[0].toLowerCase()
+    ) || data[0];
+
+    console.log(`Location resolved: ${bestMatch.name}, ${bestMatch.state || ''}, ${bestMatch.country}`);
+    
     return {
-      lat: data[0].lat,
-      lon: data[0].lon
+      lat: bestMatch.lat,
+      lon: bestMatch.lon
     };
   } catch (error) {
     console.error('Error fetching coordinates:', error);
