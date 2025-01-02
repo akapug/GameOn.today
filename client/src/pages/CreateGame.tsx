@@ -32,6 +32,13 @@ export default function CreateGame() {
       creatorId: user?.uid || "",
       creatorName: user?.displayName || "",
     },
+    validate: {
+      title: (value) => !!value || "Title is required",
+      location: (value) => !!value || "Location is required",
+      date: (value) => !!value || "Date is required",
+      sportId: (value) => !!value || "Sport is required",
+      playerThreshold: (value) => value > 1 || "Player threshold must be greater than 1"
+    }
   });
 
   const createGame = useMutation({
