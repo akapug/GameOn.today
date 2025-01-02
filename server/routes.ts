@@ -150,7 +150,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
-      // Create the date object directly from the input string
+      // Create the Date object directly from the input string
       // This will preserve the exact time the user selected
       const gameDate = new Date(date);
 

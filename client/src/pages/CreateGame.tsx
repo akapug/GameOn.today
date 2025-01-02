@@ -39,15 +39,9 @@ export default function CreateGame() {
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  // Create an ISO datetime string without timezone information
+  // Format current time in user's timezone for the datetime-local input
   const now = new Date();
-  const localDateString = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    now.getHours(),
-    now.getMinutes()
-  ).toISOString().slice(0, 16);
+  const defaultDate = now.toLocaleString('sv-SE', { timeZone: userTimezone }).slice(0, 16);
 
   const form = useForm<FormData>({
     resolver: zodResolver(createGameSchema),
@@ -55,7 +49,7 @@ export default function CreateGame() {
       sportId: 0,
       title: "",
       location: "",
-      date: localDateString,
+      date: defaultDate,
       timezone: userTimezone,
       playerThreshold: 2,
       notes: "",
@@ -66,8 +60,10 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: FormData) => {
-      // Create an ISO string without timezone conversion
-      const dateStr = values.date;
+      // Ensure we keep the exact time selected by the user
+      const [datePart, timePart] = values.date.split('T');
+      // Add seconds to match PostgreSQL timestamp format
+      const dateStr = `${datePart}T${timePart}:00`;
 
       const res = await fetch("/api/games", {
         method: "POST",
