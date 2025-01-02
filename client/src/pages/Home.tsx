@@ -54,9 +54,8 @@ export default function Home() {
   const getGameDateInTimezone = (game: GameWithDetails) => {
     const date = new Date(game.date);
     try {
-      // Format the date in game's timezone and parse it back to a Date
-      const dateStr = formatInTimeZone(date, game.timezone, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
-      return new Date(dateStr);
+      const dateStr = zonedTimeToUtc(date, game.timezone);
+      return dateStr;
     } catch (error) {
       console.error('Error converting date:', error);
       return date; // Fallback to original date if conversion fails
