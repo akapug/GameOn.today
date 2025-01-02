@@ -1,0 +1,25 @@
+Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
+
+Check the render method of `SportSelect`.
+    at Select (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/@fs/home/runner/GameOntoday/node_modules/.vite/deps/@radix-ui_react-select.js?v=a8eac308:85:5)
+    at https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/src/components/SportSelect.tsx:23:28
+    at div
+    at https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/src/components/ui/form.tsx:71:6
+    at Controller (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/@fs/home/runner/GameOntoday/node_modules/.vite/deps/react-hook-form.js?v=031d82a9:313:35)
+    at FormField (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/src/components/ui/form.tsx:32:6)
+    at form
+    at FormProvider (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/@fs/home/runner/GameOntoday/node_modules/.vite/deps/react-hook-form.js?v=031d82a9:102:11)
+    at div
+    at _c9 (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/src/components/ui/card.tsx:106:12)
+    at div
+    at _c (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/src/components/ui/card.tsx:20:11)
+    at main
+    at div
+    at CreateGame (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/src/pages/CreateGame.tsx:34:24)
+    at Route (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/@fs/home/runner/GameOntoday/node_modules/.vite/deps/wouter.js?v=2666da30:323:16)
+    at Switch (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/@fs/home/runner/GameOntoday/node_modules/.vite/deps/wouter.js?v=2666da30:379:17)
+    at main
+    at div
+    at AuthProvider (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/src/components/AuthProvider.tsx:29:32)
+    at App
+    at QueryClientProvider (https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/@fs/home/runner/GameOntoday/node_modules/.vite/deps/@tanstack_react-query.js?v=c0cf4b5e:2805:3)
