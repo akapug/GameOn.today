@@ -50,7 +50,7 @@ const SportSelect = forwardRef((props: any, ref) => {
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === sport.id.toString() ? "opacity-100" : "opacity-0"
+                    value === (index + 1).toString() ? "opacity-100" : "opacity-0"
                   )}
                 />
                 {sport.name}
