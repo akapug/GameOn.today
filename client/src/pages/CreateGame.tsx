@@ -44,7 +44,7 @@ export default function CreateGame() {
       sportId: 0,
       title: "",
       location: "",
-      date: new Date().toISOString().slice(0, 16),
+      date: new Date().toISOString().slice(0, 16), // Reset to simple ISO format
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       playerThreshold: 2,
       notes: "",
@@ -90,15 +90,18 @@ export default function CreateGame() {
       return;
     }
 
+    // Create a date object in the selected timezone
+    const selectedDate = new Date(data.date);
     const gameData = {
       ...data,
       sportId: Number(data.sportId),
       playerThreshold: Number(data.playerThreshold),
-      date: new Date(data.date).toISOString(),
+      // Convert to ISO string while preserving the selected timezone
+      date: new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000)).toISOString(),
       creatorId: user.uid,
       creatorName: user.displayName || '',
       timezone: data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-      notes: data.notes || null // Make notes optional
+      notes: data.notes || null
     };
 
     createGame.mutate(gameData);
@@ -138,8 +141,8 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel>Sport *</FormLabel>
                       <FormControl>
-                        <SportSelect 
-                          value={field.value} 
+                        <SportSelect
+                          value={field.value}
                           onChange={field.onChange}
                           required
                         />
@@ -177,14 +180,18 @@ export default function CreateGame() {
                 <FormField
                   control={form.control}
                   name="date"
-                  render={({ field: { value, ...field } }) => (
+                  render={({ field: { value, onChange, ...field } }) => (
                     <FormItem>
                       <FormLabel>Date & Time *</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="datetime-local" 
-                          {...field} 
-                          value={value ? new Date(value).toISOString().slice(0, 16) : ''}
+                        <Input
+                          type="datetime-local"
+                          {...field}
+                          value={value}
+                          onChange={(e) => {
+                            // Directly use the selected value without timezone conversion
+                            onChange(e.target.value);
+                          }}
                           required
                         />
                       </FormControl>
@@ -199,8 +206,8 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel>Timezone *</FormLabel>
                       <FormControl>
-                        <Select 
-                          onValueChange={field.onChange} 
+                        <Select
+                          onValueChange={field.onChange}
                           value={field.value}
                           defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
                         >
@@ -230,7 +237,7 @@ export default function CreateGame() {
                         Optional: Add any additional details about the game
                       </FormDescription>
                       <FormControl>
-                        <Textarea 
+                        <Textarea
                           placeholder="Add any additional details about the game..."
                           className="min-h-[100px]"
                           {...field}
@@ -264,9 +271,9 @@ export default function CreateGame() {
                   * Required fields
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <Button
+                  type="submit"
+                  className="w-full"
                   disabled={createGame.isPending}
                 >
                   {createGame.isPending ? 'Creating...' : 'Create Game'}
