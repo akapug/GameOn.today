@@ -8,8 +8,14 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const db = drizzle({
-  connection: process.env.DATABASE_URL,
-  schema,
-  ws: ws,
-});
+// Export a function to create the database connection
+export function createDbConnection() {
+  return drizzle({
+    connection: process.env.DATABASE_URL,
+    schema,
+    ws: ws,
+  });
+}
+
+// Export the schema for use in other files
+export * from "@db/schema";
