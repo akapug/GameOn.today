@@ -41,7 +41,7 @@ export default function Home() {
   const now = startOfDay(new Date());
 
   const filterGamesBySport = (games: GameWithDetails[]) => {
-    if (!selectedSport) return games;
+    if (selectedSport === null) return games;
     return games.filter(game => game.sportId === selectedSport);
   };
 

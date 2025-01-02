@@ -44,7 +44,7 @@ const SportSelect = forwardRef((props: any, ref) => {
               <CommandItem
                 key={index + 1}
                 onSelect={() => {
-                  onChange((index + 1).toString());
+                  onChange(index + 1);
                 }}
               >
                 <Check
