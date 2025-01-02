@@ -37,10 +37,17 @@ export default function CreateGame() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  // Get current date in local time zone
+  // Create an ISO datetime string without timezone information
   const now = new Date();
-  const defaultDate = now.toLocaleDateString('en-CA') + 'T' + now.toLocaleTimeString('en-CA', { hour12: false }).slice(0, 5);
+  const localDateString = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    now.getHours(),
+    now.getMinutes()
+  ).toISOString().slice(0, 16);
 
   const form = useForm<FormData>({
     resolver: zodResolver(createGameSchema),
@@ -48,8 +55,8 @@ export default function CreateGame() {
       sportId: 0,
       title: "",
       location: "",
-      date: defaultDate,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      date: localDateString,
+      timezone: userTimezone,
       playerThreshold: 2,
       notes: "",
       creatorId: user?.uid || "",
@@ -59,6 +66,9 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: FormData) => {
+      // Create an ISO string without timezone conversion
+      const dateStr = values.date;
+
       const res = await fetch("/api/games", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,18 +76,17 @@ export default function CreateGame() {
           ...values,
           sportId: Number(values.sportId),
           playerThreshold: Number(values.playerThreshold),
-          // Keep the date string as is, let server handle timezone
-          date: values.date,
-          creatorId: user?.uid,
-          creatorName: user?.displayName || '',
+          date: dateStr,
           timezone: values.timezone,
+          creatorId: user?.uid,
+          creatorName: user?.displayName || "",
           notes: values.notes || null
         }),
       });
 
       if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Failed to create game");
+        const error = await res.text();
+        throw new Error(error || "Failed to create game");
       }
 
       return res.json();
@@ -182,6 +191,9 @@ export default function CreateGame() {
                           required
                         />
                       </FormControl>
+                      <FormDescription>
+                        Time will be stored in {userTimezone} timezone
+                      </FormDescription>
                     </FormItem>
                   )}
                 />
@@ -196,7 +208,7 @@ export default function CreateGame() {
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
-                          defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
+                          defaultValue={userTimezone}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select timezone" />

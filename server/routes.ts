@@ -133,7 +133,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Create a new game
+  // Update the game creation endpoint to handle the datetime correctly
   app.post("/api/games", async (req, res) => {
     try {
       const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName, notes } = req.body;
@@ -150,8 +150,10 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
-      // Parse the date in the specified timezone
+      // Create the date object directly from the input string
+      // This will preserve the exact time the user selected
       const gameDate = new Date(date);
+
       if (isNaN(gameDate.getTime())) {
         return res.status(400).json({ message: "Invalid date format" });
       }
@@ -160,7 +162,7 @@ export function registerRoutes(app: Express): Server {
         sportId: Number(sportId),
         title: String(title),
         location: String(location),
-        date: gameDate, // Store the date as is, with timezone info
+        date: gameDate,
         timezone: String(timezone),
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
