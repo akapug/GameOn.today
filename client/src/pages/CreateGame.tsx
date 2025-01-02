@@ -3,17 +3,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
 import SportSelect from "@/components/SportSelect";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type NewGame } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthDialog from "@/components/AuthDialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -37,6 +38,7 @@ export default function CreateGame() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
+  const [showTimezoneAlert, setShowTimezoneAlert] = useState(true);
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   // Format current time in user's timezone for the datetime-local input
@@ -58,12 +60,20 @@ export default function CreateGame() {
     }
   });
 
+  // Effect to update timezone alert visibility
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'timezone' && value.timezone !== userTimezone) {
+        setShowTimezoneAlert(false);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, userTimezone]);
+
   const createGame = useMutation({
     mutationFn: async (values: FormData) => {
-      // Ensure we keep the exact time selected by the user
-      const [datePart, timePart] = values.date.split('T');
-      // Add seconds to match PostgreSQL timestamp format
-      const dateStr = `${datePart}T${timePart}:00`;
+      // Keep the date exactly as selected in the form
+      const dateStr = values.date;
 
       const res = await fetch("/api/games", {
         method: "POST",
@@ -129,6 +139,16 @@ export default function CreateGame() {
       <main className="container py-6">
         <Card>
           <CardContent className="pt-6">
+            {showTimezoneAlert && (
+              <Alert className="mb-6">
+                <Clock className="h-4 w-4" />
+                <AlertDescription>
+                  Using your detected timezone: <strong>{userTimezone}</strong>. 
+                  All times will be displayed in this timezone unless changed below.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit((data) => createGame.mutate(data))} className="space-y-6">
                 <FormField
@@ -174,33 +194,33 @@ export default function CreateGame() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Date & Time *</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="datetime-local"
-                          {...field}
-                          required
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Time will be stored in {userTimezone} timezone
-                      </FormDescription>
-                    </FormItem>
-                  )}
-                />
+                <div className="grid gap-6 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date & Time *</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="datetime-local"
+                            {...field}
+                            required
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Select the exact time for the game
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="timezone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Timezone *</FormLabel>
-                      <FormControl>
+                  <FormField
+                    control={form.control}
+                    name="timezone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Timezone *</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
@@ -217,10 +237,11 @@ export default function CreateGame() {
                             ))}
                           </SelectContent>
                         </Select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}

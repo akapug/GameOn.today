@@ -150,19 +150,13 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
-      // Create the Date object directly from the input string
-      // This will preserve the exact time the user selected
-      const gameDate = new Date(date);
-
-      if (isNaN(gameDate.getTime())) {
-        return res.status(400).json({ message: "Invalid date format" });
-      }
-
+      // Keep the date string exactly as provided by the client
+      // This preserves the time in the selected timezone
       const gameData = {
         sportId: Number(sportId),
         title: String(title),
         location: String(location),
-        date: gameDate,
+        date: String(date),  // Store exactly as provided
         timezone: String(timezone),
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
@@ -293,12 +287,13 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Only the creator can edit this game" });
       }
 
+      // Keep the date string exactly as provided by the client
       const [updatedGame] = await db
         .update(games)
         .set({
           title,
           location,
-          date: new Date(date),
+          date: String(date),  // Store exactly as provided
           playerThreshold,
         })
         .where(eq(games.id, parseInt(id, 10)))
