@@ -17,6 +17,7 @@ export const games = pgTable("games", {
   date: timestamp("date").notNull(),
   notes: text("notes"),
   timezone: text("timezone").notNull(),
+  notes: text("notes"),
   playerThreshold: integer("player_threshold").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   creatorId: text("creator_id").notNull(), // Firebase Auth UID
