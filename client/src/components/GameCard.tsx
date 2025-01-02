@@ -43,6 +43,7 @@ interface GameCardProps {
     sport: Sport;
     weather: WeatherInfo | null;
   };
+  fullscreen?: boolean;
 }
 
 export default function GameCard({ game }: GameCardProps) {
@@ -294,7 +295,7 @@ export default function GameCard({ game }: GameCardProps) {
   const canDelete = user && game.creatorId === user.uid;
 
   return (
-    <Card className="w-full">
+    <Card className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""}`}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
