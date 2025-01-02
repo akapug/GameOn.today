@@ -134,11 +134,13 @@ export default function Game() {
 
   const editGame = useMutation({
     mutationFn: async (values: Partial<GameType>) => {
+      const dateStr = values.date ? new Date(values.date).toISOString().slice(0, 19) + 'Z' : undefined;
       const res = await fetch(`/api/games/${params?.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...values,
+          date: dateStr,
           creatorId: game?.creatorId,
         }),
       });
