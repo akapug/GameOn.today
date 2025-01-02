@@ -110,12 +110,13 @@ export default function CreateGame() {
           <CardContent className="pt-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit((data) => {
-                // Ensure all required fields are present and properly formatted
                 const gameData = {
                   ...data,
                   sportId: Number(data.sportId),
                   playerThreshold: Number(data.playerThreshold),
                   date: new Date(data.date).toISOString(),
+                  creatorId: user?.uid || "",
+                  creatorName: user?.displayName || ""
                 };
                 createGame.mutate(gameData);
               })} className="space-y-6">
