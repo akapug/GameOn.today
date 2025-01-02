@@ -45,12 +45,8 @@ export default function Home() {
     return games.filter(game => game.sportId === selectedSport);
   };
 
-  const todayGames = filterGamesBySport(
-    games.filter(game => isSameDay(new Date(game.date), now))
-  ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
   const upcomingGames = filterGamesBySport(
-    games.filter(game => isAfter(new Date(game.date), now) && !isSameDay(new Date(game.date), now))
+    games.filter(game => !isBefore(new Date(game.date), now))
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const archivedGames = filterGamesBySport(
@@ -65,17 +61,9 @@ export default function Home() {
         redirectTo="/create"
       />
       <main className="container py-6 px-4">
-        <Tabs defaultValue="today" className="w-full">
+        <Tabs defaultValue="upcoming" className="w-full">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <TabsList className="justify-start w-full sm:w-auto">
-              <TabsTrigger value="today" className="relative">
-                Today's Games
-                {todayGames.length > 0 && (
-                  <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
-                    {todayGames.length}
-                  </span>
-                )}
-              </TabsTrigger>
               <TabsTrigger value="upcoming" className="relative">
                 Upcoming
                 {upcomingGames.length > 0 && (
@@ -107,13 +95,6 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <TabsContent value="today" className="mt-6">
-            <GameList 
-              games={todayGames}
-              emptyMessage="No games scheduled for today. Why not create one?"
-              onCreateGame={handleCreateGame}
-            />
-          </TabsContent>
           <TabsContent value="upcoming" className="mt-6">
             <GameList 
               games={upcomingGames} 
