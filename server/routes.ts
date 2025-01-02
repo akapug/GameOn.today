@@ -388,7 +388,9 @@ export function registerRoutes(app: Express): Server {
         .where(eq(games.id, parseInt(id, 10)))
         .returning();
 
-      res.json(updatedGame);
+      // Fetch fresh weather data for the updated location
+      const gameWithWeather = await getGameWithWeather(updatedGame);
+      res.json(gameWithWeather);
     } catch (error) {
       console.error("Failed to update game:", error);
       res.status(500).json({ message: "Failed to update game" });
