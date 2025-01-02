@@ -15,7 +15,8 @@ import {
   Twitter,
   MessageSquare,
   Trash2,
-  Edit2
+  Edit2,
+  X
 } from "lucide-react";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
@@ -188,6 +189,47 @@ export default function Game() {
         description: "Game deleted successfully",
       });
       setLocation("/");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const cancelResponse = useMutation({
+    mutationFn: async (playerId: number) => {
+      const responseToken = user?.uid || localStorage.getItem(`response-token-${playerId}`);
+
+      if (!responseToken) {
+        throw new Error("You are not authorized to cancel this response");
+      }
+
+      const res = await fetch(`/api/games/${game.id}/players/${playerId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ responseToken }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: "Failed to parse error response" }));
+        throw new Error(errorData.message || `Failed to cancel response: ${res.status}`);
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.id) });
+      toast({
+        title: "Success",
+        description: "Response cancelled successfully",
+      });
     },
     onError: (error) => {
       toast({
@@ -496,20 +538,30 @@ export default function Game() {
                             )}
                           </p>
                           {canEdit && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditingPlayer(player);
-                                setPlayerName(player.name);
-                                setPlayerEmail(player.email || '');
-                                const isFullyCommitted = !player.likelihood || Number(player.likelihood) === 1;
-                                setJoinType(isFullyCommitted ? "yes" : "maybe");
-                                setLikelihood(!isFullyCommitted ? Number(player.likelihood) : 0.5);
-                              }}
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingPlayer(player);
+                                  setPlayerName(player.name);
+                                  setPlayerEmail(player.email || '');
+                                  const isFullyCommitted = !player.likelihood || Number(player.likelihood) === 1;
+                                  setJoinType(isFullyCommitted ? "yes" : "maybe");
+                                  setLikelihood(!isFullyCommitted ? Number(player.likelihood) : 0.5);
+                                }}
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => cancelResponse.mutate(player.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
                           )}
                         </div>
                       );

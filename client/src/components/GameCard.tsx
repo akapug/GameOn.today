@@ -11,7 +11,8 @@ import {
   MessageSquare,
   Trash2,
   User,
-  Edit
+  Edit,
+  X
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -110,6 +111,47 @@ export default function GameCard({ game }: GameCardProps) {
       setPlayerEmail("");
       setJoinType("yes");
       setLikelihood(0.5);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const cancelResponse = useMutation({
+    mutationFn: async (playerId: number) => {
+      const responseToken = user?.uid || localStorage.getItem(`response-token-${playerId}`);
+
+      if (!responseToken) {
+        throw new Error("You are not authorized to cancel this response");
+      }
+
+      const res = await fetch(`/api/games/${game.id}/players/${playerId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ responseToken }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: "Failed to parse error response" }));
+        throw new Error(errorData.message || `Failed to cancel response: ${res.status}`);
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.id) });
+      toast({
+        title: "Success",
+        description: "Response cancelled successfully",
+      });
     },
     onError: (error) => {
       toast({
@@ -332,107 +374,30 @@ export default function GameCard({ game }: GameCardProps) {
                         )}
                       </p>
                       {canEdit && (
-                        <Dialog open={editingPlayer?.id === player.id} onOpenChange={(open) => {
-                          if (!open) {
-                            setEditingPlayer(null);
-                          } else {
-                            setEditingPlayer(player);
-                            setPlayerName(player.name);
-                            setPlayerEmail(player.email || '');
-                            const isFullyCommitted = !player.likelihood || Number(player.likelihood) === 1;
-                            setJoinType(isFullyCommitted ? "yes" : "maybe");
-                            setLikelihood(!isFullyCommitted ? Number(player.likelihood) : 0.5);
-                          }
-                        }}>
-                          <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Edit Response</DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={(e) => {
-                              e.preventDefault();
-                              if (!editingPlayer) return;
-
-                              editResponse.mutate({
-                                playerId: editingPlayer.id,
-                                name: playerName || editingPlayer.name,
-                                email: playerEmail || editingPlayer.email || '',
-                                likelihood: joinType === "yes" ? 1 : likelihood,
-                              });
-                            }} className="space-y-4">
-                              <div className="space-y-2">
-                                <Label>Are you joining?</Label>
-                                <RadioGroup
-                                  value={joinType}
-                                  onValueChange={(value) => setJoinType(value as "yes" | "maybe")}
-                                  className="flex flex-col space-y-1"
-                                >
-                                  <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="yes" id="edit-yes" />
-                                    <Label htmlFor="edit-yes">Yes, I'm in!</Label>
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="maybe" id="edit-maybe" />
-                                    <Label htmlFor="edit-maybe">Maybe, depends...</Label>
-                                  </div>
-                                </RadioGroup>
-                              </div>
-
-                              {joinType === "maybe" && (
-                                <div className="space-y-2">
-                                  <Label>How likely are you to attend?</Label>
-                                  <div className="flex items-center space-x-2">
-                                    <Slider
-                                      min={10}
-                                      max={90}
-                                      step={10}
-                                      value={[likelihood * 100]}
-                                      onValueChange={([value]) => setLikelihood(value / 100)}
-                                      className="flex-1"
-                                    />
-                                    <span className="w-12 text-right">
-                                      {Math.round(likelihood * 100)}%
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-
-                              <div className="space-y-2">
-                                <Label htmlFor="edit-name">Name</Label>
-                                <Input
-                                  id="edit-name"
-                                  placeholder="Your name"
-                                  value={playerName || editingPlayer?.name || ''}
-                                  onChange={(e) => setPlayerName(e.target.value)}
-                                  required
-                                />
-                              </div>
-
-                              <div className="space-y-2">
-                                <Label htmlFor="edit-email">Email (for game notifications)</Label>
-                                <Input
-                                  id="edit-email"
-                                  type="email"
-                                  placeholder="your.email@example.com"
-                                  value={playerEmail || editingPlayer?.email || ''}
-                                  onChange={(e) => setPlayerEmail(e.target.value)}
-                                />
-                              </div>
-
-                              <Button 
-                                type="submit" 
-                                className="w-full" 
-                                disabled={editResponse.isPending}
-                              >
-                                Save Changes
-                              </Button>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingPlayer(player);
+                              setPlayerName(player.name);
+                              setPlayerEmail(player.email || '');
+                              const isFullyCommitted = !player.likelihood || Number(player.likelihood) === 1;
+                              setJoinType(isFullyCommitted ? "yes" : "maybe");
+                              setLikelihood(!isFullyCommitted ? Number(player.likelihood) : 0.5);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => cancelResponse.mutate(player.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   );

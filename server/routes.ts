@@ -146,7 +146,7 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/games", async (req, res) => {
     try {
       const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName } = req.body;
-      
+
       if (!sportId || !title || !location || !date || !playerThreshold || !creatorId) {
         return res.status(400).json({ message: "Missing required fields" });
       }
@@ -392,6 +392,46 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Failed to update game:", error);
       res.status(500).json({ message: "Failed to update game" });
+    }
+  });
+
+  // Delete player response
+  app.delete("/api/games/:gameId/players/:playerId", async (req, res) => {
+    try {
+      const { gameId, playerId } = req.params;
+      const { responseToken } = req.body;
+
+      if (!responseToken) {
+        return res.status(401).json({ message: "Authorization token required" });
+      }
+
+      // First verify the player exists and token matches
+      const existingPlayer = await db.query.players.findFirst({
+        where: and(
+          eq(players.id, parseInt(playerId, 10)),
+          eq(players.gameId, parseInt(gameId, 10)),
+          eq(players.responseToken, responseToken)
+        ),
+      });
+
+      if (!existingPlayer) {
+        return res.status(404).json({ message: "Player not found or unauthorized" });
+      }
+
+      // Delete the player's response
+      await db
+        .delete(players)
+        .where(
+          and(
+            eq(players.id, parseInt(playerId, 10)),
+            eq(players.responseToken, responseToken)
+          )
+        );
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete player response:", error);
+      return res.status(500).json({ message: "Failed to delete response" });
     }
   });
 
