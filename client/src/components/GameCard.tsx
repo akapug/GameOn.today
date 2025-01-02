@@ -57,9 +57,9 @@ export default function GameCard({ game }: GameCardProps) {
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
 
   const canEditResponse = (player: Player) => {
-    // First check if user is authenticated and owns this response
-    if (user?.uid === player.responseToken) {
-      return true;
+    // For authenticated users, check if response token matches uid
+    if (user?.uid) {
+      return player.responseToken === user.uid;
     }
     // For non-authenticated users, check localStorage token
     const storedToken = localStorage.getItem(`response-token-${player.id}`);
