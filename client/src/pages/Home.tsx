@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
-import { format } from 'date-fns-tz';
+import { format as formatInTimeZone } from 'date-fns-tz';
 import { useState } from "react";
 import SportSelect from "@/components/SportSelect";
 import { type Game, type Player, type Sport } from "@db/schema";
@@ -55,9 +55,7 @@ export default function Home() {
     const date = new Date(game.date);
     try {
       // Format the date in game's timezone and parse it back to a Date
-      const dateStr = format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx", {
-        timeZone: game.timezone
-      });
+      const dateStr = formatInTimeZone(date, game.timezone, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
       return new Date(dateStr);
     } catch (error) {
       console.error('Error converting date:', error);
