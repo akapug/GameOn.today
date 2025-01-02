@@ -1,32 +1,18 @@
+
+import { forwardRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
-import { type Sport } from "@db/schema";
+import { useSports } from "@/lib/sports";
 
-interface SportSelectProps {
-  value: number;
-  onChange: (value: number | null) => void;
-  allowClear?: boolean;
-}
-
-export default function SportSelect({ value, onChange, allowClear }: SportSelectProps) {
-  const { data: sports = [] } = useQuery<Sport[]>({
-    queryKey: ["sports"],
-    queryFn: () => fetch("/api/sports").then(res => res.json()),
-  });
+const SportSelect = forwardRef((props: any, ref) => {
+  const { data: sports } = useSports();
 
   return (
-    <Select 
-      value={value?.toString() || "0"} 
-      onValueChange={(v) => onChange(v === "0" ? null : parseInt(v, 10))}
-    >
+    <Select {...props} ref={ref}>
       <SelectTrigger>
-        <SelectValue placeholder="Filter by sport" />
+        <SelectValue placeholder="Select a sport" />
       </SelectTrigger>
       <SelectContent>
-        {allowClear && (
-          <SelectItem value="0">All Sports</SelectItem>
-        )}
-        {sports.map((sport) => (
+        {sports?.map((sport) => (
           <SelectItem key={sport.id} value={sport.id.toString()}>
             {sport.name}
           </SelectItem>
@@ -34,4 +20,8 @@ export default function SportSelect({ value, onChange, allowClear }: SportSelect
       </SelectContent>
     </Select>
   );
-}
+});
+
+SportSelect.displayName = "SportSelect";
+
+export default SportSelect;
