@@ -278,16 +278,40 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             <form onSubmit={(e) => {
               e.preventDefault();
               if (!editingPlayer) return;
-              editResponse.mutate({
-                playerId: editingPlayer.id,
-                name: playerName,
-                email: playerEmail,
-                likelihood: joinType === "yes" ? 1 : likelihood,
-              });
+              
+              if (joinType === "no") {
+                // Delete the response
+                fetch(`/api/games/${game.id}/players/${editingPlayer.id}`, {
+                  method: "DELETE",
+                  headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem(`response-token-${editingPlayer.id}`) || user?.uid}`
+                  }
+                })
+                .then(() => {
+                  queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                  toast({ title: "Success", description: "Response removed successfully" });
+                  setEditingPlayer(null);
+                })
+                .catch(() => {
+                  toast({
+                    title: "Error",
+                    description: "Failed to remove response",
+                    variant: "destructive",
+                  });
+                });
+              } else {
+                editResponse.mutate({
+                  playerId: editingPlayer.id,
+                  name: playerName,
+                  email: playerEmail,
+                  likelihood: joinType === "yes" ? 1 : likelihood,
+                });
+              }
             }} className="space-y-4">
               <div className="space-y-2">
                 <Label>Are you joining?</Label>
-                <RadioGroup value={joinType} onValueChange={(v) => setJoinType(v as "yes" | "maybe")}>
+                <RadioGroup value={joinType} onValueChange={(v) => setJoinType(v as "yes" | "maybe" | "no")}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="yes" id="edit-yes" />
                     <Label htmlFor="edit-yes">Yes, I'm in!</Label>
@@ -295,6 +319,10 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="maybe" id="edit-maybe" />
                     <Label htmlFor="edit-maybe">Maybe, depends...</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="edit-no" />
+                    <Label htmlFor="edit-no">Sorry, I can't join</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -335,8 +363,12 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 />
               </div>
 
-              <Button type="submit" className="w-full">
-                Save Changes
+              <Button 
+                type="submit" 
+                variant={joinType === "no" ? "destructive" : "default"}
+                className="w-full"
+              >
+                {joinType === "no" ? "Remove Me" : "Save Changes"}
               </Button>
             </form>
           </DialogContent>
