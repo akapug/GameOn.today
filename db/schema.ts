@@ -14,8 +14,7 @@ export const games = pgTable("games", {
   sportId: integer("sport_id").references(() => sports.id),
   title: text("title").notNull(),
   location: text("location").notNull(),
-  date: timestamp("date").notNull(),
-  
+  date: timestamp("date", { mode: 'date' }).notNull(),
   playerThreshold: integer("player_threshold").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   creatorId: text("creator_id").notNull(), // Firebase Auth UID
@@ -31,6 +30,7 @@ export const players = pgTable("players", {
   phone: text("phone"),
   joinedAt: timestamp("joined_at").defaultNow(),
   likelihood: decimal("likelihood").notNull().default('1'),
+  responseToken: text("response_token").notNull(),
 });
 
 export const gamesRelations = relations(games, ({ one, many }) => ({

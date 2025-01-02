@@ -10,7 +10,8 @@ import {
   Twitter,
   MessageSquare,
   Trash2,
-  User
+  User,
+  Edit
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -53,6 +54,59 @@ export default function GameCard({ game }: GameCardProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+
+  const canEditResponse = (player: Player) => {
+    const storedToken = localStorage.getItem(`response-token-${player.id}`);
+    return (user?.uid === player.responseToken) || (storedToken === player.responseToken);
+  };
+
+  const editResponse = useMutation({
+    mutationFn: async (values: { playerId: number; name: string; email: string; likelihood: number }) => {
+      const responseToken = user?.uid || localStorage.getItem(`response-token-${values.playerId}`);
+
+      if (!responseToken) {
+        throw new Error("No authorization token found");
+      }
+
+      const res = await fetch(`/api/games/${game.id}/players/${values.playerId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          likelihood: values.likelihood,
+          responseToken
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: "Failed to parse error response" }));
+        throw new Error(errorData.message || `Failed to update response: ${res.status}`);
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.id) });
+      toast({
+        title: "Success",
+        description: "Response updated successfully!",
+      });
+      setEditingPlayer(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const joinGame = useMutation({
     mutationFn: async () => {
@@ -63,6 +117,7 @@ export default function GameCard({ game }: GameCardProps) {
           name: playerName,
           email: playerEmail,
           likelihood: joinType === "yes" ? 1 : likelihood,
+          uid: user?.uid,
         }),
       });
 
@@ -73,7 +128,11 @@ export default function GameCard({ game }: GameCardProps) {
 
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (!user?.uid) {
+        localStorage.setItem(`response-token-${data.id}`, data.responseToken);
+      }
+
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.id) });
       toast({
@@ -234,20 +293,118 @@ export default function GameCard({ game }: GameCardProps) {
                 {game.players.map((player, index) => {
                   const hasLikelihood = player.likelihood !== null && player.likelihood !== undefined;
                   const isFullyCommitted = !hasLikelihood || Number(player.likelihood) === 1;
+                  const canEdit = canEditResponse(player);
 
                   return (
-                    <p key={player.id} className="text-sm text-muted-foreground">
-                      {index + 1}. {player.name}
-                      {isFullyCommitted ? (
-                        <span className="ml-1 text-xs text-green-600">
-                          Yes!
-                        </span>
-                      ) : (
-                        <span className="ml-1 text-xs text-yellow-600">
-                          Maybe ({Math.round(Number(player.likelihood) * 100)}%)
-                        </span>
+                    <div key={player.id} className="flex items-center justify-between">
+                      <p className="text-sm text-muted-foreground">
+                        {index + 1}. {player.name}
+                        {isFullyCommitted ? (
+                          <span className="ml-1 text-xs text-green-600">
+                            Yes!
+                          </span>
+                        ) : (
+                          <span className="ml-1 text-xs text-yellow-600">
+                            Maybe ({Math.round(Number(player.likelihood) * 100)}%)
+                          </span>
+                        )}
+                      </p>
+                      {canEdit && (
+                        <Dialog open={editingPlayer?.id === player.id} onOpenChange={(open) => {
+                          if (!open) setEditingPlayer(null);
+                          else setEditingPlayer(player);
+                        }}>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edit Response</DialogTitle>
+                            </DialogHeader>
+                            <form onSubmit={(e) => {
+                              e.preventDefault();
+                              if (!editingPlayer) return;
+
+                              editResponse.mutate({
+                                playerId: editingPlayer.id,
+                                name: playerName || editingPlayer.name,
+                                email: playerEmail || editingPlayer.email || '',
+                                likelihood: joinType === "yes" ? 1 : likelihood,
+                              });
+                            }} className="space-y-4">
+                              <div className="space-y-2">
+                                <Label>Are you joining?</Label>
+                                <RadioGroup
+                                  value={joinType}
+                                  onValueChange={(value) => setJoinType(value as "yes" | "maybe")}
+                                  className="flex flex-col space-y-1"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="yes" id="edit-yes" />
+                                    <Label htmlFor="edit-yes">Yes, I'm in!</Label>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="maybe" id="edit-maybe" />
+                                    <Label htmlFor="edit-maybe">Maybe, depends...</Label>
+                                  </div>
+                                </RadioGroup>
+                              </div>
+
+                              {joinType === "maybe" && (
+                                <div className="space-y-2">
+                                  <Label>How likely are you to attend?</Label>
+                                  <div className="flex items-center space-x-2">
+                                    <Slider
+                                      min={10}
+                                      max={90}
+                                      step={10}
+                                      value={[likelihood * 100]}
+                                      onValueChange={([value]) => setLikelihood(value / 100)}
+                                      className="flex-1"
+                                    />
+                                    <span className="w-12 text-right">
+                                      {Math.round(likelihood * 100)}%
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-name">Name</Label>
+                                <Input
+                                  id="edit-name"
+                                  placeholder="Your name"
+                                  value={playerName || editingPlayer?.name || ''}
+                                  onChange={(e) => setPlayerName(e.target.value)}
+                                  required
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-email">Email (for game notifications)</Label>
+                                <Input
+                                  id="edit-email"
+                                  type="email"
+                                  placeholder="your.email@example.com"
+                                  value={playerEmail || editingPlayer?.email || ''}
+                                  onChange={(e) => setPlayerEmail(e.target.value)}
+                                />
+                              </div>
+
+                              <Button 
+                                type="submit" 
+                                className="w-full" 
+                                disabled={editResponse.isPending}
+                              >
+                                Save Changes
+                              </Button>
+                            </form>
+                          </DialogContent>
+                        </Dialog>
                       )}
-                    </p>
+                    </div>
                   );
                 })}
               </div>

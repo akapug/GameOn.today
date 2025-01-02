@@ -2,10 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { games, players, sports } from "@db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { defaultSports } from "../client/src/lib/sports";
 import nodemailer from "nodemailer";
 import { getWeatherForecast, type WeatherInfo } from "./services/weather";
+import crypto from 'crypto';
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
@@ -72,10 +73,17 @@ async function getGameWithWeather(game: any) {
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
 
-  // Set default headers for all responses
-  app.use((req, res, next) => {
+  // Set default headers for all API responses
+  app.use('/api', (req, res, next) => {
     res.setHeader('Content-Type', 'application/json');
     next();
+  });
+
+  // Error handling middleware
+  app.use((err: Error, _req: any, res: any, next: any) => {
+    console.error('Error:', err);
+    res.status(500).json({ message: err.message || 'Internal server error' });
+    next(err);
   });
 
   // Initialize default sports if none exist
@@ -174,6 +182,7 @@ export function registerRoutes(app: Express): Server {
     try {
       const { id } = req.params;
       const { name, email, likelihood } = req.body;
+      const responseToken = req.body.uid || crypto.randomUUID(); // Use Firebase UID if available, otherwise generate token
 
       // Validate that the game exists
       const game = await db.query.games.findFirst({
@@ -191,7 +200,8 @@ export function registerRoutes(app: Express): Server {
         gameId: parseInt(id, 10),
         name,
         email,
-        likelihood: likelihood || 1, // Ensure likelihood is properly handled
+        likelihood: likelihood || 1,
+        responseToken,
       }).returning();
 
       // Check if adding this player reaches the threshold
@@ -200,10 +210,55 @@ export function registerRoutes(app: Express): Server {
         await sendGameOnNotification(game.id);
       }
 
-      res.json(newPlayer[0]);
+      res.json({ ...newPlayer[0], responseToken }); // Return the token to be stored in localStorage
     } catch (error) {
       console.error("Failed to join game:", error);
       res.status(500).json({ message: "Failed to join game" });
+    }
+  });
+
+  // Edit player response
+  app.put("/api/games/:gameId/players/:playerId", async (req, res) => {
+    try {
+      const { gameId, playerId } = req.params;
+      const { name, email, likelihood, responseToken } = req.body;
+
+      if (!responseToken) {
+        return res.status(401).json({ message: "Authorization token required" });
+      }
+
+      // First verify the player exists and token matches
+      const existingPlayer = await db.query.players.findFirst({
+        where: and(
+          eq(players.id, parseInt(playerId, 10)),
+          eq(players.gameId, parseInt(gameId, 10)),
+          eq(players.responseToken, responseToken)
+        ),
+      });
+
+      if (!existingPlayer) {
+        return res.status(404).json({ message: "Player not found or unauthorized" });
+      }
+
+      const [updatedPlayer] = await db
+        .update(players)
+        .set({
+          name: name || existingPlayer.name,
+          email: email || existingPlayer.email,
+          likelihood: likelihood ?? existingPlayer.likelihood,
+        })
+        .where(
+          and(
+            eq(players.id, parseInt(playerId, 10)),
+            eq(players.responseToken, responseToken)
+          )
+        )
+        .returning();
+
+      return res.json(updatedPlayer);
+    } catch (error) {
+      console.error("Failed to update player response:", error);
+      return res.status(500).json({ message: "Failed to update response" });
     }
   });
 
