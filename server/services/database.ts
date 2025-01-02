@@ -36,6 +36,21 @@ export const isDatabaseConnected = () => {
   }
 };
 
+// Initialize database with connection only
+export const initializeDatabase = async () => {
+  try {
+    if (!dbInstance) {
+      log("Initializing database connection...");
+      dbInstance = createDbConnection();
+      log("Database connection initialized successfully");
+    }
+    return true;
+  } catch (error) {
+    log(`Database initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw error;
+  }
+};
+
 // Close database connection if needed
 export const closeDb = () => {
   if (dbInstance) {

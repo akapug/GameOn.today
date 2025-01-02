@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { isDatabaseConnected } from "./services/database";
+import { isDatabaseConnected, getDb } from "./services/database";
 
 const app = express();
 app.use(express.json());
@@ -25,6 +25,11 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
+
+      if (logLine.length > 80) {
+        logLine = logLine.slice(0, 79) + "…";
+      }
+
       log(logLine);
     }
   });
@@ -32,19 +37,28 @@ app.use((req, res, next) => {
   next();
 });
 
-// Only check database for API routes
-app.use("/api", (req: Request, res: Response, next: NextFunction) => {
+// Check database connection for API routes only
+app.use("/api", async (req: Request, res: Response, next: NextFunction) => {
   if (!isDatabaseConnected()) {
-    return res.status(503).json({ message: "Database connection not available" });
+    try {
+      // Attempt to initialize database connection without running migrations
+      getDb();
+      next();
+    } catch (error) {
+      return res.status(503).json({ 
+        message: "Database connection not available",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  } else {
+    next();
   }
-  next();
 });
 
 (async () => {
   try {
     const server = registerRoutes(app);
 
-    // Error handling middleware
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       console.error("Server error:", err);
       const status = err.status || err.statusCode || 500;

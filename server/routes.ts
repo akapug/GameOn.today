@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { games, players, sports } from "@db/schema";
 import { getDb } from "./services/database";
+import { games, players, sports } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { defaultSports } from "../client/src/lib/sports";
 import nodemailer from "nodemailer";
@@ -72,6 +72,21 @@ async function getGameWithWeather(game: any) {
 
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
+
+  // Add database initialization endpoint
+  app.get("/api/init/db", async (_req, res) => {
+    try {
+      // This will trigger lazy database connection if not already connected
+      const db = getDb();
+      res.json({ status: "Database connection initialized" });
+    } catch (error) {
+      console.error("Failed to initialize database:", error);
+      res.status(500).json({ 
+        message: "Failed to initialize database",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 
   // Set default headers for all responses
   app.use((req, res, next) => {
