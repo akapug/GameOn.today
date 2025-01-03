@@ -370,7 +370,28 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Delete game endpoint
-  app.delete("/api/games/:id", async (req, res) => {
+  // Changelog routes
+app.get("/api/changelog", async (_req, res) => {
+  try {
+    const entries = await getChangelog();
+    res.json(entries);
+  } catch (error) {
+    console.error("Failed to fetch changelog:", error);
+    res.status(500).json({ message: "Failed to fetch changelog" });
+  }
+});
+
+app.post("/api/changelog", async (req, res) => {
+  try {
+    const entry = await addChangelogEntry(req.body);
+    res.json(entry);
+  } catch (error) {
+    console.error("Failed to add changelog entry:", error);
+    res.status(500).json({ message: "Failed to add changelog entry" });
+  }
+});
+
+app.delete("/api/games/:id", async (req, res) => {
     try {
       const { id } = req.params;
 
