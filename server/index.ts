@@ -1,7 +1,7 @@
 
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import { configureVite, serveStatic } from "./vite";
+import { setupVite, serveStatic } from "./vite";
 import routes from "./routes";
 
 const app = express();
@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "production") {
     server: { middlewareMode: true },
     appType: "spa",
   }).then((vite) => {
-    configureVite(app, vite);
+    setupVite(app, vite);
   });
 }
 
