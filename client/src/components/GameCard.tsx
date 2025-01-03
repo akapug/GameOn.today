@@ -167,14 +167,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           <div>
             <div className="flex items-center text-sm mb-2">
               <Users className="mr-2 h-4 w-4" />
-              <span>
-                {game.players.length} players / {game.playerThreshold} needed 
-                <span className="text-xs text-muted-foreground ml-1">
-                  (~{(game.playerThreshold * (progressPercentage / 100)).toFixed(1)} players expected)
-                </span>
-              </span>
+              <span>{game.players.length} players / {game.playerThreshold} needed</span>
             </div>
-            <Progress value={progressPercentage} className="h-2 mt-2" />
+            <Progress value={progressPercentage} className="h-2" />
             <div className="mt-2 space-y-1">
               {game.players.map((player, index) => (
                 <div key={player.id} className="flex items-center justify-between">
