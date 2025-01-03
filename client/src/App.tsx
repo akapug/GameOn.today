@@ -19,6 +19,9 @@ function App() {
               <Link href="/about">
                 <a className="text-sm text-muted-foreground hover:text-foreground">About</a>
               </Link>
+              <Link href="/changelog">
+                <a className="text-sm text-muted-foreground hover:text-foreground">Changelog</a>
+              </Link>
             </div>
             <UserMenu />
           </div>
@@ -29,6 +32,7 @@ function App() {
             <Route path="/create" component={CreateGame} />
             <Route path="/games/:id" component={Game} />
             <Route path="/about" component={About} />
+            <Route path="/changelog" component={Changelog} />
           </Switch>
         </main>
         <Footer />
