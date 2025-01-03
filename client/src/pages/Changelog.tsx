@@ -1,30 +1,8 @@
 
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
-import { useState, useEffect } from "react";
-import type { ChangelogEntry } from "../lib/types";
 
 export default function Changelog() {
-  const [entries, setEntries] = useState<ChangelogEntry[]>([]);
-  const [error, setError] = useState<string>('');
-  
-  useEffect(() => {
-    fetch('/api/changelog')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setEntries(data);
-        } else {
-          setEntries([]);
-          setError('No changelog entries found');
-        }
-      })
-      .catch(err => {
-        console.error('Failed to fetch changelog:', err);
-        setError('Failed to load changelog');
-      });
-  }, []);
-
   return (
     <div className="container py-6 px-4">
       <div className="flex items-center gap-2 mb-6">
@@ -38,24 +16,24 @@ export default function Changelog() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Changelog</h1>
         <div className="space-y-8">
-          {error ? (
-            <p className="text-muted-foreground">{error}</p>
-          ) : (
-            entries.map((entry) => (
-              <div key={entry.deploymentId} className="border-b pb-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold">{entry.message}</h3>
-                  <span className="text-sm text-muted-foreground">
-                    {new Date(entry.date).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Deployment: {entry.deploymentId}
-                  {entry.version && ` • Version ${entry.version}`}
-                </p>
-              </div>
-            ))
-          )}
+          <div className="border-b pb-6">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="font-semibold">Add response editing and cancellation</h3>
+              <span className="text-sm text-muted-foreground">1.2.24</span>
+            </div>
+          </div>
+          <div className="border-b pb-6">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="font-semibold">First deployed version</h3>
+              <span className="text-sm text-muted-foreground">1.1.24</span>
+            </div>
+          </div>
+          <div className="border-b pb-6">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="font-semibold">First dev version</h3>
+              <span className="text-sm text-muted-foreground">12.30.24</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
