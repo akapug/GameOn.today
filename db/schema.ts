@@ -1,12 +1,3 @@
-
-export const changelog = pgTable('changelog', {
-  id: serial('id').primaryKey(),
-  deploymentId: text('deployment_id').notNull(),
-  date: timestamp('date').notNull(),
-  message: text('message').notNull(),
-  version: text('version')
-});
-
 import { pgTable, text, serial, timestamp, integer, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
