@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import CreateGame from "./pages/CreateGame";
 import Game from "./pages/Game";
 import About from "./pages/About";
+import Changelog from "./pages/Changelog";
 import { AuthProvider } from "./components/AuthProvider";
 import UserMenu from "./components/UserMenu";
 import Footer from "./components/Footer";
