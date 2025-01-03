@@ -235,14 +235,8 @@ export function registerRoutes(app: Express): Server {
 
         console.log("New player created:", newPlayer);
 
-        // Calculate expected players including the new player
-        const expectedPlayers = game.players.reduce((sum, player) => {
-          const likelihood = player.likelihood ? Number(player.likelihood) : 1;
-          return sum + likelihood;
-        }, likelihood || 1); // Add the new player's likelihood
-
-        // Check if expected players reaches the threshold
-        if (expectedPlayers >= game.playerThreshold) {
+        // Check if adding this player reaches the threshold
+        if (game.players.length + 1 === game.playerThreshold) {
           // Send notifications to all players but don't wait for it
           sendGameOnNotification(game.id).catch(error => {
             console.error("Failed to send notifications:", error);
