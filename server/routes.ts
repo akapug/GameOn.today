@@ -4,7 +4,7 @@ import { getChangelog } from "./routes/changelog";
 
 const router = Router();
 
-router.get("/changelog", async (_req, res) => {
+router.get("/api/changelog", async (_req, res) => {
   try {
     const entries = await getChangelog();
     res.json(entries);
