@@ -4,9 +4,10 @@ import { getChangelog } from "./routes/changelog";
 
 const router = Router();
 
-router.get("/changelog", async (_req, res) => {
+router.get("/api/changelog", async (_req, res) => {
   try {
     const entries = await getChangelog();
+    console.log('Fetched changelog entries:', entries);
     res.json(entries);
   } catch (error) {
     console.error("Failed to fetch changelog:", error);
