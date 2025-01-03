@@ -6,11 +6,23 @@ import type { ChangelogEntry } from "../lib/types";
 
 export default function Changelog() {
   const [entries, setEntries] = useState<ChangelogEntry[]>([]);
+  const [error, setError] = useState<string>('');
   
   useEffect(() => {
     fetch('/api/changelog')
       .then(res => res.json())
-      .then(data => setEntries(data));
+      .then(data => {
+        if (Array.isArray(data)) {
+          setEntries(data);
+        } else {
+          setEntries([]);
+          setError('No changelog entries found');
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch changelog:', err);
+        setError('Failed to load changelog');
+      });
   }, []);
 
   return (
@@ -26,7 +38,9 @@ export default function Changelog() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Changelog</h1>
         <div className="space-y-8">
-          {entries.map((entry) => (
+          {error ? (
+            <p className="text-muted-foreground">{error}</p>
+          ) : entries.map((entry) => (
             <div key={entry.deploymentId} className="border-b pb-6">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-semibold">{entry.message}</h3>
@@ -39,7 +53,7 @@ export default function Changelog() {
                 {entry.version && ` • Version ${entry.version}`}
               </p>
             </div>
-          ))}
+          )))}
         </div>
       </div>
     </div>
