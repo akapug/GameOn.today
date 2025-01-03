@@ -5,6 +5,7 @@ import { setupVite, serveStatic } from "./vite";
 import routes from "./routes";
 
 const app = express();
+const server = createServer(app);
 app.use(express.json());
 
 // API routes
