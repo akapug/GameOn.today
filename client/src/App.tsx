@@ -3,7 +3,6 @@ import Home from "./pages/Home";
 import CreateGame from "./pages/CreateGame";
 import Game from "./pages/Game";
 import About from "./pages/About";
-import Changelog from "./pages/Changelog";
 import { AuthProvider } from "./components/AuthProvider";
 import UserMenu from "./components/UserMenu";
 import Footer from "./components/Footer";
@@ -20,9 +19,6 @@ function App() {
               <Link href="/about">
                 <a className="text-sm text-muted-foreground hover:text-foreground">About</a>
               </Link>
-              <Link href="/changelog">
-                <a className="text-sm text-muted-foreground hover:text-foreground">Changelog</a>
-              </Link>
             </div>
             <UserMenu />
           </div>
@@ -33,7 +29,6 @@ function App() {
             <Route path="/create" component={CreateGame} />
             <Route path="/games/:id" component={Game} />
             <Route path="/about" component={About} />
-            <Route path="/changelog" component={Changelog} />
           </Switch>
         </main>
         <Footer />
