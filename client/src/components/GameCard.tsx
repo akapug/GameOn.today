@@ -168,9 +168,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             <div className="flex items-center text-sm mb-2">
               <Users className="mr-2 h-4 w-4" />
               <span>
-                {game.players.length} players / {game.playerThreshold} needed 
+                {game.playerThreshold} players needed / {game.players.length} responded 
                 <span className="text-xs text-muted-foreground ml-1">
-                  (~{(game.playerThreshold * (progressPercentage / 100)).toFixed(1)} players expected)
+                  (~{(game.playerThreshold * (progressPercentage / 100)).toFixed(1)} expected)
                 </span>
               </span>
             </div>
