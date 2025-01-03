@@ -82,8 +82,19 @@ export function registerRoutes(app: Express): Server {
   // Error handling middleware
   app.use((err: Error, _req: any, res: any, next: any) => {
     console.error('Error:', err);
-    res.status(500).json({ message: err.message || 'Internal server error' });
-    next(err);
+    
+    // Handle JSON parsing errors
+    if (err instanceof SyntaxError && 'body' in err) {
+      return res.status(400).json({ message: 'Invalid JSON payload' });
+    }
+    
+    // Ensure response is always JSON
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        message: err.message || 'Internal server error',
+        error: process.env.NODE_ENV !== 'production' ? err.stack : undefined
+      });
+    }
   });
 
   // Initialize default sports if none exist

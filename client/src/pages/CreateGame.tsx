@@ -53,16 +53,10 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: NewGame) => {
-      const res = await fetch("/api/games", {
+      return await apiRequest("/api/games", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error || "Failed to create game");
-      }
 
       return res.json();
     },
