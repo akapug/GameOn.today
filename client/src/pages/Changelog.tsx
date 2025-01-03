@@ -40,22 +40,20 @@ export default function Changelog() {
         <div className="space-y-8">
           {error ? (
             <p className="text-muted-foreground">{error}</p>
-          ) : (
-            entries.map((entry) => (
-              <div key={entry.deploymentId} className="border-b pb-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold">{entry.message}</h3>
-                  <span className="text-sm text-muted-foreground">
-                    {new Date(entry.date).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Deployment: {entry.deploymentId}
-                  {entry.version && ` • Version ${entry.version}`}
-                </p>
+          ) : entries.map((entry) => (
+            <div key={entry.deploymentId} className="border-b pb-6">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-semibold">{entry.message}</h3>
+                <span className="text-sm text-muted-foreground">
+                  {new Date(entry.date).toLocaleDateString()}
+                </span>
               </div>
-            ))
-          )}
+              <p className="text-sm text-muted-foreground">
+                Deployment: {entry.deploymentId}
+                {entry.version && ` • Version ${entry.version}`}
+              </p>
+            </div>
+          )))}
         </div>
       </div>
     </div>

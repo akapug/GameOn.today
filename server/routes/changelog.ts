@@ -3,15 +3,10 @@ import { db } from "@db";
 import { changelog } from "@db/schema";
 
 export async function getChangelog() {
-  try {
-    return await db.query.changelog.findMany({
-      orderBy: (changelog, { desc }) => [desc(changelog.date)],
-      limit: 50
-    });
-  } catch (error) {
-    console.error("Database error in getChangelog:", error);
-    throw error;
-  }
+  return await db.query.changelog.findMany({
+    orderBy: (changelog, { desc }) => [desc(changelog.date)],
+    limit: 50
+  });
 }
 
 export async function addChangelogEntry(entry: {
