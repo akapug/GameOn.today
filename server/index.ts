@@ -1,10 +1,13 @@
 
 import express from "express";
+import { createServer } from "http";
 import { createServer as createViteServer } from "vite";
 import { setupVite, serveStatic } from "./vite";
 import routes from "./routes";
 
 const app = express();
+const server = createServer(app);
+
 app.use(express.json());
 
 // API routes
@@ -17,11 +20,11 @@ if (process.env.NODE_ENV === "production") {
     server: { middlewareMode: true },
     appType: "spa",
   }).then((vite) => {
-    setupVite(app, vite);
+    setupVite(app, server);
   });
 }
 
 const port = process.env.PORT || 3000;
-app.listen(port, "0.0.0.0", () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`);
 });
