@@ -45,7 +45,7 @@ export default function UserMenu() {
         <DropdownMenuSeparator />
         <div className="py-2">
           <DropdownMenuLabel className="flex items-center">
-            <Games className="mr-2 h-4 w-4" />
+            <GamepadIcon className="mr-2 h-4 w-4" />
             Your Games
           </DropdownMenuLabel>
           <UserGames />
