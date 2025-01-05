@@ -568,7 +568,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   notes: game.notes || '',
                   webLink: game.webLink || '',
                   isRecurring: game.isRecurring === true,
-                  recurrenceFrequency: game.recurrenceFrequency
+                  recurrenceFrequency: game.recurrenceFrequency,
+                  isPrivate: game.isPrivate === true
                 });
               }
             }}
@@ -583,6 +584,21 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <DialogTitle>Edit Game</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleEditSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Game Visibility</Label>
+                  <Select
+                    value={formState.isPrivate ? 'private' : 'public'}
+                    onValueChange={(value) => setFormState(prev => ({ ...prev, isPrivate: value === 'private' }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select game visibility" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">Public (Visible on homepage)</SelectItem>
+                      <SelectItem value="private">Private (Only accessible via URL)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="space-y-2">
                   <Label>Title</Label>
                   <Input
