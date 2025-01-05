@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { games, players, activities } from "@db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { defaultActivities } from "../client/src/lib/activities";
 import nodemailer from "nodemailer";
 import { getWeatherForecast, type WeatherInfo } from "./services/weather";
@@ -137,6 +137,18 @@ export function registerRoutes(app: Express): Server {
     console.log("Fetching games from database...");
     try {
       console.log("Database connection status:", !!db);
+      console.log("Games table reference:", !!db.query.games);
+      
+      // Try a raw query first to verify table existence
+      const tableCheck = await db.execute(sql`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'games'
+        );
+      `);
+      console.log("Games table exists:", tableCheck.rows[0]);
+      
       const allGames = await db.query.games.findMany({
         with: {
           activity: true,
