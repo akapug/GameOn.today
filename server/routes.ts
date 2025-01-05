@@ -24,7 +24,7 @@ async function sendGameOnNotification(gameId: number) {
   const game = await db.query.games.findFirst({
     where: eq(games.id, gameId),
     with: {
-      activity: true, // Changed from sport
+      activity: true,
       players: {
         columns: {
           email: true,
@@ -57,7 +57,7 @@ async function sendGameOnNotification(gameId: number) {
         <p>The game you joined has reached its minimum player threshold and is now confirmed to happen!</p>
         <p>Game Details:</p>
         <ul>
-          <li><strong>Activity:</strong> ${game.activity.name}</li>  <!-- Changed from Sport -->
+          <li><strong>Activity:</strong> ${game.activity.name}</li>
           <li><strong>Title:</strong> ${game.title}</li>
           <li><strong>Location:</strong> ${game.location}</li>
           <li><strong>Date:</strong> ${formattedGameDate}</li>
@@ -110,34 +110,35 @@ export function registerRoutes(app: Express): Server {
   // Initialize default activities if none exist
   app.get("/api/init", async (_req, res) => {
     try {
-      const existingActivities = await db.select().from(activities); // Changed from sports
+      const existingActivities = await db.select().from(activities);
       if (existingActivities.length === 0) {
-        await db.insert(activities).values(defaultActivities); // Changed from sports
+        await db.insert(activities).values(defaultActivities);
       }
       res.json({ success: true });
     } catch (error) {
-      console.error("Failed to initialize activities:", error); // Changed from sports
-      res.status(500).json({ message: "Failed to initialize activities" }); // Changed from sports
+      console.error("Failed to initialize activities:", error);
+      res.status(500).json({ message: "Failed to initialize activities" });
     }
   });
 
   // Get all activities
-  app.get("/api/activities", async (_req, res) => { // Changed from sports
+  app.get("/api/activities", async (_req, res) => {
     try {
-      const allActivities = await db.select().from(activities); // Changed from sports
+      const allActivities = await db.select().from(activities);
       res.json(allActivities);
     } catch (error) {
-      console.error("Failed to fetch activities:", error); // Changed from sports
-      res.status(500).json({ message: "Failed to fetch activities" }); // Changed from sports
+      console.error("Failed to fetch activities:", error);
+      res.status(500).json({ message: "Failed to fetch activities" });
     }
   });
 
   // Get all games with related data
   app.get("/api/games", async (_req, res) => {
+    console.log("Fetching games from database...");
     try {
       const allGames = await db.query.games.findMany({
         with: {
-          activity: true, // Changed from sport
+          activity: true,
           players: {
             columns: {
               id: true,
@@ -163,6 +164,7 @@ export function registerRoutes(app: Express): Server {
         })
       );
 
+      console.log("Returning games:", gamesWithWeather);
       res.json(gamesWithWeather);
     } catch (error) {
       console.error("Failed to fetch games:", error);
@@ -173,23 +175,23 @@ export function registerRoutes(app: Express): Server {
   // Create a new game
   app.post("/api/games", async (req, res) => {
     try {
-      const { activityId, title, location, date, timezone, playerThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency } = req.body; // Changed from sportId
+      const { activityId, title, location, date, timezone, playerThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency } = req.body;
 
-      if (!activityId || !title || !location || !date || !playerThreshold || !creatorId) { // Changed from sportId
+      if (!activityId || !title || !location || !date || !playerThreshold || !creatorId) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
-      const activity = await db.query.activities.findFirst({ // Changed from sports
-        where: eq(activities.id, Number(activityId)), // Changed from sports
+      const activity = await db.query.activities.findFirst({
+        where: eq(activities.id, Number(activityId)),
       });
 
-      if (!activity) { // Changed from sport
-        return res.status(400).json({ message: "Selected activity does not exist" }); // Changed from sport
+      if (!activity) {
+        return res.status(400).json({ message: "Selected activity does not exist" });
       }
 
       // Ensure boolean conversion for isRecurring
       const gameData = {
-        activityId: Number(activityId), // Changed from sportId
+        activityId: Number(activityId),
         title: String(title),
         location: String(location),
         date: toUTC(date, timezone || 'UTC'),
@@ -382,7 +384,7 @@ export function registerRoutes(app: Express): Server {
       const game = await db.query.games.findFirst({
         where: eq(games.id, parseInt(req.params.id, 10)),
         with: {
-          activity: true, // Changed from sport
+          activity: true,
           players: {
             columns: {
               id: true,
