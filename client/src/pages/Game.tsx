@@ -61,7 +61,8 @@ export default function Game() {
   const [likelihood, setLikelihood] = useState(0.5);
 
   const { data: game, isLoading, error } = useQuery<GameWithDetails>({
-    queryKey: params?.hash ? ['games', params.hash] : undefined,
+    queryKey: params?.hash ? ['/api/games', params.hash] : undefined,
+    queryFn: () => fetch(`/api/games/${params.hash}`).then(res => res.json()),
     enabled: !!params?.hash,
     retry: 1,
   });
