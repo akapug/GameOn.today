@@ -448,7 +448,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
         {/* Edit Button */}
         {canDelete && (
-          <Dialog>
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="icon">
                 <Edit className="h-4 w-4" />
