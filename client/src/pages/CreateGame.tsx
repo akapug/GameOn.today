@@ -109,7 +109,7 @@ export default function CreateGame() {
                   ...data,
                   sportId: Number(data.sportId),
                   playerThreshold: Number(data.playerThreshold),
-                  date: new Date(data.date).toISOString(),
+                  date: new Date(new Date(data.date).toLocaleString('en-US', { timeZone: data.timezone })).toISOString(),
                   creatorId: user?.uid || "",
                   creatorName: user?.displayName || ""
                 };

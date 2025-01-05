@@ -52,7 +52,7 @@ async function sendGameOnNotification(gameId: number) {
           <li><strong>Sport:</strong> ${game.sport.name}</li>
           <li><strong>Title:</strong> ${game.title}</li>
           <li><strong>Location:</strong> ${game.location}</li>
-          <li><strong>Date:</strong> ${new Date(game.date).toLocaleString()}</li>
+          <li><strong>Date:</strong> ${new Date(game.date).toLocaleString('en-US', { timeZone: game.timezone })}</li>
         </ul>
         <p>See you at the game!</p>
       `,
