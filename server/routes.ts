@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { games, players, activities } from "@db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, desc } from "drizzle-orm";
 import { defaultActivities } from "../client/src/lib/activities";
 import nodemailer from "nodemailer";
 import { getWeatherForecast, type WeatherInfo } from "./services/weather";
@@ -492,6 +492,40 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Failed to update game:", error);
       res.status(500).json({ message: "Failed to update game" });
+    }
+  });
+
+  // Get user's games (both private and public)
+  app.get("/api/games/user", async (req, res) => {
+    try {
+      const { uid } = req.query;
+
+      if (!uid) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+
+      const userGames = await db.query.games.findMany({
+        where: eq(games.creatorId, String(uid)),
+        with: {
+          activity: true,
+          players: true,
+        },
+        orderBy: [desc(games.date)],
+      });
+
+      // Ensure proper boolean conversion for all games
+      const gamesWithWeather = await Promise.all(
+        userGames.map(async game => getGameWithWeather({
+          ...game,
+          isRecurring: Boolean(game.isRecurring),
+          isPrivate: Boolean(game.isPrivate)
+        }))
+      );
+
+      res.json(gamesWithWeather);
+    } catch (error) {
+      console.error("Failed to fetch user's games:", error);
+      res.status(500).json({ message: "Failed to fetch user's games" });
     }
   });
 

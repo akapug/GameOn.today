@@ -225,7 +225,7 @@ export default function Game() {
   }
 
   const shareGame = async (method: 'copy' | 'facebook' | 'twitter' | 'sms') => {
-    const gameUrl = `${window.location.origin}/games/${game.id}`;
+    const gameUrl = `${window.location.origin}/games/${game.urlHash}`;
     const text = `Join our ${game.activity.name} game: ${game.title} at ${game.location}`;
 
     switch (method) {
