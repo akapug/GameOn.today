@@ -143,7 +143,22 @@ app.use((req, res, next) => {
     });
   }
 
-  const PORT = process.env.PORT || 5000;
+  const tryPort = async (port: number): Promise<number> => {
+    try {
+      await new Promise((resolve, reject) => {
+        const testServer = server.listen(port, "0.0.0.0", () => {
+          testServer.close();
+          resolve(port);
+        });
+        testServer.on('error', reject);
+      });
+      return port;
+    } catch {
+      return tryPort(port + 1);
+    }
+  };
+
+  const PORT = await tryPort(process.env.PORT ? parseInt(process.env.PORT) : 5000);
   server.listen(PORT, "0.0.0.0", () => {
     log(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
   });
