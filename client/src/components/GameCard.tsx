@@ -19,6 +19,7 @@ import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "./WeatherDisplay";
 import type { Game, Player, Activity } from "@db/schema";
 import type { WeatherInfo } from "../../server/services/weather";
+import type { Sport } from "@/types";
 
 interface GameCardProps {
   game: Game & {
@@ -78,7 +79,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
   const joinGame = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/games/${game.id}/join`, {
+      const res = await fetch(`/api/games/${game.urlHash}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -116,7 +117,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       const responseToken = user?.uid || localStorage.getItem(`response-token-${values.playerId}`);
       if (!responseToken) throw new Error("Not authorized to edit");
 
-      const res = await fetch(`/api/games/${game.id}/players/${values.playerId}`, {
+      const res = await fetch(`/api/games/${game.urlHash}/players/${values.playerId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...values, responseToken }),
@@ -200,7 +201,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <Link href={`/games/${game.id}`}>
+            <Link href={`/games/${game.urlHash}`}>
               <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
                 {game.title || `${game.activity.name}`}
               </h3>
@@ -405,7 +406,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               if (!editingPlayer) return;
 
               if (joinType === "no") {
-                fetch(`/api/games/${game.id}/players/${editingPlayer.id}`, {
+                fetch(`/api/games/${game.urlHash}/players/${editingPlayer.id}`, {
                   method: "DELETE",
                   headers: {
                     "Content-Type": "application/json",
@@ -517,7 +518,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/games/${game.id}`);
+              navigator.clipboard.writeText(`${window.location.origin}/games/${game.urlHash}`);
               toast({ title: "Link Copied", description: "Game link copied to clipboard!" });
             }}>
               <LinkIcon className="mr-2 h-4 w-4" />
@@ -525,7 +526,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               window.open(
-                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/games/${game.id}`)}`,
+                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/games/${game.urlHash}`)}`,
                 '_blank'
               );
             }}>
@@ -534,7 +535,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               window.open(
-                `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${window.location.origin}/games/${game.id}`)}&text=${encodeURIComponent(`Join our ${game.sport.name} game!`)}`,
+                `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${window.location.origin}/games/${game.urlHash}`)}&text=${encodeURIComponent(`Join our ${game.activity.name} game!`)}`,
                 '_blank'
               );
             }}>
@@ -543,7 +544,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               window.open(
-                `sms:?body=${encodeURIComponent(`Join our ${game.sport.name} game: ${window.location.origin}/games/${game.id}`)}`,
+                `sms:?body=${encodeURIComponent(`Join our ${game.activity.name} game: ${window.location.origin}/games/${game.urlHash}`)}`,
                 '_blank'
               );
             }}>
@@ -728,7 +729,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <Button
                   variant="destructive"
                   onClick={() => {
-                    fetch(`/api/games/${game.id}`, { method: "DELETE" })
+                    fetch(`/api/games/${game.urlHash}`, { method: "DELETE" })
                       .then(() => {
                         queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
                         toast({ title: "Success", description: "Game deleted successfully" });

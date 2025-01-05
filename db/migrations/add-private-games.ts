@@ -1,4 +1,3 @@
-
 import { db } from "@db";
 import { sql } from "drizzle-orm";
 import crypto from 'crypto';
@@ -11,10 +10,10 @@ async function main() {
     ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT FALSE
   `);
 
-  // Generate hashes for existing games
+  // Generate 12-character random hashes for existing games
   await db.execute(sql`
     UPDATE games 
-    SET url_hash = ENCODE(SHA256(CAST(id AS TEXT)::bytea), 'hex')
+    SET url_hash = encode(digest(gen_random_uuid()::text, 'sha256'), 'hex')
     WHERE url_hash IS NULL
   `);
 
@@ -23,7 +22,7 @@ async function main() {
     ALTER TABLE games 
     ALTER COLUMN url_hash SET NOT NULL
   `);
-  
+
   console.log('Migration complete: Added private games fields');
   process.exit(0);
 }
