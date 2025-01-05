@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, MessageSquare, Trash2, Edit } from "lucide-react";
@@ -38,6 +38,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
   const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // Added state for edit dialog
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -114,6 +115,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       toast({ title: "Success", description: "Response updated!" });
       setEditingPlayer(null);
+      setIsEditDialogOpen(false); // Close the dialog after successful update
     },
   });
 
@@ -204,6 +206,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                         setPlayerEmail(player.email || '');
                         setJoinType(!player.likelihood || player.likelihood === 1 ? "yes" : "maybe");
                         setLikelihood(player.likelihood || 0.5);
+                        setIsEditDialogOpen(true); // Open the dialog when Edit button is clicked
                       }}
                     >
                       <Edit className="h-4 w-4" />
@@ -282,8 +285,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
         {/* Edit Response Dialog */}
         <Dialog
-          open={editingPlayer !== null}
-          onOpenChange={(open) => !open && setEditingPlayer(null)}
+          open={isEditDialogOpen} // Use the new state to control the dialog
+          onOpenChange={setIsEditDialogOpen} // Update the state when the dialog closes
         >
           <DialogContent>
             <DialogHeader>
@@ -306,7 +309,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
                     toast({ title: "Success", description: "Response removed successfully" });
                     setEditingPlayer(null);
-                    setIsOpen(false);
+                    setIsEditDialogOpen(false); // Close the dialog after removal
                   })
                   .catch(() => {
                     toast({
@@ -482,6 +485,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   .then(() => {
                     queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
                     toast({ title: "Success", description: "Game updated successfully" });
+                    setIsEditDialogOpen(false); //Close the dialog after saving changes
                   })
                   .catch((error) => {
                     toast({
