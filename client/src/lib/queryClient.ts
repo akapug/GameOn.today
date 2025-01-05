@@ -11,3 +11,13 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Helper function to generate query keys
+export const queryKeys = {
+  games: {
+    all: ['/api/games'],
+    single: (id: string) => ['/api/games', id],
+    user: (uid: string) => ['/api/games/user', { uid }],
+  },
+  activities: ['/api/activities'],
+};
