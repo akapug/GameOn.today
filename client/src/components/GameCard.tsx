@@ -574,7 +574,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <Edit className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Edit Game</DialogTitle>
               </DialogHeader>
