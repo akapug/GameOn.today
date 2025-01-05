@@ -458,6 +458,30 @@ export function registerRoutes(app: Express): Server {
         .where(eq(games.id, parseInt(id, 10)))
         .returning();
 
+      // Create duplicate game if recurring is enabled
+      if (isRecurring && recurrenceFrequency) {
+        const nextDate = new Date(date);
+        switch (recurrenceFrequency) {
+          case 'weekly':
+            nextDate.setDate(nextDate.getDate() + 7);
+            break;
+          case 'biweekly':
+            nextDate.setDate(nextDate.getDate() + 14);
+            break;
+          case 'monthly':
+            nextDate.setMonth(nextDate.getMonth() + 1);
+            break;
+        }
+
+        await db.insert(games).values({
+          ...updatedGame,
+          id: undefined,
+          date: nextDate.toISOString(),
+          endTime: endTime ? new Date(new Date(endTime).getTime() + (nextDate.getTime() - new Date(date).getTime())).toISOString() : null,
+          parentGameId: updatedGame.id
+        });
+      }
+
       // Fetch fresh weather data for the updated location/time
       const gameWithWeather = await getGameWithWeather(updatedGame);
       res.json(gameWithWeather);
