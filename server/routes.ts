@@ -7,6 +7,7 @@ import { defaultSports } from "../client/src/lib/sports";
 import nodemailer from "nodemailer";
 import { getWeatherForecast, type WeatherInfo } from "./services/weather";
 import crypto from 'crypto';
+import { formatWithTimezone, toUTC } from "../client/src/lib/dates";
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
@@ -38,6 +39,13 @@ async function sendGameOnNotification(gameId: number) {
   // Filter out players without email
   const playersWithEmail = game.players.filter(player => player.email);
 
+  // Format the game date in the game's timezone for email
+  const formattedGameDate = formatWithTimezone(
+    game.date,
+    'PPP p',
+    game.timezone || 'UTC'
+  );
+
   // Send email to all players who provided email
   const emailPromises = playersWithEmail.map(player =>
     transporter.sendMail({
@@ -52,7 +60,7 @@ async function sendGameOnNotification(gameId: number) {
           <li><strong>Sport:</strong> ${game.sport.name}</li>
           <li><strong>Title:</strong> ${game.title}</li>
           <li><strong>Location:</strong> ${game.location}</li>
-          <li><strong>Date:</strong> ${new Date(game.date).toLocaleString('en-US', { timeZone: game.timezone })}</li>
+          <li><strong>Date:</strong> ${formattedGameDate}</li>
         </ul>
         <p>See you at the game!</p>
       `,
@@ -82,15 +90,15 @@ export function registerRoutes(app: Express): Server {
   // Error handling middleware
   app.use((err: Error, _req: any, res: any, next: any) => {
     console.error('Error:', err);
-    
+
     // Handle JSON parsing errors
     if (err instanceof SyntaxError && 'body' in err) {
       return res.status(400).json({ message: 'Invalid JSON payload' });
     }
-    
+
     // Ensure response is always JSON
     if (!res.headersSent) {
-      res.status(500).json({ 
+      res.status(500).json({
         message: err.message || 'Internal server error',
         error: process.env.NODE_ENV !== 'production' ? err.stack : undefined
       });
@@ -157,7 +165,7 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/games", async (req, res) => {
     try {
       const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName } = req.body;
-      
+
       if (!sportId || !title || !location || !date || !playerThreshold || !creatorId) {
         return res.status(400).json({ message: "Missing required fields" });
       }
@@ -170,19 +178,20 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
+      // Ensure the date is stored in UTC
       const gameData = {
         sportId: Number(sportId),
         title: String(title),
         location: String(location),
-        date: new Date(new Date(date).toISOString()),
+        date: toUTC(date, timezone || 'UTC'),
         timezone: timezone || 'UTC',
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
         creatorName: String(creatorName || '')
       };
 
-      const newGame = await db.insert(games).values(gameData).returning();
-      res.json(newGame[0]);
+      const [newGame] = await db.insert(games).values(gameData).returning();
+      res.json(newGame);
     } catch (error) {
       console.error("Failed to create game:", error);
       res.status(500).json({ message: `Failed to create game: ${error.message}` });
@@ -411,7 +420,7 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/games/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const { title, location, date, playerThreshold, creatorId } = req.body;
+      const { title, location, date, timezone, playerThreshold, creatorId } = req.body;
 
       // First verify the game exists and creator matches
       const game = await db.query.games.findFirst({
@@ -426,18 +435,20 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Only the creator can edit this game" });
       }
 
+      // Convert date to UTC before storage
       const [updatedGame] = await db
         .update(games)
         .set({
           title,
           location,
-          date: new Date(date),
+          date: toUTC(date, timezone || game.timezone),
+          timezone: timezone || game.timezone,
           playerThreshold,
         })
         .where(eq(games.id, parseInt(id, 10)))
         .returning();
 
-      // Fetch fresh weather data for the updated location
+      // Fetch fresh weather data for the updated location/time
       const gameWithWeather = await getGameWithWeather(updatedGame);
       res.json(gameWithWeather);
     } catch (error) {

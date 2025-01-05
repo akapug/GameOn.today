@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -15,7 +14,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useState } from "react";
 import AuthDialog from "@/components/AuthDialog";
 import { apiRequest } from "@/lib/api";
-import { createUTCDate } from "@/lib/dates";
+import { toUTC, getUserTimezone } from "@/lib/dates";
 
 export default function CreateGame() {
   const [, navigate] = useLocation();
@@ -29,7 +28,7 @@ export default function CreateGame() {
       title: "",
       location: "",
       date: "",
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timezone: getUserTimezone(), // Use user's local timezone by default
       playerThreshold: 10,
       sportId: undefined,
       creatorId: user?.uid || "",
@@ -37,7 +36,7 @@ export default function CreateGame() {
     },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
-      
+
       if (!data.title?.trim()) errors.title = { message: "Title is required" };
       if (!data.location?.trim()) errors.location = { message: "Location is required" };
       if (!data.date) errors.date = { message: "Date is required" };
@@ -45,7 +44,7 @@ export default function CreateGame() {
       if (!data.playerThreshold || data.playerThreshold <= 1) {
         errors.playerThreshold = { message: "Player threshold must be greater than 1" };
       }
-      
+
       return {
         values: data,
         errors: Object.keys(errors).length > 0 ? errors : {},
@@ -55,12 +54,16 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: NewGame) => {
+      // Convert the local date to UTC before sending to server
+      const utcDate = toUTC(values.date, values.timezone);
+
       return await apiRequest("/api/games", {
         method: "POST",
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          date: utcDate.toISOString(),
+        }),
       });
-
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["games"] });
@@ -110,10 +113,6 @@ export default function CreateGame() {
                   ...data,
                   sportId: Number(data.sportId),
                   playerThreshold: Number(data.playerThreshold),
-                  date: createUTCDate(data.date).toISOString(),
-                  timezone: data.timezone,
-                  creatorId: user?.uid || "",
-                  creatorName: user?.displayName || ""
                 };
                 createGame.mutate(gameData);
               })} className="space-y-6">
@@ -161,7 +160,10 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel>Date & Time</FormLabel>
                       <FormControl>
-                        <Input type="datetime-local" {...field} />
+                        <Input
+                          type="datetime-local"
+                          {...field}
+                        />
                       </FormControl>
                     </FormItem>
                   )}

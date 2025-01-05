@@ -3,7 +3,7 @@ import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, MessageSquare, Trash2, Edit } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { formatWithTimezone } from "@/lib/dates";
+import { formatWithTimezone, utcToLocalInput, localInputToUTC } from "@/lib/dates";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Progress } from "./ui/progress";
@@ -124,7 +124,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           <div>
             <Link href={`/games/${game.id}`}>
               <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                {game.title || `${format(new Date(game.date), "EEEE")} ${game.sport.name}`}
+                {game.title || `${game.sport.name}`}
               </h3>
             </Link>
             <div className="text-sm text-muted-foreground">
@@ -168,7 +168,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             <div className="flex items-center text-sm mb-2">
               <Users className="mr-2 h-4 w-4" />
               <span>
-                {game.playerThreshold} players needed / {game.players.length} responded 
+                {game.playerThreshold} players needed / {game.players.length} responded
                 <span className="text-xs text-muted-foreground ml-1">
                   (~{(game.playerThreshold * (progressPercentage / 100)).toFixed(1)} expected)
                 </span>
@@ -286,29 +286,29 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             <form onSubmit={(e) => {
               e.preventDefault();
               if (!editingPlayer) return;
-              
+
               if (joinType === "no") {
                 // Delete the response
                 fetch(`/api/games/${game.id}/players/${editingPlayer.id}`, {
                   method: "DELETE",
-                  headers: { 
+                  headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${localStorage.getItem(`response-token-${editingPlayer.id}`) || user?.uid}`
                   }
                 })
-                .then(() => {
-                  queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-                  toast({ title: "Success", description: "Response removed successfully" });
-                  setEditingPlayer(null);
-                  setIsOpen(false);
-                })
-                .catch(() => {
-                  toast({
-                    title: "Error",
-                    description: "Failed to remove response",
-                    variant: "destructive",
+                  .then(() => {
+                    queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                    toast({ title: "Success", description: "Response removed successfully" });
+                    setEditingPlayer(null);
+                    setIsOpen(false);
+                  })
+                  .catch(() => {
+                    toast({
+                      title: "Error",
+                      description: "Failed to remove response",
+                      variant: "destructive",
+                    });
                   });
-                });
               } else {
                 editResponse.mutate({
                   playerId: editingPlayer.id,
@@ -372,8 +372,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 />
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 variant={joinType === "no" ? "destructive" : "default"}
                 className="w-full"
               >
@@ -457,7 +457,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   body: JSON.stringify({
                     title: game.title,
                     location: game.location,
-                    date: game.date,
+                    date: localInputToUTC(game.date, game.timezone).toISOString(),
+                    timezone: game.timezone,
                     playerThreshold: game.playerThreshold,
                     creatorId: game.creatorId
                   }),
@@ -493,8 +494,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   <Label>Date & Time</Label>
                   <Input
                     type="datetime-local"
-                    defaultValue={new Date(new Date(game.date).getTime() + new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                    onChange={(e) => game.date = new Date(e.target.value)}
+                    defaultValue={utcToLocalInput(game.date, game.timezone)}
+                    onChange={(e) => game.date = e.target.value}
                   />
                 </div>
                 <div className="space-y-2">
