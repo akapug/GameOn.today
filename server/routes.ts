@@ -191,8 +191,8 @@ export function registerRoutes(app: Express): Server {
         endTime: endTime ? toUTC(endTime, timezone || 'UTC') : null,
         notes: notes || null,
         webLink: webLink || null,
-        isRecurring: Boolean(isRecurring),
-        recurrenceFrequency: recurrenceFrequency || null
+        isRecurring: isRecurring === true || isRecurring === 'true',
+        recurrenceFrequency: isRecurring === true || isRecurring === 'true' ? recurrenceFrequency : null
       };
 
       const [newGame] = await db.insert(games).values(gameData).returning();
