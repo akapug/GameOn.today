@@ -495,6 +495,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
+                const form = e.currentTarget;
+                const formData = new FormData(form);
                 const updatedGame = {
                   ...game,
                   title: formData.get('title') as string,
@@ -510,6 +512,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   webLink: formData.get('webLink') as string,
                   playerThreshold: parseInt(formData.get('playerThreshold') as string, 10),
                   creatorId: user?.uid,
+                  isRecurring: formData.get('isRecurring') === 'true',
+                  recurrenceFrequency: formData.get('isRecurring') === 'true' ? formData.get('recurrenceFrequency') as string : null,
                   isRecurring: formData.get('isRecurring') === 'true',
                   recurrenceFrequency: formData.get('recurrenceFrequency') as string || null,
                 };
