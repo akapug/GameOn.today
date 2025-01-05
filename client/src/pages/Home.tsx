@@ -7,7 +7,7 @@ import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
 import { useState } from "react";
-import SportSelect from "@/components/SportSelect";
+import ActivitySelect from "@/components/SportSelect";
 import { type Game, type Player, type Sport } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import AuthDialog from "@/components/AuthDialog";
@@ -89,7 +89,7 @@ export default function Home() {
             </TabsList>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
               <div className="w-full sm:w-48">
-                <SportSelect 
+                <ActivitySelect 
                   value={selectedSport || 0} 
                   onChange={(value) => setSelectedSport(value || null)}
                   allowClear

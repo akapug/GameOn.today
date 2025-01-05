@@ -24,6 +24,16 @@ export const defaultSports: Omit<Sport, "id">[] = [
     color: "yellow",
     icon: "circle",
   },
+  {
+    name: "Poker",
+    color: "red",
+    icon: "diamond",
+  },
+  {
+    name: "Board Games",
+    color: "purple",
+    icon: "dice",
+  },
 ];
 
 export const sportColors = {
@@ -31,6 +41,8 @@ export const sportColors = {
   orange: "hsl(24.6 95% 53.1%)",
   green: "hsl(142.1 76.2% 36.3%)",
   yellow: "hsl(47.9 95.8% 53.1%)",
+  red: "hsl(0 72.2% 50.6%)",
+  purple: "hsl(280 68.2% 50.6%)",
 };
 
 export function useSports() {
