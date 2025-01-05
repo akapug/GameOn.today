@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import { User, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 
 interface AuthContextType {
@@ -34,10 +34,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await signInWithPopup(auth, googleProvider);
       return result;
     } catch (error: any) {
-      if (error.code === 'auth/popup-blocked') {
-        // If popup blocked, try redirect
+      if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+        // If popup blocked or cancelled, try redirect
         await signInWithRedirect(auth, googleProvider);
       } else {
+        console.error("Google sign in error:", error);
         throw error;
       }
     }
