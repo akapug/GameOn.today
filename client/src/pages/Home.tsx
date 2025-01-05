@@ -26,7 +26,7 @@ export default function Home() {
   const { user } = useAuth();
 
   const { data: games = [], isLoading, error } = useQuery<GameWithDetails[]>({
-    queryKey: queryKeys.games.all,
+    queryKey: ['/api/games'],
     onSuccess: (data) => console.log('Games fetched:', data),
     onError: (error) => console.error('Games fetch error:', error)
   });
