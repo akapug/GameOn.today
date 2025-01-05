@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -90,8 +89,8 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
               <div className="w-full sm:w-48">
                 <ActivitySelect 
-                  value={selectedSport || 0} 
-                  onChange={(value) => setSelectedSport(value || null)}
+                  value={selectedActivity || 0} 
+                  onChange={(value) => setSelectedActivity(value || null)}
                   allowClear
                 />
               </div>
