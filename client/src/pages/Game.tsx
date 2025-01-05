@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
-import { type Game as GameType, type Player, type Sport } from "@db/schema";
+import { type Game as GameType, type Player, type Activity } from "@db/schema";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 
 interface GameWithDetails extends GameType {
   players: Player[];
-  sport: Sport;
+  activity: Activity;
   weather: WeatherInfo | null;
 }
 
@@ -229,7 +229,7 @@ export default function Game() {
 
   const shareGame = async (method: 'copy' | 'facebook' | 'twitter' | 'sms') => {
     const gameUrl = `${window.location.origin}/games/${game.id}`;
-    const text = `Join our ${game.sport.name} game: ${game.title} at ${game.location}`;
+    const text = `Join our ${game.activity.name} game: ${game.title} at ${game.location}`;
 
     switch (method) {
       case 'copy':
