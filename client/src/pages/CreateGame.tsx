@@ -14,6 +14,7 @@ import { type NewGame } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import { useState } from "react";
 import AuthDialog from "@/components/AuthDialog";
+import { apiRequest } from "@/lib/api";
 
 export default function CreateGame() {
   const [, navigate] = useLocation();
