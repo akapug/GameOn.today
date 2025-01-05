@@ -4,6 +4,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: async ({ queryKey }) => {
+        console.log('Executing query:', queryKey);
         try {
           // Ensure API prefix
           const endpoint = Array.isArray(queryKey) ? queryKey.join('/') : queryKey;

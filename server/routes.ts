@@ -136,6 +136,7 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/games", async (_req, res) => {
     console.log("Fetching games from database...");
     try {
+      console.log("Database connection status:", !!db);
       const allGames = await db.query.games.findMany({
         with: {
           activity: true,
