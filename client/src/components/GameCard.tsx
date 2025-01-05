@@ -135,8 +135,14 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 {game.title || `${game.sport.name}`}
               </h3>
             </Link>
-            <div className="text-sm text-muted-foreground">
-              Organized by {game.creatorName}
+            <div className="text-sm text-muted-foreground flex items-center">
+              <MapPin className="mr-2 h-4 w-4" />
+              <button
+                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(game.location)}`, '_blank')}
+                className="text-primary hover:underline"
+              >
+                {game.location}
+              </button>
             </div>
           </div>
           {new Date(game.date) < new Date() ? (
