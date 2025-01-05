@@ -5,9 +5,10 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: async ({ queryKey }) => {
         try {
-          // Handle array query keys properly
+          // Ensure API prefix
           const endpoint = Array.isArray(queryKey) ? queryKey.join('/') : queryKey;
-          const res = await fetch(endpoint, {
+          const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
+          const res = await fetch(apiEndpoint, {
             credentials: "include",
             headers: {
               'Accept': 'application/json',
