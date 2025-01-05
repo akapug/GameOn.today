@@ -45,12 +45,18 @@ export default function Home() {
     return games.filter(game => game.sportId === selectedSport);
   };
 
+  const isArchived = (game: GameWithDetails) => {
+    const gameDate = new Date(game.date);
+    const threeHoursAfterStart = new Date(gameDate.getTime() + (3 * 60 * 60 * 1000));
+    return isBefore(threeHoursAfterStart, now);
+  };
+
   const upcomingGames = filterGamesBySport(
-    games.filter(game => !isBefore(new Date(game.date), now))
+    games.filter(game => !isArchived(game))
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const archivedGames = filterGamesBySport(
-    games.filter(game => isBefore(new Date(game.date), now))
+    games.filter(game => isArchived(game))
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (

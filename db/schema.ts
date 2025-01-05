@@ -20,7 +20,9 @@ export const games = pgTable("games", {
   creatorId: text("creator_id").notNull(),
   creatorName: text("creator_name").notNull(),
   timezone: text("timezone").notNull(),
+  endTime: timestamp("end_time", { mode: 'string', withTimezone: true }),
   notes: text("notes"),
+  webLink: text("web_link"),
 });
 
 export const players = pgTable("players", {

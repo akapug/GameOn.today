@@ -29,11 +29,14 @@ export default function CreateGame() {
       title: "",
       location: "",
       date: "",
-      timezone: userTimezone, // Use detected timezone as default
+      endTime: "",
+      timezone: userTimezone,
       playerThreshold: 10,
       sportId: undefined,
       creatorId: user?.uid || "",
       creatorName: user?.displayName || "",
+      notes: "",
+      webLink: "",
     },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
@@ -163,6 +166,21 @@ export default function CreateGame() {
                     </FormItem>
                   )}
                 />
+                  <FormField
+                    control={form.control}
+                    name="endTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>End Time ({userTimezone})</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="datetime-local"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
 
                 <FormField
                   control={form.control}
@@ -199,6 +217,30 @@ export default function CreateGame() {
                           onChange={(e) => onChange(parseInt(e.target.value, 10))}
                           {...field}
                         />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notes</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Add any details about the game, like level of play, parking instructions, etc." {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="webLink"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Web Link</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Link to more info" {...field} />
                       </FormControl>
                     </FormItem>
                   )}

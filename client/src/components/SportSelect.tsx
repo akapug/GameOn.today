@@ -1,4 +1,3 @@
-
 import { Fragment } from "react"
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -19,7 +18,7 @@ import { defaultSports } from "@/lib/sports"
 import { forwardRef } from "react"
 
 const SportSelect = forwardRef((props: any, ref) => {
-  const { value, onChange } = props;
+  const { value, onChange, hideAllOption = false } = props;
 
   return (
     <Popover>
@@ -40,7 +39,7 @@ const SportSelect = forwardRef((props: any, ref) => {
           <CommandInput placeholder="Search sports..." />
           <CommandEmpty>No sport found.</CommandEmpty>
           <CommandGroup>
-            {props.showAllOption !== false && (
+            {!hideAllOption && (
               <CommandItem
                 onSelect={() => {
                   onChange(0);
