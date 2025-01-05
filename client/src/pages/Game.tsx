@@ -80,7 +80,6 @@ export default function Game() {
       recurrenceFrequency: game?.recurrenceFrequency || undefined,
     },
   });
-  });
 
   useEffect(() => {
     if (error) {
