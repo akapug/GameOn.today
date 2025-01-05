@@ -48,7 +48,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
     playerThreshold: game.playerThreshold,
     notes: game.notes || '',
     webLink: game.webLink || '',
-    isRecurring: game.isRecurring,
+    isRecurring: game.isRecurring === true,
     recurrenceFrequency: game.recurrenceFrequency
   });
   const queryClient = useQueryClient();
@@ -149,7 +149,6 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       return;
     }
 
-    // Create a new object with explicit boolean conversion
     const updatedGame = {
       ...game,
       title: formState.title,
@@ -161,10 +160,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       playerThreshold: Number(formState.playerThreshold),
       creatorId: user?.uid,
       timezone: game.timezone,
-      // Force boolean type and ensure consistent handling
-      isRecurring: Boolean(formState.isRecurring),
-      // Only set recurrenceFrequency if isRecurring is true
-      recurrenceFrequency: Boolean(formState.isRecurring) ? formState.recurrenceFrequency : null,
+      isRecurring: formState.isRecurring,
+      recurrenceFrequency: formState.isRecurring ? formState.recurrenceFrequency : null,
     };
 
     try {
@@ -182,7 +179,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
         throw new Error(error || "Failed to update game");
       }
 
-      const data = await res.json();
+      await res.json();
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       toast({ title: "Success", description: "Game updated successfully" });
       setIsEditDialogOpen(false);
@@ -569,7 +566,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   playerThreshold: game.playerThreshold,
                   notes: game.notes || '',
                   webLink: game.webLink || '',
-                  isRecurring: game.isRecurring,
+                  isRecurring: game.isRecurring === true,
                   recurrenceFrequency: game.recurrenceFrequency
                 });
               }
@@ -643,7 +640,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <div className="space-y-2">
                   <Label>Recurring Game</Label>
                   <Select
-                    value={String(Boolean(formState.isRecurring))}
+                    value={String(formState.isRecurring)}
                     onValueChange={(value) => {
                       setFormState(prev => ({
                         ...prev,
@@ -662,15 +659,17 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   </Select>
                 </div>
 
-                {Boolean(formState.isRecurring) && (
+                {formState.isRecurring && (
                   <div className="space-y-2">
                     <Label>Recurrence Frequency</Label>
                     <Select
                       value={formState.recurrenceFrequency || ''}
-                      onValueChange={(value) => setFormState(prev => ({
-                        ...prev,
-                        recurrenceFrequency: value
-                      }))}
+                      onValueChange={(value) => {
+                        setFormState(prev => ({
+                          ...prev,
+                          recurrenceFrequency: value
+                        }))
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="How often does this game repeat?" />

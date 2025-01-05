@@ -17,20 +17,26 @@ const getDb = () => {
       if (!process.env.DATABASE_URL) {
         throw new Error("DATABASE_URL is not set");
       }
-      
+
       console.log("Attempting database connection...");
       // Use connection pooling URL
       const poolUrl = process.env.DATABASE_URL.replace('.aws-eu-central-1', '-pooler.aws-eu-central-1')
-                                            .replace('.aws-eu-west-1', '-pooler.aws-eu-west-1')
-                                            .replace('.aws-us-east-1', '-pooler.aws-us-east-1')
-                                            .replace('.aws-us-west-2', '-pooler.aws-us-west-2');
-      
+                                           .replace('.aws-eu-west-1', '-pooler.aws-eu-west-1')
+                                           .replace('.aws-us-east-1', '-pooler.aws-us-east-1')
+                                           .replace('.aws-us-west-2', '-pooler.aws-us-west-2');
+
       const client = drizzle({
         connection: poolUrl,
         schema,
         ws: ws,
+        // Add specific type handling for booleans
+        connectionOptions: {
+          transformValues: {
+            boolean: (val: unknown) => val === true || val === 'true' || val === 't',
+          },
+        },
       });
-      
+
       // Test the connection
       await client.select().from(schema.sports).limit(1);
       console.log("Database connection successful");
@@ -41,7 +47,7 @@ const getDb = () => {
         console.error("Database connection error: Database appears to be paused. This may be due to billing issues or inactivity.");
         throw new Error("Database is paused - please check your database status and billing information in the Replit Database tool");
       }
-      
+
       console.error("Database connection error:", error.message);
       if (currentTry < maxRetries) {
         currentTry++;

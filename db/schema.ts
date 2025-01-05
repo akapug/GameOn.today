@@ -1,6 +1,7 @@
 import { pgTable, text, serial, timestamp, integer, decimal, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
+import { z } from "zod";
 
 export const sports = pgTable("sports", {
   id: serial("id").primaryKey(),
@@ -54,8 +55,33 @@ export const playersRelations = relations(players, ({ one }) => ({
   }),
 }));
 
-export const insertGameSchema = createInsertSchema(games);
-export const selectGameSchema = createSelectSchema(games);
+// Add strict boolean handling to game schema
+export const gameSchema = z.object({
+  id: z.number(),
+  sportId: z.number(),
+  title: z.string(),
+  location: z.string(),
+  date: z.string(),
+  playerThreshold: z.number(),
+  createdAt: z.string(),
+  creatorId: z.string(),
+  creatorName: z.string(),
+  timezone: z.string(),
+  endTime: z.string().nullable(),
+  notes: z.string().nullable(),
+  webLink: z.string().nullable(),
+  isRecurring: z.boolean(),
+  recurrenceFrequency: z.string().nullable(),
+  parentGameId: z.number().nullable(),
+});
+
+export const insertGameSchema = createInsertSchema(games, {
+  isRecurring: z.boolean(),
+});
+export const selectGameSchema = createSelectSchema(games, {
+  isRecurring: z.boolean(),
+});
+
 export const insertPlayerSchema = createInsertSchema(players);
 export const selectPlayerSchema = createSelectSchema(players);
 export const insertSportSchema = createInsertSchema(sports);

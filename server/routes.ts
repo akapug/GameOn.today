@@ -71,11 +71,13 @@ async function sendGameOnNotification(gameId: number) {
 }
 
 async function getGameWithWeather(game: any) {
-  const weather = await getWeatherForecast(game.location, new Date(game.date));
-  return {
+  // Ensure boolean fields are properly typed
+  const gameWithTypes = {
     ...game,
-    weather
+    isRecurring: game.isRecurring === true,
+    weather: await getWeatherForecast(game.location, new Date(game.date))
   };
+  return gameWithTypes;
 }
 
 export function registerRoutes(app: Express): Server {
@@ -149,9 +151,12 @@ export function registerRoutes(app: Express): Server {
         },
       });
 
-      // Add weather information to each game
+      // Ensure proper boolean conversion for all games
       const gamesWithWeather = await Promise.all(
-        allGames.map(getGameWithWeather)
+        allGames.map(game => getGameWithWeather({
+          ...game,
+          isRecurring: game.isRecurring === true
+        }))
       );
 
       res.json(gamesWithWeather);
@@ -178,7 +183,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
-      // Ensure the date is stored in UTC
+      // Ensure boolean conversion for isRecurring
       const gameData = {
         sportId: Number(sportId),
         title: String(title),
@@ -191,12 +196,17 @@ export function registerRoutes(app: Express): Server {
         endTime: endTime ? toUTC(endTime, timezone || 'UTC') : null,
         notes: notes || null,
         webLink: webLink || null,
-        isRecurring: isRecurring === true || isRecurring === 'true',
-        recurrenceFrequency: isRecurring === true || isRecurring === 'true' ? recurrenceFrequency : null
+        isRecurring: isRecurring === true,
+        recurrenceFrequency: isRecurring === true ? recurrenceFrequency : null
       };
 
       const [newGame] = await db.insert(games).values(gameData).returning();
-      res.json(newGame);
+
+      // Ensure boolean conversion in response
+      res.json({
+        ...newGame,
+        isRecurring: newGame.isRecurring === true
+      });
     } catch (error) {
       console.error("Failed to create game:", error);
       res.status(500).json({ message: `Failed to create game: ${error.message}` });
@@ -386,7 +396,12 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "Game not found" });
       }
 
-      const gameWithWeather = await getGameWithWeather(game);
+      // Ensure proper boolean conversion
+      const gameWithWeather = await getGameWithWeather({
+        ...game,
+        isRecurring: game.isRecurring === true
+      });
+
       res.json(gameWithWeather);
     } catch (error) {
       console.error("Failed to fetch game:", error);
@@ -440,7 +455,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Only the creator can edit this game" });
       }
 
-      // Convert date to UTC before storage
+      // Convert date to UTC before storage and ensure boolean conversion
       const [updatedGame] = await db
         .update(games)
         .set({
@@ -458,37 +473,12 @@ export function registerRoutes(app: Express): Server {
         .where(eq(games.id, parseInt(id, 10)))
         .returning();
 
-      // Check if game has moved to archived and needs duplication
-      const gameDate = new Date(date);
-      const now = new Date();
-      if (isRecurring && recurrenceFrequency && gameDate < now) {
-        const nextDate = new Date(date);
-        switch (recurrenceFrequency) {
-          case 'weekly':
-            nextDate.setDate(nextDate.getDate() + 7);
-            break;
-          case 'biweekly':
-            nextDate.setDate(nextDate.getDate() + 14);
-            break;
-          case 'monthly':
-            nextDate.setMonth(nextDate.getMonth() + 1);
-            break;
-        }
-        
-        // Only create next game if it's not too far in the future
-        if (nextDate > now) {
-          await db.insert(games).values({
-            ...updatedGame,
-            id: undefined,
-            date: nextDate.toISOString(),
-            endTime: endTime ? new Date(new Date(endTime).getTime() + (nextDate.getTime() - new Date(date).getTime())).toISOString() : null,
-            parentGameId: updatedGame.id
-          });
-        }
-      }
+      // Ensure boolean conversion in response
+      const gameWithWeather = await getGameWithWeather({
+        ...updatedGame,
+        isRecurring: updatedGame.isRecurring === true
+      });
 
-      // Fetch fresh weather data for the updated location/time
-      const gameWithWeather = await getGameWithWeather(updatedGame);
       res.json(gameWithWeather);
     } catch (error) {
       console.error("Failed to update game:", error);

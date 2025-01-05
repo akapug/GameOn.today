@@ -15,7 +15,6 @@ import { type NewGame } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import { useState } from "react";
 import AuthDialog from "@/components/AuthDialog";
-import { apiRequest } from "@/lib/api";
 import { toUTC, getUserTimezone } from "@/lib/dates";
 
 function isValidUrl(string: string) {
@@ -77,17 +76,14 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: NewGame) => {
-      // Ensure consistent boolean handling for isRecurring
       const gameData = {
         ...values,
         date: toUTC(values.date, values.timezone).toISOString(),
         endTime: values.endTime ? toUTC(values.endTime, values.timezone).toISOString() : null,
         sportId: Number(values.sportId),
         playerThreshold: Number(values.playerThreshold),
-        // Force boolean type and ensure consistent handling
-        isRecurring: Boolean(values.isRecurring),
-        // Only set recurrenceFrequency if isRecurring is true
-        recurrenceFrequency: Boolean(values.isRecurring) ? values.recurrenceFrequency : null,
+        isRecurring: values.isRecurring === true,
+        recurrenceFrequency: values.isRecurring === true ? values.recurrenceFrequency : null,
       };
 
       const res = await fetch("/api/games", {
@@ -249,7 +245,6 @@ export default function CreateGame() {
                   )}
                 />
 
-
                 <FormField
                   control={form.control}
                   name="playerThreshold"
@@ -267,6 +262,7 @@ export default function CreateGame() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="notes"
@@ -279,6 +275,7 @@ export default function CreateGame() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="webLink"
@@ -299,9 +296,9 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel>Recurring Game</FormLabel>
                       <FormControl>
-                        <Select 
-                          onValueChange={(value) => field.onChange(value === 'true')} 
-                          value={field.value?.toString()}
+                        <Select
+                          onValueChange={(value) => field.onChange(value === 'true')}
+                          value={String(field.value === true)}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Is this a recurring game?" />
@@ -316,7 +313,7 @@ export default function CreateGame() {
                   )}
                 />
 
-                {form.watch("isRecurring") && (
+                {form.watch("isRecurring") === true && (
                   <FormField
                     control={form.control}
                     name="recurrenceFrequency"
