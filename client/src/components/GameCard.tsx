@@ -203,9 +203,20 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
         <div className="flex justify-between items-start">
           <div>
             <Link href={`/games/${game.urlHash}`}>
-              <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                {game.title || `${game.activity.name}`}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
+                  {game.title || `${game.activity.name}`}
+                </h3>
+                <span 
+                  className="text-sm px-2 py-0.5 rounded-full" 
+                  style={{ 
+                    backgroundColor: `${activityColors[game.activity.color as keyof typeof activityColors]}20`,
+                    color: activityColors[game.activity.color as keyof typeof activityColors]
+                  }}
+                >
+                  {game.activity.name}
+                </span>
+              </div>
             </Link>
             <div className="text-sm text-muted-foreground flex items-center">
               <MapPin className="mr-2 h-4 w-4" />
