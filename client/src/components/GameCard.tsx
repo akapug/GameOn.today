@@ -629,11 +629,19 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   <Select 
                     name="isRecurring" 
                     value={formState.isRecurring ? 'true' : 'false'}
-                    onValueChange={(value) => setFormState(prev => ({ 
+                    onValueChange={(value) => {
+                  console.log('Select value:', value);
+                  console.log('Type of value:', typeof value);
+                  setFormState(prev => {
+                    const newState = { 
                       ...prev, 
                       isRecurring: value === 'true',
                       recurrenceFrequency: value === 'false' ? null : prev.recurrenceFrequency 
-                    }))}
+                    };
+                    console.log('New form state:', newState);
+                    return newState;
+                  });
+                }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Is this a recurring game?" />
