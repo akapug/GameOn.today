@@ -19,8 +19,6 @@ interface GameWithDetails extends Game {
   weather: WeatherInfo | null;
 }
 
-console.log('Fetching games...');
-
 export default function Home() {
   const [selectedActivity, setSelectedActivity] = useState<number | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
@@ -29,11 +27,7 @@ export default function Home() {
 
   const { data: games = [], isLoading, error } = useQuery<GameWithDetails[]>({
     queryKey: queryKeys.games.all,
-    onSuccess: (data) => console.log('Games fetched:', data),
-    onError: (error) => console.error('Games fetch error:', error)
   });
-
-  console.log('Games state:', { games, isLoading, error });
 
   const handleCreateGame = () => {
     if (user) {
@@ -56,12 +50,15 @@ export default function Home() {
     return isBefore(threeHoursAfterStart, now);
   };
 
+  // Only show public games in the main list
+  const publicGames = games.filter(game => !game.isPrivate);
+
   const upcomingGames = filterGamesByActivity(
-    games.filter(game => !isArchived(game))
+    publicGames.filter(game => !isArchived(game))
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const archivedGames = filterGamesByActivity(
-    games.filter(game => isArchived(game))
+    publicGames.filter(game => isArchived(game))
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (

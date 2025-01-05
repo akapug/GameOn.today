@@ -5,14 +5,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Game } from "@db/schema";
+import type { Game, Activity } from "@db/schema";
 import { queryKeys } from "@/lib/queryClient";
+
+interface GameWithActivity extends Game {
+  activity: Activity;
+}
 
 export default function UserGames() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  const { data: games, isLoading } = useQuery<Game[]>({
+  const { data: games, isLoading } = useQuery<GameWithActivity[]>({
     queryKey: ["/api/games/user", { uid: user?.uid }],
     enabled: !!user,
   });
@@ -41,7 +45,7 @@ export default function UserGames() {
             <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-medium text-sm">{game.title}</h3>
+                  <h3 className="font-medium text-sm">{game.title || game.activity?.name}</h3>
                   <p className="text-xs text-muted-foreground">
                     {format(new Date(game.date), "PPP")}
                   </p>

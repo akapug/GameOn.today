@@ -6,8 +6,47 @@ import { eq, and, sql, desc } from "drizzle-orm";
 import { defaultActivities } from "../client/src/lib/activities";
 import nodemailer from "nodemailer";
 import { getWeatherForecast } from "./services/weather";
-import crypto from 'crypto';
 import { formatWithTimezone, toUTC } from "../client/src/lib/dates";
+
+// Helper function to generate random string
+function generateRandomString(length = 12) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return result;
+}
+
+// Helper function to generate random URL hash
+function generateUrlHash(length = 6) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return result;
+}
+
+// Generate unique hash by checking against existing ones
+async function generateUniqueUrlHash() {
+  const maxAttempts = 10;
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+    const hash = generateUrlHash();
+    const existing = await db.query.games.findFirst({
+      where: eq(games.urlHash, hash),
+    });
+
+    if (!existing) {
+      return hash;
+    }
+    attempts++;
+  }
+
+  throw new Error("Could not generate unique hash after maximum attempts");
+}
 
 // Email transport configuration
 const transporter = nodemailer.createTransport({
@@ -99,7 +138,12 @@ export function registerRoutes(app: Express): Server {
       });
 
       const gamesWithWeather = await Promise.all(
-        userGames.map(async game => getGameWithWeather(game))
+        userGames.map(async game => ({
+          ...game,
+          isRecurring: game.isRecurring === true || game.isRecurring === 't',
+          isPrivate: game.isPrivate === true || game.isPrivate === 't',
+          weather: await getWeatherForecast(game.location, new Date(game.date))
+        }))
       );
 
       res.json(gamesWithWeather);
@@ -121,7 +165,12 @@ export function registerRoutes(app: Express): Server {
       });
 
       const gamesWithWeather = await Promise.all(
-        allGames.map(async game => getGameWithWeather(game))
+        allGames.map(async game => ({
+          ...game,
+          isRecurring: game.isRecurring === true || game.isRecurring === 't',
+          isPrivate: game.isPrivate === true || game.isPrivate === 't',
+          weather: await getWeatherForecast(game.location, new Date(game.date))
+        }))
       );
 
       res.json(gamesWithWeather);
@@ -147,7 +196,13 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "Game not found" });
       }
 
-      const gameWithWeather = await getGameWithWeather(game);
+      const gameWithWeather = {
+        ...game,
+        isRecurring: game.isRecurring === true || game.isRecurring === 't',
+        isPrivate: game.isPrivate === true || game.isPrivate === 't',
+        weather: await getWeatherForecast(game.location, new Date(game.date))
+      };
+
       res.json(gameWithWeather);
     } catch (error) {
       console.error("Failed to fetch game:", error);
@@ -164,8 +219,8 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
-      // Generate a random 12-character URL hash (6 bytes converted to hex)
-      const urlHash = crypto.randomBytes(6).toString('hex');
+      // Generate a unique URL hash
+      const urlHash = await generateUniqueUrlHash();
 
       const [newGame] = await db.insert(games).values({
         urlHash,
@@ -282,7 +337,8 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "Game not found" });
       }
 
-      const responseToken = uid || crypto.randomUUID();
+      // Generate a simple random string for response token
+      const responseToken = uid || generateRandomString();
 
       if (email) {
         const existingPlayer = game.players.find(p => p.email === email);

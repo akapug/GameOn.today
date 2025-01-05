@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, MessageSquare, Trash2, Edit } from "lucide-react";
+import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, MessageSquare, Trash2, Edit, EyeOff } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { formatWithTimezone, utcToLocalInput, localInputToUTC } from "@/lib/dates";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
@@ -51,7 +51,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
     notes: game.notes || '',
     webLink: game.webLink || '',
     isRecurring: game.isRecurring === true,
-    recurrenceFrequency: game.recurrenceFrequency
+    recurrenceFrequency: game.recurrenceFrequency,
+    isPrivate: game.isPrivate === true
   });
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -216,16 +217,11 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               </button>
             </div>
           </div>
-          {new Date(game.date) < new Date() ? (
-            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-              Game concluded
+          {game.isPrivate && (
+            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full flex items-center gap-1">
+              <EyeOff className="h-3 w-3" />
+              Private
             </span>
-          ) : (
-            hasMinimumPlayers && (
-              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                Ready to Play!
-              </span>
-            )
           )}
         </div>
       </CardHeader>
@@ -556,26 +552,23 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
         {/* Edit Button */}
         {canDelete && (
-          <Dialog
-            open={isGameEditDialogOpen}
-            onOpenChange={(open) => {
-              setIsGameEditDialogOpen(open);
-              if (open) {
-                setFormState({
-                  title: game.title,
-                  location: game.location,
-                  date: utcToLocalInput(game.date, game.timezone),
-                  endTime: game.endTime ? utcToLocalInput(game.endTime, game.timezone) : '',
-                  playerThreshold: game.playerThreshold,
-                  notes: game.notes || '',
-                  webLink: game.webLink || '',
-                  isRecurring: game.isRecurring === true,
-                  recurrenceFrequency: game.recurrenceFrequency,
-                  isPrivate: game.isPrivate === true
-                });
-              }
-            }}
-          >
+          <Dialog open={isGameEditDialogOpen} onOpenChange={(open) => {
+            setIsGameEditDialogOpen(open);
+            if (open) {
+              setFormState({
+                title: game.title,
+                location: game.location,
+                date: utcToLocalInput(game.date, game.timezone),
+                endTime: game.endTime ? utcToLocalInput(game.endTime, game.timezone) : '',
+                playerThreshold: game.playerThreshold,
+                notes: game.notes || '',
+                webLink: game.webLink || '',
+                isRecurring: game.isRecurring === true,
+                recurrenceFrequency: game.recurrenceFrequency,
+                isPrivate: game.isPrivate === true
+              });
+            }
+          }}>
             <DialogTrigger asChild>
               <Button variant="outline" size="icon">
                 <Edit className="h-4 w-4" />
