@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -7,8 +6,8 @@ import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
 import { useState } from "react";
-import SportSelect from "@/components/SportSelect";
-import { type Game, type Player, type Sport } from "@db/schema";
+import ActivitySelect from "@/components/ActivitySelect";
+import { type Game, type Player, type Activity } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import AuthDialog from "@/components/AuthDialog";
 import { queryKeys } from "@/lib/queryClient";
@@ -16,19 +15,23 @@ import type { WeatherInfo } from "../../../server/services/weather";
 
 interface GameWithDetails extends Game {
   players: Array<Player>;
-  sport: Sport;
+  activity: Activity;
   weather: WeatherInfo | null;
 }
 
 export default function Home() {
-  const [selectedSport, setSelectedSport] = useState<number | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<number | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [, setLocation] = useLocation();
   const { user } = useAuth();
 
-  const { data: games = [] } = useQuery<GameWithDetails[]>({
-    queryKey: queryKeys.games.all,
+  const { data: games = [], isLoading, error } = useQuery<GameWithDetails[]>({
+    queryKey: ['/api/games'],
+    onSuccess: (data) => console.log('Games fetched:', data),
+    onError: (error) => console.error('Games fetch error:', error)
   });
+
+  console.log('Games state:', { games, isLoading, error });
 
   const handleCreateGame = () => {
     if (user) {
@@ -40,9 +43,9 @@ export default function Home() {
 
   const now = new Date();
 
-  const filterGamesBySport = (games: GameWithDetails[]) => {
-    if (selectedSport === null) return games;
-    return games.filter(game => game.sportId === selectedSport);
+  const filterGamesByActivity = (games: GameWithDetails[]) => {
+    if (!selectedActivity) return games;
+    return games.filter(game => game.activity?.id === selectedActivity);
   };
 
   const isArchived = (game: GameWithDetails) => {
@@ -51,11 +54,11 @@ export default function Home() {
     return isBefore(threeHoursAfterStart, now);
   };
 
-  const upcomingGames = filterGamesBySport(
+  const upcomingGames = filterGamesByActivity(
     games.filter(game => !isArchived(game))
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const archivedGames = filterGamesBySport(
+  const archivedGames = filterGamesByActivity(
     games.filter(game => isArchived(game))
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -89,9 +92,9 @@ export default function Home() {
             </TabsList>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
               <div className="w-full sm:w-48">
-                <SportSelect 
-                  value={selectedSport || 0} 
-                  onChange={(value) => setSelectedSport(value || null)}
+                <ActivitySelect 
+                  value={selectedActivity || 0} 
+                  onChange={(value) => setSelectedActivity(value || null)}
                   allowClear
                 />
               </div>

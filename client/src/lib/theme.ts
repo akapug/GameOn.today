@@ -1,5 +1,5 @@
-import { sportColors } from "./sports";
+import { activityColors } from "./activities";
 
-export function setSportTheme(color: keyof typeof sportColors) {
-  document.documentElement.style.setProperty("--primary", sportColors[color]);
+export function setActivityTheme(color: keyof typeof activityColors) {
+  document.documentElement.style.setProperty("--primary", activityColors[color]);
 }

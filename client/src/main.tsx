@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import App from './App';
 import "./index.css";
 
-// Initialize sports table
+// Initialize activities table
 fetch("/api/init").catch(console.error);
 
 createRoot(document.getElementById("root")!).render(
