@@ -177,33 +177,6 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               </a>
             </div>
           )}
-            {game.endTime && (
-              <span className="text-muted-foreground ml-1">
-                - {formatWithTimezone(game.endTime, "p", game.timezone)}
-              </span>
-            )}
-          </div>
-
-          {game.notes && (
-            <div className="text-sm text-muted-foreground mt-2">
-              {game.notes}
-            </div>
-          )}
-
-          {game.webLink && (
-            <div className="text-sm mt-2">
-              <a 
-                href={game.webLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline flex items-center"
-              >
-                <LinkIcon className="mr-2 h-4 w-4" />
-                More Info
-              </a>
-            </div>
-          )}
-
           <div className="space-y-2 text-sm">
             <div className="flex items-center">
               <MapPin className="mr-2 h-4 w-4" />
@@ -267,7 +240,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               ))}
             </div>
           </div>
-        </div>
+        </div> </div> {/* Added closing div tag here */}
 
         {/* Join Game Dialog */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
