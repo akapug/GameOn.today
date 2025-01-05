@@ -12,7 +12,7 @@ export const activities = pgTable("activities", {
 
 export const games = pgTable("games", {
   id: serial("id").primaryKey(),
-  sportId: integer("sport_id").references(() => activities.id),
+  activityId: integer("activity_id").references(() => activities.id),
   title: text("title").notNull(),
   location: text("location").notNull(),
   date: timestamp("date", { mode: 'string', withTimezone: true }).notNull(),
@@ -42,7 +42,7 @@ export const players = pgTable("players", {
 
 export const gamesRelations = relations(games, ({ one, many }) => ({
   activity: one(activities, {
-    fields: [games.sportId],
+    fields: [games.activityId],
     references: [activities.id],
   }),
   players: many(players),
