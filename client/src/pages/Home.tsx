@@ -41,7 +41,7 @@ export default function Home() {
 
   const filterGamesByActivity = (games: GameWithDetails[]) => {
     if (selectedActivity === null) return games;
-    return games.filter(game => game.activityId === selectedActivity);
+    return games.filter(game => game.activity.id === selectedActivity);
   };
 
   const isArchived = (game: GameWithDetails) => {
