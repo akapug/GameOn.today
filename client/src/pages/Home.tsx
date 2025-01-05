@@ -15,7 +15,7 @@ import type { WeatherInfo } from "../../../server/services/weather";
 
 interface GameWithDetails extends Game {
   players: Array<Player>;
-  sport: Sport;
+  activity: Activity;
   weather: WeatherInfo | null;
 }
 
