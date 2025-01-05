@@ -27,6 +27,8 @@ export default function Home() {
 
   const { data: games = [] } = useQuery<GameWithDetails[]>({
     queryKey: queryKeys.games.all,
+    onSuccess: (data) => console.log('Games fetched:', data),
+    onError: (error) => console.error('Games fetch error:', error)
   });
 
   const handleCreateGame = () => {
