@@ -493,7 +493,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   <Label>Date & Time</Label>
                   <Input
                     type="datetime-local"
-                    defaultValue={new Date(game.date).toISOString().slice(0, 16)}
+                    defaultValue={new Date(new Date(game.date).getTime() + new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                     onChange={(e) => game.date = new Date(e.target.value)}
                   />
                 </div>
