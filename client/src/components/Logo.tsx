@@ -7,7 +7,7 @@ export default function Logo() {
       <img 
         src="/gameonlogo.jpg"
         alt="GameOn"
-        className="h-8" 
+        className="h-8 w-auto" 
       />
     </Link>
   );
