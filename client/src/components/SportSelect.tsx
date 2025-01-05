@@ -37,7 +37,7 @@ const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>((props, ref)
             !value && "text-muted-foreground"
           )}
         >
-          {value === 0 ? "All sports" : value ? defaultSports.find((_, index) => index + 1 === Number(value))?.name : "Select sport..."}
+          {value ? defaultSports.find((_, index) => index + 1 === Number(value))?.name : "Select sport..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
@@ -70,7 +70,7 @@ const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>((props, ref)
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === (index + 1).toString() ? "opacity-100" : "opacity-0"
+                    Number(value) === index + 1 ? "opacity-100" : "opacity-0"
                   )}
                 />
                 {sport.name}
