@@ -37,6 +37,8 @@ export default function CreateGame() {
       creatorName: user?.displayName || "",
       notes: "",
       webLink: "",
+      isRecurring: false,
+      recurrenceFrequency: undefined,
     },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
@@ -245,6 +247,47 @@ export default function CreateGame() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="isRecurring"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Recurring Game</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(value === 'true')} value={field.value?.toString()}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Is this a recurring game?" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="false">No</SelectItem>
+                          <SelectItem value="true">Yes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                {form.watch("isRecurring") && (
+                  <FormField
+                    control={form.control}
+                    name="recurrenceFrequency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Recurrence Frequency</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="How often does this game repeat?" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="biweekly">Biweekly</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <Button type="submit" className="w-full" disabled={createGame.isPending}>
                   Create Game
