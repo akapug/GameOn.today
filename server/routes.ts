@@ -370,9 +370,6 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  return httpServer;
-}
-
   // Delete player response
   app.delete("/api/games/:hash/players/:playerId", async (req, res) => {
     try {
@@ -394,4 +391,7 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ message: "Failed to delete player" });
     }
   });
+
+  return httpServer;
+}
 
