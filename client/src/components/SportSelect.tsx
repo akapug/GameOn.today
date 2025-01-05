@@ -15,17 +15,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { defaultActivities } from "@/lib/activities"
+import { defaultSports } from "@/lib/sports"
 import { forwardRef } from "react"
 
-interface ActivitySelectProps {
+interface SportSelectProps {
   value: number;
   onChange: (value: number) => void;
-  hideAllActivities?: boolean;
+  hideAllSports?: boolean;
 }
 
-const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props, ref) => {
-  const { value, onChange, hideAllActivities } = props;
+const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>((props, ref) => {
+  const { value, onChange, hideAllSports } = props;
 
   return (
     <Popover>
@@ -39,15 +39,15 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
             !value && "text-muted-foreground"
           )}
         >
-          {value ? defaultActivities.find((_, index) => index + 1 === Number(value))?.name : "Select activity..."}
+          {value ? defaultSports.find((_, index) => index + 1 === Number(value))?.name : "Select sport..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search activities..." />
-          <CommandEmpty>No activity found.</CommandEmpty>
+          <CommandInput placeholder="Search sports..." />
+          <CommandEmpty>No sport found.</CommandEmpty>
           <CommandGroup>
-            {!hideAllActivities && (
+            {!hideAllSports && (
               <CommandItem
                 onSelect={() => {
                   onChange(0);
@@ -59,10 +59,10 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
                     value === 0 ? "opacity-100" : "opacity-0"
                   )}
                 />
-                All activities
+                All sports
               </CommandItem>
             )}
-            {defaultActivities.map((activity, index) => (
+            {defaultSports.map((sport, index) => (
               <CommandItem
                 key={index + 1}
                 onSelect={() => {
@@ -75,7 +75,7 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
                     Number(value) === index + 1 ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {activity.name}
+                {sport.name}
               </CommandItem>
             ))}
           </CommandGroup>
@@ -85,6 +85,6 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
   );
 });
 
-ActivitySelect.displayName = "ActivitySelect";
+SportSelect.displayName = "SportSelect";
 
-export default ActivitySelect;
+export default SportSelect;

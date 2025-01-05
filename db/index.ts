@@ -38,7 +38,7 @@ const getDb = () => {
       });
 
       // Test the connection
-      await client.select().from(schema.activities).limit(1);
+      await client.select().from(schema.sports).limit(1);
       console.log("Database connection successful");
       return client;
     } catch (error: any) {

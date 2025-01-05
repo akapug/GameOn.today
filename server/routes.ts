@@ -1,9 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { games, players, activities } from "@db/schema";
+import { games, players, sports } from "@db/schema";
 import { eq, and } from "drizzle-orm";
-import { defaultActivities } from "../client/src/lib/activities";
+import { defaultSports } from "../client/src/lib/sports";
 import nodemailer from "nodemailer";
 import { getWeatherForecast, type WeatherInfo } from "./services/weather";
 import crypto from 'crypto';
@@ -24,7 +24,7 @@ async function sendGameOnNotification(gameId: number) {
   const game = await db.query.games.findFirst({
     where: eq(games.id, gameId),
     with: {
-      activity: true,
+      sport: true,
       players: {
         columns: {
           email: true,
@@ -57,7 +57,7 @@ async function sendGameOnNotification(gameId: number) {
         <p>The game you joined has reached its minimum player threshold and is now confirmed to happen!</p>
         <p>Game Details:</p>
         <ul>
-          <li><strong>Activity:</strong> ${game.activity.name}</li>
+          <li><strong>Sport:</strong> ${game.sport.name}</li>
           <li><strong>Title:</strong> ${game.title}</li>
           <li><strong>Location:</strong> ${game.location}</li>
           <li><strong>Date:</strong> ${formattedGameDate}</li>
@@ -107,38 +107,37 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Initialize default activities if none exist
+  // Initialize default sports if none exist
   app.get("/api/init", async (_req, res) => {
     try {
-      const existingActivities = await db.select().from(activities);
-      if (existingActivities.length === 0) {
-        await db.insert(activities).values(defaultActivities);
+      const existingSports = await db.select().from(sports);
+      if (existingSports.length === 0) {
+        await db.insert(sports).values(defaultSports);
       }
       res.json({ success: true });
     } catch (error) {
-      console.error("Failed to initialize activities:", error);
-      res.status(500).json({ message: "Failed to initialize activities" });
+      console.error("Failed to initialize sports:", error);
+      res.status(500).json({ message: "Failed to initialize sports" });
     }
   });
 
-  // Get all activities
-  app.get("/api/activities", async (_req, res) => {
+  // Get all sports
+  app.get("/api/sports", async (_req, res) => {
     try {
-      const allActivities = await db.select().from(activities);
-      res.json(allActivities);
+      const allSports = await db.select().from(sports);
+      res.json(allSports);
     } catch (error) {
-      console.error("Failed to fetch activities:", error);
-      res.status(500).json({ message: "Failed to fetch activities" });
+      console.error("Failed to fetch sports:", error);
+      res.status(500).json({ message: "Failed to fetch sports" });
     }
   });
 
   // Get all games with related data
   app.get("/api/games", async (_req, res) => {
-    console.log("Fetching games from database...");
     try {
       const allGames = await db.query.games.findMany({
         with: {
-          activity: true,
+          sport: true,
           players: {
             columns: {
               id: true,
@@ -164,7 +163,6 @@ export function registerRoutes(app: Express): Server {
         })
       );
 
-      console.log("Returning games:", gamesWithWeather);
       res.json(gamesWithWeather);
     } catch (error) {
       console.error("Failed to fetch games:", error);
@@ -175,23 +173,23 @@ export function registerRoutes(app: Express): Server {
   // Create a new game
   app.post("/api/games", async (req, res) => {
     try {
-      const { activityId, title, location, date, timezone, playerThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency } = req.body;
+      const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency } = req.body;
 
-      if (!activityId || !title || !location || !date || !playerThreshold || !creatorId) {
+      if (!sportId || !title || !location || !date || !playerThreshold || !creatorId) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
-      const activity = await db.query.activities.findFirst({
-        where: eq(activities.id, Number(activityId)),
+      const sport = await db.query.sports.findFirst({
+        where: eq(sports.id, Number(sportId)),
       });
 
-      if (!activity) {
-        return res.status(400).json({ message: "Selected activity does not exist" });
+      if (!sport) {
+        return res.status(400).json({ message: "Selected sport does not exist" });
       }
 
       // Ensure boolean conversion for isRecurring
       const gameData = {
-        activityId: Number(activityId),
+        sportId: Number(sportId),
         title: String(title),
         location: String(location),
         date: toUTC(date, timezone || 'UTC'),
@@ -384,7 +382,7 @@ export function registerRoutes(app: Express): Server {
       const game = await db.query.games.findFirst({
         where: eq(games.id, parseInt(req.params.id, 10)),
         with: {
-          activity: true,
+          sport: true,
           players: {
             columns: {
               id: true,

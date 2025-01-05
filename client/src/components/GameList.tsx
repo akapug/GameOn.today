@@ -1,5 +1,5 @@
 import GameCard from "./GameCard";
-import { type Game, type Player, type Activity } from "@db/schema";
+import { type Game, type Player, type Sport } from "@db/schema";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { WeatherInfo } from "../../server/services/weather";
@@ -7,7 +7,7 @@ import type { WeatherInfo } from "../../server/services/weather";
 interface GameListProps {
   games: Array<Game & { 
     players: Array<Player>;
-    activity: Activity;
+    sport: Sport;
     weather: WeatherInfo | null;
   }>;
   emptyMessage?: string;

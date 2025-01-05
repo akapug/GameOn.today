@@ -3,7 +3,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { z } from "zod";
 
-export const activities = pgTable("activities", {
+export const sports = pgTable("sports", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   color: text("color").notNull(),
@@ -12,7 +12,7 @@ export const activities = pgTable("activities", {
 
 export const games = pgTable("games", {
   id: serial("id").primaryKey(),
-  activityId: integer("activity_id").references(() => activities.id),
+  sportId: integer("sport_id").references(() => sports.id),
   title: text("title").notNull(),
   location: text("location").notNull(),
   date: timestamp("date", { mode: 'string', withTimezone: true }).notNull(),
@@ -41,9 +41,9 @@ export const players = pgTable("players", {
 });
 
 export const gamesRelations = relations(games, ({ one, many }) => ({
-  activity: one(activities, {
-    fields: [games.activityId],
-    references: [activities.id],
+  sport: one(sports, {
+    fields: [games.sportId],
+    references: [sports.id],
   }),
   players: many(players),
 }));
@@ -84,11 +84,11 @@ export const selectGameSchema = createSelectSchema(games, {
 
 export const insertPlayerSchema = createInsertSchema(players);
 export const selectPlayerSchema = createSelectSchema(players);
-export const insertActivitySchema = createInsertSchema(activities);
-export const selectActivitySchema = createSelectSchema(activities);
+export const insertSportSchema = createInsertSchema(sports);
+export const selectSportSchema = createSelectSchema(sports);
 
 export type Game = typeof games.$inferSelect;
 export type NewGame = typeof games.$inferInsert;
 export type Player = typeof players.$inferSelect;
 export type NewPlayer = typeof players.$inferInsert;
-export type Activity = typeof activities.$inferSelect;
+export type Sport = typeof sports.$inferSelect;

@@ -201,7 +201,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           <div>
             <Link href={`/games/${game.id}`}>
               <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                {game.title || `${game.activity.name}`}
+                {game.title || `${game.sport.name}`}
               </h3>
             </Link>
             <div className="text-sm text-muted-foreground flex items-center">
