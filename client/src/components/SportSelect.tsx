@@ -1,3 +1,4 @@
+
 import { Fragment } from "react"
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -20,16 +21,17 @@ import { forwardRef } from "react"
 interface SportSelectProps {
   value: number;
   onChange: (value: number) => void;
-  hideAllOption?: boolean;
+  hideAllSports?: boolean;
 }
 
 const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>((props, ref) => {
-  const { value, onChange, hideAllOption } = props;
+  const { value, onChange, hideAllSports } = props;
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
+          ref={ref}
           variant="outline"
           role="combobox"
           className={cn(
@@ -45,6 +47,21 @@ const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>((props, ref)
           <CommandInput placeholder="Search sports..." />
           <CommandEmpty>No sport found.</CommandEmpty>
           <CommandGroup>
+            {!hideAllSports && (
+              <CommandItem
+                onSelect={() => {
+                  onChange(0);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === 0 ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                All sports
+              </CommandItem>
+            )}
             {defaultSports.map((sport, index) => (
               <CommandItem
                 key={index + 1}

@@ -136,7 +136,7 @@ export default function CreateGame() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Sport</FormLabel>
-                      <SportSelect {...field} />
+                      <SportSelect {...field} hideAllSports={true} />
                     </FormItem>
                   )}
                 />
