@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
+import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, MessageSquare, Trash2, Edit } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -128,9 +129,11 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-xl font-semibold hover:text-primary cursor-pointer" onClick={() => setLocation(`/games/${game.id}`)}>
-              {game.title || `${game.sport.name}`}
-            </h3>
+            <Link href={`/games/${game.id}`}>
+              <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
+                {game.title || `${game.sport.name}`}
+              </h3>
+            </Link>
             <div className="text-sm text-muted-foreground">
               Organized by {game.creatorName}
             </div>

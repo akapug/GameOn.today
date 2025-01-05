@@ -20,11 +20,8 @@ export function formatWithTimezone(
 
   if (!includeZone) return formattedDate;
 
-  // Get abbreviated timezone
-  const shortTz = new Date().toLocaleString('en', { timeZone: timezone, timeZoneName: 'short' }).split(' ').pop();
-
   // Add timezone for display only
-  return `${formattedDate} ${shortTz}`;
+  return `${formattedDate} ${timezone}`;
 }
 
 /**
