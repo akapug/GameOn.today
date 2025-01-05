@@ -38,7 +38,7 @@ export default function Home() {
     }
   };
 
-  const now = startOfDay(new Date());
+  const now = new Date();
 
   const filterGamesBySport = (games: GameWithDetails[]) => {
     if (selectedSport === null) return games;
