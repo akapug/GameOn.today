@@ -60,6 +60,8 @@ export const playersRelations = relations(players, ({ one }) => ({
 // Add strict boolean handling to game schema
 export const gameSchema = z.object({
   id: z.number(),
+  urlHash: z.string(),
+  isPrivate: z.boolean(),
   activityId: z.number(),
   title: z.string(),
   location: z.string(),
@@ -79,9 +81,11 @@ export const gameSchema = z.object({
 
 export const insertGameSchema = createInsertSchema(games, {
   isRecurring: z.boolean(),
+  isPrivate: z.boolean(),
 });
 export const selectGameSchema = createSelectSchema(games, {
   isRecurring: z.boolean(),
+  isPrivate: z.boolean(),
 });
 
 export const insertPlayerSchema = createInsertSchema(players);

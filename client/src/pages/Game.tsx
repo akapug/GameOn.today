@@ -125,11 +125,8 @@ export default function Game() {
       return res.json();
     },
     onSuccess: () => {
-      // Invalidate both the individual game and the games list
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-      queryClient.invalidateQueries({
-        queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined
-      });
+      queryClient.invalidateQueries({ queryKey: params?.hash ? ['games', params.hash] : undefined });
       toast({
         title: "Success",
         description: "You've successfully joined the game!",
@@ -151,7 +148,7 @@ export default function Game() {
 
   const editGame = useMutation({
     mutationFn: async (values: Partial<GameType>) => {
-      const res = await fetch(`/api/games/${params?.id}`, {
+      const res = await fetch(`/api/games/${params?.hash}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -168,7 +165,7 @@ export default function Game() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined });
+      queryClient.invalidateQueries({ queryKey: params?.hash ? ['games', params.hash] : undefined });
       toast({
         title: "Success",
         description: "Game updated successfully",
@@ -186,7 +183,7 @@ export default function Game() {
 
   const deleteGame = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/games/${params?.id}`, {
+      const res = await fetch(`/api/games/${params?.hash}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
@@ -296,7 +293,7 @@ export default function Game() {
 
       <main className="container py-6 px-4">
         <GameCard game={game} fullscreen={true} />
-          </main>
+      </main>
     </div>
   );
 }

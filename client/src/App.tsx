@@ -31,7 +31,7 @@ function App() {
           <Switch>
             <Route path="/" component={Home} />
             <Route path="/create" component={CreateGame} />
-            <Route path="/games/:id" component={Game} />
+            <Route path="/games/:hash" component={Game} />
             <Route path="/about" component={About} />
             <Route path="/changelog" component={Changelog} />
           </Switch>

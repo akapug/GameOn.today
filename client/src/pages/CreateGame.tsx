@@ -49,6 +49,7 @@ export default function CreateGame() {
       webLink: "",
       isRecurring: false,
       recurrenceFrequency: null,
+      isPrivate: false,
     },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
@@ -84,6 +85,7 @@ export default function CreateGame() {
         playerThreshold: Number(values.playerThreshold),
         isRecurring: values.isRecurring === true,
         recurrenceFrequency: values.isRecurring === true ? values.recurrenceFrequency : null,
+        isPrivate: values.isPrivate === true,
       };
 
       const res = await fetch("/api/games", {
@@ -172,8 +174,8 @@ export default function CreateGame() {
                           <SelectValue placeholder="Select game visibility" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="public">Public</SelectItem>
-                          <SelectItem value="private">Private</SelectItem>
+                          <SelectItem value="public">Public (Visible on homepage)</SelectItem>
+                          <SelectItem value="private">Private (Only accessible via URL)</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>
