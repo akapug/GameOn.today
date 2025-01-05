@@ -1,14 +1,22 @@
 
 export async function handleApiResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(errorData.message || 'An error occurred');
+    const errorText = await response.text();
+    let errorMessage = 'An error occurred';
+    try {
+      const errorData = JSON.parse(errorText);
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      errorMessage = errorText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
   
+  const text = await response.text();
   try {
-    return await response.json();
+    return JSON.parse(text);
   } catch (error) {
-    console.error('JSON Parse Error:', error);
+    console.error('JSON Parse Error:', error, 'Response:', text);
     throw new Error('Invalid response format from server');
   }
 }
