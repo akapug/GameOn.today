@@ -38,6 +38,7 @@ import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "@/components/WeatherDisplay";
 import type { WeatherInfo } from "../../../server/services/weather";
 import GameCard from "@/components/GameCard";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 
 interface GameWithDetails extends GameType {
   players: Player[];
@@ -59,7 +60,20 @@ export default function Game() {
   const [joinType, setJoinType] = useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = useState(0.5);
 
-  const form = useForm<Partial<GameType>>();
+  const form = useForm<Partial<GameType>>({
+    defaultValues: {
+      title: game?.title,
+      location: game?.location,
+      date: game?.date,
+      endTime: game?.endTime || "",
+      timezone: game?.timezone,
+      playerThreshold: game?.playerThreshold,
+      notes: game?.notes || "",
+      webLink: game?.webLink || "",
+      isRecurring: game?.isRecurring || false,
+      recurrenceFrequency: game?.recurrenceFrequency || undefined,
+    },
+  });
 
   const { data: game, isLoading, error } = useQuery<GameWithDetails>({
     queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined,
@@ -85,6 +99,8 @@ export default function Game() {
         location: game.location,
         date: game.date,
         playerThreshold: game.playerThreshold,
+        isRecurring: game.isRecurring,
+        recurrenceFrequency: game.recurrenceFrequency,
       });
     }
   }, [game, form]);
