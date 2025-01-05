@@ -80,9 +80,6 @@ export default function Game() {
       recurrenceFrequency: game?.recurrenceFrequency || undefined,
     },
   });
-    queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined,
-    enabled: !!params?.id,
-    retry: 1,
   });
 
   useEffect(() => {
