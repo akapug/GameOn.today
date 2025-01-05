@@ -9,5 +9,5 @@ export function formatWithTimezone(date: string | Date, formatStr: string, timez
 
 export function createUTCDate(dateStr: string, timezone: string) {
   const date = new Date(dateStr);
-  return date.toISOString();
+  return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
 }
