@@ -329,6 +329,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                               headers: { "Content-Type": "application/json" }
                             })
                               .then(() => {
+                                queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.urlHash) });
                                 queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
                                 toast({ title: "Success", description: "Response removed successfully" });
                               })
