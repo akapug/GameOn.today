@@ -494,7 +494,6 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               </DialogHeader>
               <form onSubmit={(e) => {
                 e.preventDefault();
-                const formData = new FormData(e.currentTarget);
                 const form = e.currentTarget;
                 const formData = new FormData(form);
                 const updatedGame = {
