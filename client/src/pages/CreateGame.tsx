@@ -22,13 +22,14 @@ export default function CreateGame() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
+  const userTimezone = getUserTimezone();
 
   const form = useForm<NewGame>({
     defaultValues: {
       title: "",
       location: "",
       date: "",
-      timezone: getUserTimezone(), // Use user's local timezone by default
+      timezone: userTimezone,
       playerThreshold: 10,
       sportId: undefined,
       creatorId: user?.uid || "",
@@ -54,15 +55,16 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: NewGame) => {
-      // Convert the local date to UTC before sending to server
-      const utcDate = toUTC(values.date, values.timezone);
+      const gameData = {
+        ...values,
+        date: toUTC(values.date, values.timezone).toISOString(),
+        sportId: Number(values.sportId),
+        playerThreshold: Number(values.playerThreshold),
+      };
 
       return await apiRequest("/api/games", {
         method: "POST",
-        body: JSON.stringify({
-          ...values,
-          date: utcDate.toISOString(),
-        }),
+        body: JSON.stringify(gameData),
       });
     },
     onSuccess: () => {
@@ -108,14 +110,7 @@ export default function CreateGame() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit((data) => {
-                const gameData = {
-                  ...data,
-                  sportId: Number(data.sportId),
-                  playerThreshold: Number(data.playerThreshold),
-                };
-                createGame.mutate(gameData);
-              })} className="space-y-6">
+              <form onSubmit={form.handleSubmit((data) => createGame.mutate(data))} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="sportId"

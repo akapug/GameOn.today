@@ -1,31 +1,52 @@
-import { format, parseISO, formatISO } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
+import { parseISO } from 'date-fns';
+import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
 
 // Default timezone fallback if none specified
 const DEFAULT_TIMEZONE = 'UTC';
 
 /**
  * Format a date with timezone for display
+ * @param date The date to format
+ * @param formatStr Format string (default: 'PPP p')
+ * @param timezone Timezone to display in (default: UTC)
+ * @param includeZone Whether to include timezone abbreviation (default: true)
  */
 export function formatWithTimezone(
-  date: string | Date, 
-  formatStr: string = 'PPpp', // Default format: "Apr 29, 2023, 7:14:00 PM"
-  timezone: string = DEFAULT_TIMEZONE
+  date: string | Date,
+  formatStr: string = 'PPP p',
+  timezone: string = DEFAULT_TIMEZONE,
+  includeZone: boolean = true
 ): string {
   const parsedDate = typeof date === 'string' ? parseISO(date) : date;
-  return formatInTimeZone(parsedDate, timezone, formatStr);
+  const formattedDate = formatInTimeZone(parsedDate, timezone, formatStr);
+
+  if (!includeZone) return formattedDate;
+
+  // Add timezone abbreviation
+  const tzAbbr = new Date().toLocaleTimeString('en-US', {
+    timeZone: timezone,
+    timeZoneName: 'short'
+  }).split(' ')[2];
+
+  return `${formattedDate} (${tzAbbr})`;
 }
 
 /**
- * Convert a local datetime input value to UTC for storage
+ * Convert a date to UTC for storage, preserving the original timezone's wall time
  */
-export function localInputToUTC(
-  dateStr: string,
+export function toUTC(
+  dateStr: string | Date,
   timezone: string = DEFAULT_TIMEZONE
 ): Date {
-  const localDate = new Date(dateStr);
-  const utcString = formatInTimeZone(localDate, timezone, "yyyy-MM-dd'T'HH:mm:ssXXX");
-  return new Date(utcString);
+  if (typeof dateStr === 'string') {
+    // Handle ISO string input
+    if (dateStr.endsWith('Z')) {
+      return new Date(dateStr);
+    }
+    // Convert local datetime to UTC while preserving the wall time
+    return zonedTimeToUtc(dateStr, timezone);
+  }
+  return zonedTimeToUtc(dateStr, timezone);
 }
 
 /**
@@ -37,21 +58,6 @@ export function utcToLocalInput(
 ): string {
   const parsedDate = typeof date === 'string' ? parseISO(date) : date;
   return formatInTimeZone(parsedDate, timezone, "yyyy-MM-dd'T'HH:mm");
-}
-
-/**
- * Convert a date string or Date object to UTC date for storage
- */
-export function toUTC(date: string | Date, timezone: string = DEFAULT_TIMEZONE): Date {
-  if (typeof date === 'string') {
-    // If it's already an ISO string with UTC timezone, just parse it
-    if (date.endsWith('Z')) {
-      return parseISO(date);
-    }
-    // Otherwise, treat it as a date in the specified timezone
-    return localInputToUTC(date, timezone);
-  }
-  return localInputToUTC(date.toISOString(), timezone);
 }
 
 /**
@@ -69,7 +75,10 @@ export function getUserTimezone(): string {
 /**
  * Format relative time (e.g., "2 hours ago", "in 3 days")
  */
-export function formatRelative(date: Date | string, timezone: string = DEFAULT_TIMEZONE): string {
+export function formatRelative(
+  date: Date | string,
+  timezone: string = DEFAULT_TIMEZONE
+): string {
   const parsedDate = typeof date === 'string' ? parseISO(date) : date;
   const now = new Date();
 
@@ -87,7 +96,7 @@ export function formatRelative(date: Date | string, timezone: string = DEFAULT_T
   } else if (diffInHours < 48) {
     return `Yesterday at ${formatInTimeZone(parsedDate, timezone, 'p')}`;
   } else {
-    return formatInTimeZone(parsedDate, timezone, 'PPp'); // Full date and time
+    return formatWithTimezone(parsedDate, 'PPp', timezone); // Full date and time with timezone
   }
 }
 
