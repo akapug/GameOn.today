@@ -195,8 +195,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               </div>
             )}
           </div>
-
-          <div>
+        </CardContent>
+        <div>
             <div className="flex items-center text-sm mb-2">
               <Users className="mr-2 h-4 w-4" />
               <span>
@@ -240,7 +240,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               ))}
             </div>
           </div>
-        </div> </div> {/* Added closing div tag here */}
+
 
         {/* Join Game Dialog */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
