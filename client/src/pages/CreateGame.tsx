@@ -43,7 +43,7 @@ export default function CreateGame() {
 
       if (!data.title?.trim()) errors.title = { message: "Title is required" };
       if (!data.location?.trim()) errors.location = { message: "Location is required" };
-      if (!data.date) errors.date = { message: "Date is required" };
+      if (!data.date?.trim()) errors.date = { message: "Start time is required" };
       if (!data.sportId) errors.sportId = { message: "Sport is required" };
       if (!data.playerThreshold || data.playerThreshold <= 1) {
         errors.playerThreshold = { message: "Player threshold must be greater than 1" };

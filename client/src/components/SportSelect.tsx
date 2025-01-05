@@ -18,7 +18,7 @@ import { defaultSports } from "@/lib/sports"
 import { forwardRef } from "react"
 
 const SportSelect = forwardRef((props: any, ref) => {
-  const { value, onChange, hideAllOption = false } = props;
+  const { value, onChange, hideAllOption } = props;
 
   return (
     <Popover>
