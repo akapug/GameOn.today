@@ -40,7 +40,10 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
   const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isRecurring, setIsRecurring] = useState(game.isRecurring);
+  const [formState, setFormState] = useState({
+    isRecurring: game.isRecurring,
+    recurrenceFrequency: game.recurrenceFrequency
+  });
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -606,8 +609,12 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   <Label>Recurring Game</Label>
                   <Select 
                     name="isRecurring" 
-                    defaultValue={game.isRecurring ? 'true' : 'false'}
-                    onValueChange={(value) => setIsRecurring(value === 'true')}
+                    value={formState.isRecurring ? 'true' : 'false'}
+                    onValueChange={(value) => setFormState(prev => ({ 
+                      ...prev, 
+                      isRecurring: value === 'true',
+                      recurrenceFrequency: value === 'false' ? null : prev.recurrenceFrequency 
+                    }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Is this a recurring game?" />
@@ -621,7 +628,11 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 {isRecurring && (
                   <div className="space-y-2">
                     <Label>Recurrence Frequency</Label>
-                    <Select name="recurrenceFrequency" defaultValue={game.recurrenceFrequency || ''}>
+                    <Select 
+                      name="recurrenceFrequency" 
+                      value={formState.recurrenceFrequency || ''}
+                      onValueChange={(value) => setFormState(prev => ({ ...prev, recurrenceFrequency: value }))}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="How often does this game repeat?" />
                       </SelectTrigger>
