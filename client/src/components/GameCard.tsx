@@ -508,6 +508,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   webLink: formData.get('webLink') as string,
                   playerThreshold: parseInt(formData.get('playerThreshold') as string, 10),
                   creatorId: user?.uid,
+                  isRecurring: formData.get('isRecurring') === 'true',
+                  recurrenceFrequency: formData.get('recurrenceFrequency') as string || null,
                 };
 
                 fetch(`/api/games/${game.id}`, {
@@ -587,6 +589,33 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     placeholder="Link to more info"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>Recurring Game</Label>
+                  <Select name="isRecurring" defaultValue={game.isRecurring ? 'true' : 'false'}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Is this a recurring game?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="false">No</SelectItem>
+                      <SelectItem value="true">Yes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {game.isRecurring && (
+                  <div className="space-y-2">
+                    <Label>Recurrence Frequency</Label>
+                    <Select name="recurrenceFrequency" defaultValue={game.recurrenceFrequency || ''}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="How often does this game repeat?" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="biweekly">Biweekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <Button type="submit" className="w-full">
                   Save Changes
                 </Button>
