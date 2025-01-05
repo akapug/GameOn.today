@@ -149,7 +149,7 @@ export default function CreateGame() {
               <form onSubmit={form.handleSubmit((data) => createGame.mutate(data))} className="space-y-6">
                 <FormField
                   control={form.control}
-                  name="sportId"
+                  name="activityId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Activity</FormLabel>

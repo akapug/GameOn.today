@@ -17,7 +17,7 @@ import { Link, useLocation } from "wouter";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "./WeatherDisplay";
-import type { Game, Player, Sport } from "@db/schema";
+import type { Game, Player, Activity } from "@db/schema";
 import type { WeatherInfo } from "../../server/services/weather";
 
 interface GameCardProps {
