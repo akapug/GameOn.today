@@ -18,6 +18,7 @@ export default function UserGames() {
 
   const { data: games, isLoading } = useQuery<GameWithActivity[]>({
     queryKey: ["/api/games/user", { uid: user?.uid }],
+    queryFn: () => fetch(`/api/games/user?uid=${user?.uid}`).then(res => res.json()),
     enabled: !!user,
   });
 

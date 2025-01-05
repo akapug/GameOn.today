@@ -27,6 +27,7 @@ export default function Home() {
 
   const { data: games = [], isLoading, error } = useQuery<GameWithDetails[]>({
     queryKey: queryKeys.games.all,
+    queryFn: () => fetch('/api/games').then(res => res.json()),
   });
 
   const handleCreateGame = () => {
