@@ -20,6 +20,8 @@ export default function UserGames() {
     queryKey: ["/api/games/user", { uid: user?.uid }],
     queryFn: () => fetch(`/api/games/user?uid=${user?.uid}`).then(res => res.json()),
     enabled: !!user,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
   });
 
   if (isLoading || !games) {
