@@ -62,10 +62,17 @@ export default function CreateGame() {
         playerThreshold: Number(values.playerThreshold),
       };
 
-      return await apiRequest("/api/games", {
+      const response = await apiRequest("/api/games", {
         method: "POST",
         body: JSON.stringify(gameData),
       });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || "Failed to create game");
+      }
+
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["games"] });
