@@ -135,7 +135,16 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 {game.title || `${game.sport.name}`}
               </h3>
             </Link>
+            <div className="text-sm text-muted-foreground flex items-center">
+              <MapPin className="mr-2 h-4 w-4" />
+              <button
+                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(game.location)}`, '_blank')}
+                className="text-primary hover:underline"
+              >
+                {game.location}
+              </button>
             </div>
+          </div>
           {new Date(game.date) < new Date() ? (
             <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
               Game concluded
@@ -184,15 +193,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             )}
           </div>
           <div className="space-y-2 text-sm">
-            <div className="flex items-center">
-              <MapPin className="mr-2 h-4 w-4" />
-              <button
-                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(game.location)}`, '_blank')}
-                className="text-primary hover:underline"
-              >
-                {game.location}
-              </button>
-            </div>
+            {/* Location moved here */}
+
             {game.weather && (
               <div className="flex items-center ml-6">
                 <span className="text-muted-foreground">
