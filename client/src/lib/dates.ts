@@ -20,14 +20,8 @@ export function formatWithTimezone(
 
   if (!includeZone) return formattedDate;
 
-  // Get timezone abbreviation (e.g., PST, EST)
-  const tzAbbr = new Date().toLocaleTimeString('en-US', {
-    timeZone: timezone,
-    timeZoneName: 'short'
-  }).split(' ').pop();
-
   // Add timezone for display only
-  return `${formattedDate} ${tzAbbr}`;
+  return `${formattedDate} ${timezone}`;
 }
 
 /**
