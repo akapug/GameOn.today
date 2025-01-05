@@ -39,7 +39,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
   const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isGameEditDialogOpen, setIsGameEditDialogOpen] = useState(false);
+  const [isResponseEditDialogOpen, setIsResponseEditDialogOpen] = useState(false);
   const [formState, setFormState] = useState({
     title: game.title,
     location: game.location,
@@ -312,7 +313,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                         setPlayerEmail(player.email || '');
                         setJoinType(!player.likelihood || player.likelihood === 1 ? "yes" : "maybe");
                         setLikelihood(player.likelihood || 0.5);
-                        setIsEditDialogOpen(true);
+                        setIsResponseEditDialogOpen(true);
                       }}
                     >
                       <Edit className="h-4 w-4" />
@@ -391,8 +392,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
         {/* Edit Response Dialog */}
         <Dialog
-          open={isEditDialogOpen}
-          onOpenChange={setIsEditDialogOpen}
+          open={isResponseEditDialogOpen}
+          onOpenChange={setIsResponseEditDialogOpen}
         >
           <DialogContent>
             <DialogHeader>
@@ -554,9 +555,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
         {/* Edit Button */}
         {canDelete && (
           <Dialog
-            open={isEditDialogOpen}
+            open={isGameEditDialogOpen}
             onOpenChange={(open) => {
-              setIsEditDialogOpen(open);
+              setIsGameEditDialogOpen(open);
               if (open) {
                 setFormState({
                   title: game.title,
