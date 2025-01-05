@@ -372,3 +372,26 @@ export function registerRoutes(app: Express): Server {
 
   return httpServer;
 }
+
+  // Delete player response
+  app.delete("/api/games/:hash/players/:playerId", async (req, res) => {
+    try {
+      const { hash, playerId } = req.params;
+
+      const game = await db.query.games.findFirst({
+        where: eq(games.urlHash, hash),
+      });
+
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+
+      await db.delete(players).where(eq(players.id, parseInt(playerId)));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete player:", error);
+      res.status(500).json({ message: "Failed to delete player" });
+    }
+  });
+

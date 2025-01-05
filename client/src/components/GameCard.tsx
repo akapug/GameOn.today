@@ -322,12 +322,17 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
+                        onClick={async () => {
                           if (confirm(`Remove ${player.name}'s response?`)) {
-                            fetch(`/api/games/${game.urlHash}/players/${player.id}`, {
-                              method: "DELETE",
-                              headers: { "Content-Type": "application/json" }
-                            })
+                            try {
+                              const response = await fetch(`/api/games/${game.urlHash}/players/${player.id}`, {
+                                method: "DELETE",
+                                headers: { "Content-Type": "application/json" }
+                              });
+                              
+                              if (!response.ok) {
+                                throw new Error('Failed to delete response');
+                              }
                               .then(() => {
                                 queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.urlHash) });
                                 queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
