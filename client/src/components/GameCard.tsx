@@ -486,7 +486,6 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
                     toast({ title: "Success", description: "Game updated successfully" });
                     setIsEditDialogOpen(false);
-                    e.currentTarget.closest('dialog')?.close();
                   })
                   .catch((error) => {
                     toast({
