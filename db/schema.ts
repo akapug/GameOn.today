@@ -84,11 +84,11 @@ export const selectGameSchema = createSelectSchema(games, {
 
 export const insertPlayerSchema = createInsertSchema(players);
 export const selectPlayerSchema = createSelectSchema(players);
-export const insertSportSchema = createInsertSchema(sports);
-export const selectSportSchema = createSelectSchema(sports);
+export const insertActivitySchema = createInsertSchema(activities);
+export const selectActivitySchema = createSelectSchema(activities);
 
 export type Game = typeof games.$inferSelect;
 export type NewGame = typeof games.$inferInsert;
 export type Player = typeof players.$inferSelect;
 export type NewPlayer = typeof players.$inferInsert;
-export type Sport = typeof sports.$inferSelect;
+export type Activity = typeof activities.$inferSelect;

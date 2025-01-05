@@ -7,8 +7,8 @@ import GameList from "@/components/GameList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, isSameDay, isAfter, isBefore, startOfDay } from "date-fns";
 import { useState } from "react";
-import ActivitySelect from "@/components/SportSelect";
-import { type Game, type Player, type Sport } from "@db/schema";
+import ActivitySelect from "@/components/ActivitySelect";
+import { type Game, type Player, type Activity } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import AuthDialog from "@/components/AuthDialog";
 import { queryKeys } from "@/lib/queryClient";
@@ -21,7 +21,7 @@ interface GameWithDetails extends Game {
 }
 
 export default function Home() {
-  const [selectedSport, setSelectedSport] = useState<number | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<number | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [, setLocation] = useLocation();
   const { user } = useAuth();
@@ -40,9 +40,9 @@ export default function Home() {
 
   const now = new Date();
 
-  const filterGamesBySport = (games: GameWithDetails[]) => {
-    if (selectedSport === null) return games;
-    return games.filter(game => game.sportId === selectedSport);
+  const filterGamesByActivity = (games: GameWithDetails[]) => {
+    if (selectedActivity === null) return games;
+    return games.filter(game => game.activityId === selectedActivity);
   };
 
   const isArchived = (game: GameWithDetails) => {
