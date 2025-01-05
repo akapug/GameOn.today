@@ -494,6 +494,11 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     formData.get('date') as string,
                     game.timezone
                   ).toISOString(),
+                  endTime: formData.get('endTime') ? 
+                    toUTC(formData.get('endTime') as string, game.timezone).toISOString() :
+                    null,
+                  notes: formData.get('notes') as string,
+                  webLink: formData.get('webLink') as string,
                   playerThreshold: parseInt(formData.get('playerThreshold') as string, 10),
                   creatorId: user?.uid,
                 };
@@ -543,12 +548,36 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label>End Time ({game.timezone})</Label>
+                  <Input
+                    name="endTime"
+                    type="datetime-local"
+                    defaultValue={game.endTime ? utcToLocalInput(game.endTime, game.timezone) : ''}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label>Player Threshold</Label>
                   <Input
                     name="playerThreshold"
                     type="number"
                     min="2"
                     defaultValue={game.playerThreshold}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Notes</Label>
+                  <Input
+                    name="notes"
+                    defaultValue={game.notes || ''}
+                    placeholder="Add any details about the game, like level of play, parking instructions, etc."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Web Link</Label>
+                  <Input
+                    name="webLink"
+                    defaultValue={game.webLink || ''}
+                    placeholder="Link to more info"
                   />
                 </div>
                 <Button type="submit" className="w-full">
