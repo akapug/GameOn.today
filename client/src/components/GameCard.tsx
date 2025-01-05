@@ -124,7 +124,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           <div>
             <Link href={`/games/${game.id}`}>
               <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                {game.title || `${format(new Date(game.date), "EEEE", { timeZone: game.timezone }) } ${game.sport.name}`}
+                {game.title || `${format(new Date(game.date), "EEEE")} ${game.sport.name}`}
               </h3>
             </Link>
             <div className="text-sm text-muted-foreground">
@@ -142,7 +142,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
         <div className="space-y-4">
           <div className="flex items-center text-sm">
             <Calendar className="mr-2 h-4 w-4" />
-            {format(new Date(game.date), "PPP p", { timeZone: game.timezone })}
+            {format(new Date(game.date), "PPP p")}
           </div>
 
           <div className="space-y-2 text-sm">
