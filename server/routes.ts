@@ -8,11 +8,11 @@ import nodemailer from "nodemailer";
 import { getWeatherForecast } from "./services/weather";
 import { formatWithTimezone, toUTC } from "../client/src/lib/dates";
 
-// Helper function to generate random string
-function generateRandomString(length = 12) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+// Helper function to generate 6-char game hash
+function generateGameHash() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
-  for (let i = 0; i < length; i++) {
+  for (let i = 0; i < 6; i++) {
     result += chars[Math.floor(Math.random() * chars.length)];
   }
   return result;
