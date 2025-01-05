@@ -17,14 +17,18 @@ export default function About() {
         <h1 className="text-3xl font-bold mb-6">About GameOn</h1>
         <div className="prose prose-slate dark:prose-invert">
           <p className="text-lg mb-4">
-            GameOn is a platform designed primarily for organizing ultimate frisbee games and events, though it works great for other sports too. It's built primarily for pickup at this point, but could easily be expanded to handle team scrimmages or leagues!
+            GameOn is a flexible platform for organizing sports and recreational activities. Whether you're arranging pickup games, social sports, or regular meetups, GameOn simplifies the coordination process so you can focus on playing.
           </p>
           <ul className="space-y-2 mb-6">
-            <li>Create and join local ultimate games (or any other sport)</li>
-            <li>Set player thresholds to ensure enough players for teams</li>
-            <li>Check weather forecasts for field conditions</li>
-            <li>Track who's playing and manage attendance</li>
-            <li>Get email notifications about game updates</li>
+            <li>Create and join games for any sport or activity</li>
+            <li>Set player thresholds to ensure enough participants</li>
+            <li>Track attendance with definite and tentative responses</li>
+            <li>Check weather forecasts for outdoor activities</li>
+            <li>Get email notifications for game updates</li>
+            <li>Create recurring games for regular meetups</li>
+            <li>Manage private games with controlled access</li>
+            <li>Edit or cancel your responses easily</li>
+            <li>View archived game history</li>
           </ul>
           
           <h2 className="text-xl font-bold mt-8 mb-4">Coming Soon</h2>
@@ -35,7 +39,7 @@ export default function About() {
           </ul>
           
           <p>
-            Whether you're organizing pickup ultimate, a soccer match, or any other sport, GameOn helps you spend less time organizing and more time playing.
+            Whether you're organizing ultimate frisbee, basketball, soccer, or any other activity, GameOn helps you spend less time coordinating and more time playing.
           </p>
         </div>
       </div>
