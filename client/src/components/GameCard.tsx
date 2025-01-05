@@ -586,55 +586,55 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <div className="space-y-2">
                   <Label>Title</Label>
                   <Input
-                    name="title"
-                    defaultValue={game.title}
+                    value={formState.title}
+                    onChange={(e) => setFormState(prev => ({ ...prev, title: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Location</Label>
                   <Input
-                    name="location"
-                    defaultValue={game.location}
+                    value={formState.location}
+                    onChange={(e) => setFormState(prev => ({ ...prev, location: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Date & Time ({game.timezone})</Label>
                   <Input
-                    name="date"
                     type="datetime-local"
-                    defaultValue={utcToLocalInput(game.date, game.timezone)}
+                    value={formState.date}
+                    onChange={(e) => setFormState(prev => ({ ...prev, date: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>End Time ({game.timezone})</Label>
                   <Input
-                    name="endTime"
                     type="datetime-local"
-                    defaultValue={game.endTime ? utcToLocalInput(game.endTime, game.timezone) : ''}
+                    value={formState.endTime}
+                    onChange={(e) => setFormState(prev => ({ ...prev, endTime: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Player Threshold</Label>
                   <Input
-                    name="playerThreshold"
                     type="number"
                     min="2"
-                    defaultValue={game.playerThreshold}
+                    value={formState.playerThreshold}
+                    onChange={(e) => setFormState(prev => ({ ...prev, playerThreshold: Number(e.target.value) }))}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Notes</Label>
                   <Input
-                    name="notes"
-                    defaultValue={game.notes || ''}
+                    value={formState.notes}
+                    onChange={(e) => setFormState(prev => ({ ...prev, notes: e.target.value }))}
                     placeholder="Add any details about the game, like level of play, parking instructions, etc."
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Web Link</Label>
                   <Input
-                    name="webLink"
-                    defaultValue={game.webLink || ''}
+                    value={formState.webLink}
+                    onChange={(e) => setFormState(prev => ({ ...prev, webLink: e.target.value }))}
                     placeholder="Link to more info"
                   />
                 </div>
