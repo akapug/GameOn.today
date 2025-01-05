@@ -490,7 +490,10 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             onOpenChange={(open) => {
               setIsEditDialogOpen(open);
               if (open) {
-                setIsRecurring(game.isRecurring);
+                setFormState({
+                  isRecurring: game.isRecurring,
+                  recurrenceFrequency: game.recurrenceFrequency
+                });
               }
             }}
           >
