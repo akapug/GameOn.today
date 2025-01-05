@@ -1,5 +1,5 @@
 
-import { db } from "@db";
+import { db } from "../index";
 import { sql } from "drizzle-orm";
 
 async function main() {
