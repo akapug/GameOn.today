@@ -248,6 +248,7 @@ export default function CreateGame() {
                       )}
                     />
                   </CollapsibleContent>
+                </Collapsible>
 
                 <FormField
                   control={form.control}
