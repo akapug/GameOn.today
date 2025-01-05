@@ -227,8 +227,7 @@ export default function CreateGame() {
                 </FormItem>
               )}
             />
-                  <CollapsibleContent>
-                    <FormField
+                  <FormField
                       control={form.control}
                       name="timezone"
                       render={({ field }) => (
