@@ -532,8 +532,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   webLink: formData.get('webLink') as string,
                   playerThreshold: parseInt(formData.get('playerThreshold') as string, 10),
                   creatorId: user?.uid,
-                  isRecurring: formState.isRecurring,
+                  isRecurring: formState.isRecurring || false,
                   recurrenceFrequency: formState.isRecurring ? formState.recurrenceFrequency : null,
+                  timezone: game.timezone,
                 };
 
                 fetch(`/api/games/${game.id}`, {
