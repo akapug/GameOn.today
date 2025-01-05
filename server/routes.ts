@@ -71,10 +71,10 @@ async function sendGameOnNotification(gameId: number) {
 }
 
 async function getGameWithWeather(game: any) {
-  // Ensure boolean fields are properly typed
+  // Ensure boolean fields are properly typed, handling both direct boolean and postgres 't'/'f' values
   const gameWithTypes = {
     ...game,
-    isRecurring: game.isRecurring === true,
+    isRecurring: game.isRecurring === true || game.isRecurring === 't',
     weather: await getWeatherForecast(game.location, new Date(game.date))
   };
   return gameWithTypes;
