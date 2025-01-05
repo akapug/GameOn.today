@@ -136,13 +136,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               </h3>
             </Link>
             <div className="text-sm text-muted-foreground flex items-center">
-              <MapPin className="mr-2 h-4 w-4" />
-              <button
-                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(game.location)}`, '_blank')}
-                className="text-primary hover:underline"
-              >
-                {game.location}
-              </button>
+              <MessageSquare className="mr-2 h-4 w-4" />
             </div>
           </div>
           {new Date(game.date) < new Date() ? (
