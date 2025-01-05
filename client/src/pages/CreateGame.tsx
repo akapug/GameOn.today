@@ -172,41 +172,61 @@ export default function CreateGame() {
                   name="date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2">
+                      <FormLabel>
                     Date & Time ({userTimezone})
-                    <Collapsible>
-                      <CollapsibleTrigger className="text-xs text-muted-foreground hover:underline">
-                        Need to override detected timezone?
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2">
-                      <FormControl>
-                        <Input
-                          type="datetime-local"
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                  <FormField
-                    control={form.control}
-                    name="endTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>End Time ({userTimezone})</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="datetime-local"
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
-                </CollapsibleContent>
-                    </Collapsible>
                   </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="datetime-local"
+                      {...field}
+                    />
+                  </FormControl>
+                  <Collapsible>
+                    <CollapsibleTrigger className="text-xs text-muted-foreground hover:underline">
+                      Need to override detected timezone?
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-2">
+                      <FormField
+                        control={form.control}
+                        name="timezone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select timezone" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Intl.supportedValuesOf('timeZone').map((tz) => (
+                                  <SelectItem key={tz} value={tz}>
+                                    {tz}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                    </CollapsibleContent>
+                  </Collapsible>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="endTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Time ({userTimezone})</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="datetime-local"
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
                   <CollapsibleContent>
                     <FormField
                       control={form.control}
