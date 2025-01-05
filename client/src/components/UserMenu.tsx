@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "./AuthProvider";
-import { LogOut, Games } from "lucide-react";
+import { LogOut, GamepadIcon } from "lucide-react";
 import UserGames from "./UserGames";
 
 export default function UserMenu() {
