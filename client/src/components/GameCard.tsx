@@ -135,7 +135,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 {game.title || `${game.sport.name}`}
               </h3>
             </Link>
-            <div className="text-sm text-muted-foreground flex items-center">
+            <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <span role="img" aria-label="game details">🗣️</span>
               <MapPin className="mr-2 h-4 w-4" />
               <button
                 onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(game.location)}`, '_blank')}
