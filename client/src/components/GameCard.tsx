@@ -547,10 +547,12 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   timezone: game.timezone,
                 };
 
+                const requestBody = JSON.stringify(updatedGame);
+                console.log('Sending to server:', requestBody);
                 fetch(`/api/games/${game.id}`, {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(updatedGame),
+                  body: requestBody,
                 })
                   .then((res) => {
                     if (!res.ok) throw new Error("Failed to update game");
