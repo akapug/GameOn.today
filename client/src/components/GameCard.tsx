@@ -346,9 +346,6 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                             }
                           }
                         }}
-                                  variant: "destructive",
-                                });
-                              });
                           }
                         }}
                       >
