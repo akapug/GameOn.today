@@ -163,6 +163,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       timezone: game.timezone,
       isRecurring: formState.isRecurring,
       recurrenceFrequency: formState.isRecurring ? formState.recurrenceFrequency : null,
+      isPrivate: formState.isPrivate,
     };
 
     try {
