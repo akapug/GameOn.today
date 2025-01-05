@@ -139,6 +139,14 @@ export function registerRoutes(app: Express): Server {
       console.log("Database connection status:", !!db);
       console.log("Games table reference:", !!db.query.games);
       
+      // Debug database connection
+      try {
+        const connectionTest = await db.execute(sql`SELECT current_database(), current_user`);
+        console.log("Database connection test:", connectionTest.rows[0]);
+      } catch (dbError) {
+        console.error("Database connection test failed:", dbError);
+      }
+      
       // Try a raw query first to verify table existence
       const tableCheck = await db.execute(sql`
         SELECT EXISTS (
