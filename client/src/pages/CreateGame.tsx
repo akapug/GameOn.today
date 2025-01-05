@@ -56,7 +56,7 @@ export default function CreateGame() {
       if (!data.title?.trim()) errors.title = { message: "Title is required" };
       if (!data.location?.trim()) errors.location = { message: "Location is required" };
       if (!data.date?.trim()) errors.date = { message: "Start time is required" };
-      if (!data.sportId) errors.sportId = { message: "Sport is required" };
+      if (!data.activityId) errors.activityId = { message: "Activity is required" };
       if (!data.playerThreshold || data.playerThreshold <= 1) {
         errors.playerThreshold = { message: "Player threshold must be greater than 1" };
       }
@@ -80,7 +80,7 @@ export default function CreateGame() {
         ...values,
         date: toUTC(values.date, values.timezone).toISOString(),
         endTime: values.endTime ? toUTC(values.endTime, values.timezone).toISOString() : null,
-        sportId: Number(values.sportId),
+        activityId: Number(values.activityId),
         playerThreshold: Number(values.playerThreshold),
         isRecurring: values.isRecurring === true,
         recurrenceFrequency: values.isRecurring === true ? values.recurrenceFrequency : null,
