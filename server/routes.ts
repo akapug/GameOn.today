@@ -151,6 +151,24 @@ export function registerRoutes(app: Express): Server {
           }
         },
       });
+      
+      console.log("Raw games from DB:", allGames);
+    try {
+      const allGames = await db.query.games.findMany({
+        with: {
+          activity: true,
+          players: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              joinedAt: true,
+              likelihood: true,
+              responseToken: true
+            }
+          }
+        },
+      });
 
       // Ensure proper boolean conversion for all games
       const gamesWithWeather = await Promise.all(

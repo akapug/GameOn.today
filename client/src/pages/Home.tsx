@@ -19,6 +19,8 @@ interface GameWithDetails extends Game {
   weather: WeatherInfo | null;
 }
 
+console.log('Fetching games...');
+
 export default function Home() {
   const [selectedActivity, setSelectedActivity] = useState<number | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
