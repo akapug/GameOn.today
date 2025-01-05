@@ -336,9 +336,16 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                               
                               queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.urlHash) });
                               queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-                                toast({ title: "Success", description: "Response removed successfully" });
-                              })
-                              .catch(() => {
+                              toast({ title: "Success", description: "Response removed successfully" });
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to remove response",
+                                variant: "destructive",
+                              });
+                            }
+                          }
+                        }}
                                 toast({
                                   title: "Error",
                                   description: "Failed to remove response",
