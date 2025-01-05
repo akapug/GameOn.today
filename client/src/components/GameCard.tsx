@@ -128,11 +128,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <Link href={`/games/${game.id}`}>
-              <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                {game.title || `${game.sport.name}`}
-              </h3>
-            </Link>
+            <h3 className="text-xl font-semibold hover:text-primary cursor-pointer" onClick={() => setLocation(`/games/${game.id}`)}>
+              {game.title || `${game.sport.name}`}
+            </h3>
             <div className="text-sm text-muted-foreground">
               Organized by {game.creatorName}
             </div>
