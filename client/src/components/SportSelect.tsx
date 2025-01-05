@@ -40,19 +40,21 @@ const SportSelect = forwardRef((props: any, ref) => {
           <CommandInput placeholder="Search sports..." />
           <CommandEmpty>No sport found.</CommandEmpty>
           <CommandGroup>
-            <CommandItem
-              onSelect={() => {
-                onChange(0);
-              }}
-            >
-              <Check
-                className={cn(
-                  "mr-2 h-4 w-4",
-                  value === 0 ? "opacity-100" : "opacity-0"
-                )}
-              />
-              All sports
-            </CommandItem>
+            {props.showAllOption !== false && (
+              <CommandItem
+                onSelect={() => {
+                  onChange(0);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === 0 ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                All sports
+              </CommandItem>
+            )}
             {defaultSports.map((sport, index) => (
               <CommandItem
                 key={index + 1}
