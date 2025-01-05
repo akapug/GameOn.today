@@ -14,12 +14,13 @@ export const games = pgTable("games", {
   sportId: integer("sport_id").references(() => sports.id),
   title: text("title").notNull(),
   location: text("location").notNull(),
-  date: timestamp("date", { mode: 'date' }).notNull(),
+  date: timestamp("date", { mode: 'string', withTimezone: true }).notNull(),
   playerThreshold: integer("player_threshold").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  creatorId: text("creator_id").notNull(), // Firebase Auth UID
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  creatorId: text("creator_id").notNull(),
   creatorName: text("creator_name").notNull(),
   timezone: text("timezone").notNull(),
+  notes: text("notes"),
 });
 
 export const players = pgTable("players", {
@@ -28,7 +29,7 @@ export const players = pgTable("players", {
   name: text("name").notNull(),
   email: text("email"),
   phone: text("phone"),
-  joinedAt: timestamp("joined_at").defaultNow(),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow(),
   likelihood: decimal("likelihood").notNull().default('1'),
   responseToken: text("response_token").notNull(),
 });
