@@ -3,11 +3,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "./AuthProvider";
-import { LogOut } from "lucide-react";
+import { LogOut, Games } from "lucide-react";
+import UserGames from "./UserGames";
 
 export default function UserMenu() {
   const { user, signInWithGoogle, logout } = useAuth();
@@ -30,7 +33,24 @@ export default function UserMenu() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-72">
+        <DropdownMenuLabel>
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{user.displayName}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <div className="py-2">
+          <DropdownMenuLabel className="flex items-center">
+            <Games className="mr-2 h-4 w-4" />
+            Your Games
+          </DropdownMenuLabel>
+          <UserGames />
+        </div>
+        <DropdownMenuSeparator />
         <DropdownMenuItem className="flex items-center" onClick={logout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
