@@ -34,14 +34,14 @@ export function toUTC(
   dateStr: string | Date,
   timezone: string = DEFAULT_TIMEZONE
 ): Date {
-  // If it's already a UTC ISO string, return as is
-  if (typeof dateStr === 'string' && dateStr.endsWith('Z')) {
-    return new Date(dateStr);
-  }
-
   const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
-  const zonedDate = toDate(date, { timeZone: timezone });
-  return new Date(format(zonedDate, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+  return new Date(Date.UTC(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes()
+  ));
 }
 
 /**
