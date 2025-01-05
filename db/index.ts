@@ -1,6 +1,7 @@
 
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { neon } from '@neondatabase/serverless';
+import { sql } from "drizzle-orm";
 import ws from "ws";
 import * as schema from "@db/schema";
 
