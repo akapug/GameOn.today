@@ -346,9 +346,6 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                             }
                           }
                         }}
-                                toast({
-                                  title: "Error",
-                                  description: "Failed to remove response",
                                   variant: "destructive",
                                 });
                               });
