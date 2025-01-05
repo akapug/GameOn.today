@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -14,7 +15,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useState } from "react";
 import AuthDialog from "@/components/AuthDialog";
 import { apiRequest } from "@/lib/api";
-import { toUTC, getUserTimezone } from "@/lib/dates";
+import { createUTCDate } from "@/lib/dates";
 
 export default function CreateGame() {
   const [, navigate] = useLocation();
@@ -22,14 +23,13 @@ export default function CreateGame() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
-  const userTimezone = getUserTimezone();
 
   const form = useForm<NewGame>({
     defaultValues: {
       title: "",
       location: "",
       date: "",
-      timezone: userTimezone,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       playerThreshold: 10,
       sportId: undefined,
       creatorId: user?.uid || "",
@@ -37,7 +37,7 @@ export default function CreateGame() {
     },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
-
+      
       if (!data.title?.trim()) errors.title = { message: "Title is required" };
       if (!data.location?.trim()) errors.location = { message: "Location is required" };
       if (!data.date) errors.date = { message: "Date is required" };
@@ -45,7 +45,7 @@ export default function CreateGame() {
       if (!data.playerThreshold || data.playerThreshold <= 1) {
         errors.playerThreshold = { message: "Player threshold must be greater than 1" };
       }
-
+      
       return {
         values: data,
         errors: Object.keys(errors).length > 0 ? errors : {},
@@ -55,17 +55,12 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: NewGame) => {
-      const gameData = {
-        ...values,
-        date: toUTC(values.date, values.timezone).toISOString(),
-        sportId: Number(values.sportId),
-        playerThreshold: Number(values.playerThreshold),
-      };
-
       return await apiRequest("/api/games", {
         method: "POST",
-        body: JSON.stringify(gameData),
+        body: JSON.stringify(values),
       });
+
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["games"] });
@@ -110,7 +105,18 @@ export default function CreateGame() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit((data) => createGame.mutate(data))} className="space-y-6">
+              <form onSubmit={form.handleSubmit((data) => {
+                const gameData = {
+                  ...data,
+                  sportId: Number(data.sportId),
+                  playerThreshold: Number(data.playerThreshold),
+                  date: createUTCDate(data.date).toISOString(),
+                  timezone: data.timezone,
+                  creatorId: user?.uid || "",
+                  creatorName: user?.displayName || ""
+                };
+                createGame.mutate(gameData);
+              })} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="sportId"
@@ -155,10 +161,7 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel>Date & Time</FormLabel>
                       <FormControl>
-                        <Input
-                          type="datetime-local"
-                          {...field}
-                        />
+                        <Input type="datetime-local" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
