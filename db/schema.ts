@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, integer, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, integer, decimal, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
@@ -23,6 +23,9 @@ export const games = pgTable("games", {
   endTime: timestamp("end_time", { mode: 'string', withTimezone: true }),
   notes: text("notes"),
   webLink: text("web_link"),
+  isRecurring: boolean("is_recurring").notNull().default(false),
+  recurrenceFrequency: text("recurrence_frequency"),
+  parentGameId: integer("parent_game_id").references(() => games.id),
 });
 
 export const players = pgTable("players", {

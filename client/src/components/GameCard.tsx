@@ -41,6 +41,13 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [formState, setFormState] = useState({
+    title: game.title,
+    location: game.location,
+    date: utcToLocalInput(game.date, game.timezone),
+    endTime: game.endTime ? utcToLocalInput(game.endTime, game.timezone) : '',
+    playerThreshold: game.playerThreshold,
+    notes: game.notes || '',
+    webLink: game.webLink || '',
     isRecurring: game.isRecurring,
     recurrenceFrequency: game.recurrenceFrequency
   });
@@ -120,7 +127,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       toast({ title: "Success", description: "Response updated!" });
       setEditingPlayer(null);
-      setIsEditDialogOpen(false); // Close the dialog after successful update
+      setIsEditDialogOpen(false);
     },
   });
 
@@ -129,6 +136,65 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
     const utcDate = new Date(date.toLocaleString("en-US", { timeZone: timezone }));
     return utcDate;
   }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (formState.isRecurring && !formState.recurrenceFrequency) {
+      toast({
+        title: "Error",
+        description: "Please select a recurrence frequency for recurring games",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Create a new object with explicit boolean conversion
+    const updatedGame = {
+      ...game,
+      title: formState.title,
+      location: formState.location,
+      date: toUTC(formState.date, game.timezone).toISOString(),
+      endTime: formState.endTime ? toUTC(formState.endTime, game.timezone).toISOString() : null,
+      notes: formState.notes,
+      webLink: formState.webLink,
+      playerThreshold: Number(formState.playerThreshold),
+      creatorId: user?.uid,
+      timezone: game.timezone,
+      // Force boolean type and ensure consistent handling
+      isRecurring: Boolean(formState.isRecurring),
+      // Only set recurrenceFrequency if isRecurring is true
+      recurrenceFrequency: Boolean(formState.isRecurring) ? formState.recurrenceFrequency : null,
+    };
+
+    try {
+      const res = await fetch(`/api/games/${game.id}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(updatedGame),
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to update game");
+      }
+
+      const data = await res.json();
+      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+      toast({ title: "Success", description: "Game updated successfully" });
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error('Update error:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Card className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""}`}>
@@ -192,7 +258,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
             {game.webLink && (
               <div className="text-sm">
-                <a 
+                <a
                   href={game.webLink}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -205,7 +271,6 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             )}
           </div>
           <div className="space-y-2 text-sm">
-            {/* Location moved here */}
 
             {game.weather && (
               <div className="flex items-center ml-6">
@@ -250,7 +315,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                         setPlayerEmail(player.email || '');
                         setJoinType(!player.likelihood || player.likelihood === 1 ? "yes" : "maybe");
                         setLikelihood(player.likelihood || 0.5);
-                        setIsEditDialogOpen(true); // Open the dialog when Edit button is clicked
+                        setIsEditDialogOpen(true);
                       }}
                     >
                       <Edit className="h-4 w-4" />
@@ -329,8 +394,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
         {/* Edit Response Dialog */}
         <Dialog
-          open={isEditDialogOpen} // Use the new state to control the dialog
-          onOpenChange={setIsEditDialogOpen} // Update the state when the dialog closes
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
         >
           <DialogContent>
             <DialogHeader>
@@ -341,7 +406,6 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               if (!editingPlayer) return;
 
               if (joinType === "no") {
-                // Delete the response
                 fetch(`/api/games/${game.id}/players/${editingPlayer.id}`, {
                   method: "DELETE",
                   headers: {
@@ -353,7 +417,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
                     toast({ title: "Success", description: "Response removed successfully" });
                     setEditingPlayer(null);
-                    setIsEditDialogOpen(false); // Close the dialog after removal
+                    setIsEditDialogOpen(false);
                   })
                   .catch(() => {
                     toast({
@@ -492,12 +556,19 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
         {/* Edit Button */}
         {canDelete && (
-          <Dialog 
-            open={isEditDialogOpen} 
+          <Dialog
+            open={isEditDialogOpen}
             onOpenChange={(open) => {
               setIsEditDialogOpen(open);
               if (open) {
                 setFormState({
+                  title: game.title,
+                  location: game.location,
+                  date: utcToLocalInput(game.date, game.timezone),
+                  endTime: game.endTime ? utcToLocalInput(game.endTime, game.timezone) : '',
+                  playerThreshold: game.playerThreshold,
+                  notes: game.notes || '',
+                  webLink: game.webLink || '',
                   isRecurring: game.isRecurring,
                   recurrenceFrequency: game.recurrenceFrequency
                 });
@@ -513,64 +584,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               <DialogHeader>
                 <DialogTitle>Edit Game</DialogTitle>
               </DialogHeader>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                if (formState.isRecurring && !formState.recurrenceFrequency) {
-                  toast({
-                    title: "Error",
-                    description: "Please select a recurrence frequency for recurring games",
-                    variant: "destructive"
-                  });
-                  return;
-                }
-                const formData = new FormData(e.currentTarget);
-                console.log('Form State:', formState);
-                console.log('Is Recurring Type:', typeof formState.isRecurring);
-                console.log('Is Recurring Value:', formState.isRecurring);
-                const updatedGame = {
-                  ...game,
-                  title: formData.get('title') as string,
-                  location: formData.get('location') as string,
-                  date: toUTC(
-                    formData.get('date') as string,
-                    game.timezone
-                  ).toISOString(),
-                  endTime: formData.get('endTime') ? 
-                    toUTC(formData.get('endTime') as string, game.timezone).toISOString() :
-                    null,
-                  notes: formData.get('notes') as string,
-                  webLink: formData.get('webLink') as string,
-                  playerThreshold: parseInt(formData.get('playerThreshold') as string, 10),
-                  creatorId: user?.uid,
-                  isRecurring: Boolean(formState.isRecurring),
-                  recurrenceFrequency: formState.isRecurring ? formState.recurrenceFrequency : null,
-                  timezone: game.timezone,
-                };
-
-                const requestBody = JSON.stringify(updatedGame);
-                console.log('Sending to server:', requestBody);
-                fetch(`/api/games/${game.id}`, {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: requestBody,
-                })
-                  .then((res) => {
-                    if (!res.ok) throw new Error("Failed to update game");
-                    return res.json();
-                  })
-                  .then(() => {
-                    queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-                    toast({ title: "Success", description: "Game updated successfully" });
-                    setIsEditDialogOpen(false);
-                  })
-                  .catch((error) => {
-                    toast({
-                      title: "Error",
-                      description: error.message,
-                      variant: "destructive",
-                    });
-                  });
-              }} className="space-y-4">
+              <form onSubmit={handleEditSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label>Title</Label>
                   <Input
@@ -628,22 +642,15 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 </div>
                 <div className="space-y-2">
                   <Label>Recurring Game</Label>
-                  <Select 
-                    name="isRecurring" 
-                    value={formState.isRecurring ? 'true' : 'false'}
+                  <Select
+                    value={String(Boolean(formState.isRecurring))}
                     onValueChange={(value) => {
-                  console.log('Select value:', value);
-                  console.log('Type of value:', typeof value);
-                  setFormState(prev => {
-                    const newState = { 
-                      ...prev, 
-                      isRecurring: value === 'true',
-                      recurrenceFrequency: value === 'false' ? null : prev.recurrenceFrequency 
-                    };
-                    console.log('New form state:', newState);
-                    return newState;
-                  });
-                }}
+                      setFormState(prev => ({
+                        ...prev,
+                        isRecurring: value === 'true',
+                        recurrenceFrequency: value === 'false' ? null : prev.recurrenceFrequency
+                      }));
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Is this a recurring game?" />
@@ -654,13 +661,16 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     </SelectContent>
                   </Select>
                 </div>
-                {formState.isRecurring && (
+
+                {Boolean(formState.isRecurring) && (
                   <div className="space-y-2">
                     <Label>Recurrence Frequency</Label>
-                    <Select 
-                      name="recurrenceFrequency" 
+                    <Select
                       value={formState.recurrenceFrequency || ''}
-                      onValueChange={(value) => setFormState(prev => ({ ...prev, recurrenceFrequency: value }))}
+                      onValueChange={(value) => setFormState(prev => ({
+                        ...prev,
+                        recurrenceFrequency: value
+                      }))}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="How often does this game repeat?" />

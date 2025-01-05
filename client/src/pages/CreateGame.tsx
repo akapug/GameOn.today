@@ -49,7 +49,7 @@ export default function CreateGame() {
       notes: "",
       webLink: "",
       isRecurring: false,
-      recurrenceFrequency: undefined,
+      recurrenceFrequency: null,
     },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
@@ -77,19 +77,34 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: NewGame) => {
+      // Ensure consistent boolean handling for isRecurring
       const gameData = {
         ...values,
         date: toUTC(values.date, values.timezone).toISOString(),
+        endTime: values.endTime ? toUTC(values.endTime, values.timezone).toISOString() : null,
         sportId: Number(values.sportId),
         playerThreshold: Number(values.playerThreshold),
+        // Force boolean type and ensure consistent handling
         isRecurring: Boolean(values.isRecurring),
-        recurrenceFrequency: values.isRecurring ? values.recurrenceFrequency : null,
+        // Only set recurrenceFrequency if isRecurring is true
+        recurrenceFrequency: Boolean(values.isRecurring) ? values.recurrenceFrequency : null,
       };
 
-      return await apiRequest("/api/games", {
+      const res = await fetch("/api/games", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify(gameData),
       });
+
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to create game");
+      }
+
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["games"] });
@@ -100,6 +115,7 @@ export default function CreateGame() {
       navigate("/");
     },
     onError: (error) => {
+      console.error('Create error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -232,7 +248,7 @@ export default function CreateGame() {
                     </FormItem>
                   )}
                 />
-                
+
 
                 <FormField
                   control={form.control}
@@ -282,15 +298,20 @@ export default function CreateGame() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Recurring Game</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(value === 'true')} value={field.value?.toString()}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Is this a recurring game?" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="false">No</SelectItem>
-                          <SelectItem value="true">Yes</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Select 
+                          onValueChange={(value) => field.onChange(value === 'true')} 
+                          value={field.value?.toString()}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Is this a recurring game?" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="false">No</SelectItem>
+                            <SelectItem value="true">Yes</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
                     </FormItem>
                   )}
                 />
@@ -302,16 +323,18 @@ export default function CreateGame() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Recurrence Frequency</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="How often does this game repeat?" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="weekly">Weekly</SelectItem>
-                            <SelectItem value="biweekly">Biweekly</SelectItem>
-                            <SelectItem value="monthly">Monthly</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} value={field.value || ''}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="How often does this game repeat?" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="weekly">Weekly</SelectItem>
+                              <SelectItem value="biweekly">Biweekly</SelectItem>
+                              <SelectItem value="monthly">Monthly</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
                       </FormItem>
                     )}
                   />
