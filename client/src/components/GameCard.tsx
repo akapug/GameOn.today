@@ -128,7 +128,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
       toast({ title: "Success", description: "Response updated!" });
       setEditingPlayer(null);
-      setIsResponseEditDialogOpen(false);
+      setIsEditDialogOpen(false);
     },
   });
 
@@ -492,7 +492,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 variant={joinType === "no" ? "destructive" : "default"}
                 className="w-full"
               >
-                {joinType === "no" ? "Remove Me" : "Save and Close"}
+                {joinType === "no" ? "Remove Me" : "Save Changes"}
               </Button>
             </form>
           </DialogContent>
