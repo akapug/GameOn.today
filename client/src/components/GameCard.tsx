@@ -515,8 +515,15 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               </DialogHeader>
               <form onSubmit={(e) => {
                 e.preventDefault();
-                const form = e.currentTarget;
-                const formData = new FormData(form);
+                if (formState.isRecurring && !formState.recurrenceFrequency) {
+                  toast({
+                    title: "Error",
+                    description: "Please select a recurrence frequency for recurring games",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                const formData = new FormData(e.currentTarget);
                 const updatedGame = {
                   ...game,
                   title: formData.get('title') as string,

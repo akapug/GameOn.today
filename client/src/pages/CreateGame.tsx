@@ -64,6 +64,9 @@ export default function CreateGame() {
       if (data.webLink && !isValidUrl(data.webLink)) {
         errors.webLink = { message: "Please enter a valid URL" };
       }
+      if (data.isRecurring && !data.recurrenceFrequency) {
+        errors.recurrenceFrequency = { message: "Recurrence frequency is required for recurring games" };
+      }
 
       return {
         values: data,
