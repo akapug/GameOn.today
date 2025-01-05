@@ -478,10 +478,6 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(updatedGame),
                 })
-                  .then((res) => {
-                    if (!res.ok) throw new Error("Failed to update game");
-                    return res.json();
-                  })
                   .then(() => {
                     queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
                     toast({ title: "Success", description: "Game updated successfully" });
