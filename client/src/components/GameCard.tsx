@@ -301,22 +301,51 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                       </span>
                     )}
                   </div>
-                  {canEditResponse(player) && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setEditingPlayer(player);
-                        setPlayerName(player.name);
-                        setPlayerEmail(player.email || '');
-                        setJoinType(!player.likelihood || player.likelihood === 1 ? "yes" : "maybe");
-                        setLikelihood(player.likelihood || 0.5);
-                        setIsResponseEditDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <div className="flex gap-1">
+                    {canEditResponse(player) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingPlayer(player);
+                          setPlayerName(player.name);
+                          setPlayerEmail(player.email || '');
+                          setJoinType(!player.likelihood || player.likelihood === 1 ? "yes" : "maybe");
+                          setLikelihood(player.likelihood || 0.5);
+                          setIsResponseEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {canDelete && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm(`Remove ${player.name}'s response?`)) {
+                            fetch(`/api/games/${game.urlHash}/players/${player.id}`, {
+                              method: "DELETE",
+                              headers: { "Content-Type": "application/json" }
+                            })
+                              .then(() => {
+                                queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                                toast({ title: "Success", description: "Response removed successfully" });
+                              })
+                              .catch(() => {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to remove response",
+                                  variant: "destructive",
+                                });
+                              });
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
