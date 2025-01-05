@@ -3,6 +3,7 @@ import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, MessageSquare, Trash2, Edit, EyeOff } from "lucide-react";
+import { activityColors } from "@/lib/activities";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { formatWithTimezone, utcToLocalInput, localInputToUTC } from "@/lib/dates";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
