@@ -525,10 +525,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   webLink: formData.get('webLink') as string,
                   playerThreshold: parseInt(formData.get('playerThreshold') as string, 10),
                   creatorId: user?.uid,
-                  isRecurring: formData.get('isRecurring') === 'true',
-                  recurrenceFrequency: formData.get('isRecurring') === 'true' 
-                    ? formData.get('recurrenceFrequency')?.toString() || null 
-                    : null,
+                  isRecurring: formState.isRecurring,
+                  recurrenceFrequency: formState.isRecurring ? formState.recurrenceFrequency : null,
                 };
 
                 fetch(`/api/games/${game.id}`, {
