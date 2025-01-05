@@ -153,10 +153,14 @@ export function registerRoutes(app: Express): Server {
 
       // Ensure proper boolean conversion for all games
       const gamesWithWeather = await Promise.all(
-        allGames.map(game => getGameWithWeather({
-          ...game,
-          isRecurring: game.isRecurring === true
-        }))
+        allGames.map(async game => {
+          console.log('Raw game isRecurring:', game.isRecurring);
+          return getGameWithWeather({
+            ...game,
+            isRecurring: Boolean(game.isRecurring),
+            recurrenceFrequency: Boolean(game.isRecurring) ? game.recurrenceFrequency : null
+          });
+        })
       );
 
       res.json(gamesWithWeather);
