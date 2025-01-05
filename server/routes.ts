@@ -425,7 +425,7 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/games/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const { title, location, date, timezone, playerThreshold, creatorId, endTime, notes, webLink } = req.body;
+      const { title, location, date, timezone, playerThreshold, creatorId, endTime, notes, webLink, isRecurring, recurrenceFrequency } = req.body;
 
       // First verify the game exists and creator matches
       const game = await db.query.games.findFirst({
@@ -452,6 +452,8 @@ export function registerRoutes(app: Express): Server {
           endTime: endTime ? toUTC(endTime, timezone || game.timezone) : null,
           notes: notes || null,
           webLink: webLink || null,
+          isRecurring: isRecurring || false,
+          recurrenceFrequency: recurrenceFrequency || null,
         })
         .where(eq(games.id, parseInt(id, 10)))
         .returning();
