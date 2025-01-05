@@ -51,11 +51,11 @@ export default function Home() {
     return isBefore(threeHoursAfterStart, now);
   };
 
-  const upcomingGames = filterGamesBySport(
+  const upcomingGames = filterGamesByActivity(
     games.filter(game => !isArchived(game))
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const archivedGames = filterGamesBySport(
+  const archivedGames = filterGamesByActivity(
     games.filter(game => isArchived(game))
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
