@@ -17,7 +17,13 @@ import {
 import { defaultSports } from "@/lib/sports"
 import { forwardRef } from "react"
 
-const SportSelect = forwardRef((props: any, ref) => {
+interface SportSelectProps {
+  value: number;
+  onChange: (value: number) => void;
+  hideAllOption?: boolean;
+}
+
+const SportSelect = forwardRef<HTMLButtonElement, SportSelectProps>((props, ref) => {
   const { value, onChange, hideAllOption } = props;
 
   return (

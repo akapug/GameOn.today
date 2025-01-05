@@ -148,13 +148,35 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="flex items-center text-sm">
-            <Calendar className="mr-2 h-4 w-4" />
-            {formatWithTimezone(game.date, "PPP p", game.timezone)}
-            {game.endTime && (
-              <span className="text-muted-foreground ml-1">
-                - {formatWithTimezone(game.endTime, "p", game.timezone)}
-              </span>
+          <div className="space-y-2">
+            <div className="flex items-center text-sm">
+              <Calendar className="mr-2 h-4 w-4" />
+              {formatWithTimezone(game.date, "PPP p", game.timezone)}
+              {game.endTime && (
+                <span className="text-muted-foreground ml-1">
+                  - {formatWithTimezone(game.endTime, "p", game.timezone)}
+                </span>
+              )}
+            </div>
+
+            {game.notes && (
+              <div className="text-sm text-muted-foreground">
+                {game.notes}
+              </div>
+            )}
+
+            {game.webLink && (
+              <div className="text-sm">
+                <a 
+                  href={game.webLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline flex items-center"
+                >
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  More Info
+                </a>
+              </div>
             )}
           </div>
 
