@@ -136,13 +136,31 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/games", async (_req, res) => {
     console.log("Fetching games from database...");
     try {
-      console.log("DB connection:", !!db);
-      console.log("DB schema:", Object.keys(db.query));
-      console.log("DB games table:", !!db.query.games);
+      console.log("Database status:", {
+        hasConnection: !!db,
+        schema: Object.keys(db.query),
+        hasGamesTable: !!db.query.games
+      });
 
-      // Test raw SQL query
-      const testQuery = await db.execute(sql`SELECT NOW()`);
-      console.log("Database connection test:", testQuery);
+      // Test database connectivity
+      const testResults = await Promise.all([
+        db.execute(sql`SELECT current_database()`),
+        db.execute(sql`SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'games'
+        )`),
+        db.execute(sql`SELECT COUNT(*) FROM games`)
+      ]).catch(err => {
+        console.error("Database test failed:", err);
+        throw err;
+      });
+      
+      console.log("Database tests:", {
+        database: testResults[0].rows[0],
+        tableExists: testResults[1].rows[0],
+        gameCount: testResults[2].rows[0]
+      });
       
       // Try a raw query first to verify table existence
       const tableCheck = await db.execute(sql`
