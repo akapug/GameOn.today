@@ -1,4 +1,5 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
+import { neon } from '@neondatabase/serverless';
 import ws from "ws";
 import * as schema from "@db/schema";
 
@@ -7,6 +8,15 @@ if (!process.env.DATABASE_URL) {
     "DATABASE_URL must be set. Did you forget to provision a database?",
   );
 }
+
+console.log("Initializing database connection...");
+const sql = neon(process.env.DATABASE_URL!, { webSocket: ws });
+console.log("SQL client created");
+
+const db = drizzle(sql, { schema });
+console.log("Drizzle ORM initialized");
+
+export { db };
 
 const getDb = () => {
   const maxRetries = 5;
