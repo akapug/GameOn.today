@@ -167,7 +167,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
     };
 
     try {
-      const res = await fetch(`/api/games/${game.id}`, {
+      const res = await fetch(`/api/games/${game.urlHash}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
