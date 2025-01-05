@@ -625,7 +625,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     </SelectContent>
                   </Select>
                 </div>
-                {isRecurring && (
+                {formState.isRecurring && (
                   <div className="space-y-2">
                     <Label>Recurrence Frequency</Label>
                     <Select 
