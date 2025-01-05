@@ -174,7 +174,7 @@ export function registerRoutes(app: Express): Server {
         sportId: Number(sportId),
         title: String(title),
         location: String(location),
-        date: date, // Keep the ISO string as-is
+        date: new Date(date),
         timezone: timezone || 'UTC',
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
