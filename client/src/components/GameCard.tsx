@@ -39,7 +39,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
   const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // Added state for edit dialog
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(game.isRecurring);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -592,7 +593,11 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 </div>
                 <div className="space-y-2">
                   <Label>Recurring Game</Label>
-                  <Select name="isRecurring" defaultValue={game.isRecurring ? 'true' : 'false'}>
+                  <Select 
+                    name="isRecurring" 
+                    defaultValue={game.isRecurring ? 'true' : 'false'}
+                    onValueChange={(value) => setIsRecurring(value === 'true')}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Is this a recurring game?" />
                     </SelectTrigger>
@@ -602,7 +607,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     </SelectContent>
                   </Select>
                 </div>
-                {formData.get('isRecurring') === 'true' && (
+                {isRecurring && (
                   <div className="space-y-2">
                     <Label>Recurrence Frequency</Label>
                     <Select name="recurrenceFrequency" defaultValue={game.recurrenceFrequency || ''}>
