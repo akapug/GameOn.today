@@ -164,7 +164,7 @@ export function registerRoutes(app: Express): Server {
   // Create a new game
   app.post("/api/games", async (req, res) => {
     try {
-      const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName } = req.body;
+      const { sportId, title, location, date, timezone, playerThreshold, creatorId, creatorName, endTime, notes, webLink } = req.body;
 
       if (!sportId || !title || !location || !date || !playerThreshold || !creatorId) {
         return res.status(400).json({ message: "Missing required fields" });
@@ -187,7 +187,10 @@ export function registerRoutes(app: Express): Server {
         timezone: timezone || 'UTC',
         playerThreshold: Number(playerThreshold),
         creatorId: String(creatorId),
-        creatorName: String(creatorName || '')
+        creatorName: String(creatorName || ''),
+        endTime: endTime ? toUTC(endTime, timezone || 'UTC') : null,
+        notes: notes || null,
+        webLink: webLink || null
       };
 
       const [newGame] = await db.insert(games).values(gameData).returning();
@@ -420,7 +423,7 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/games/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const { title, location, date, timezone, playerThreshold, creatorId } = req.body;
+      const { title, location, date, timezone, playerThreshold, creatorId, endTime, notes, webLink } = req.body;
 
       // First verify the game exists and creator matches
       const game = await db.query.games.findFirst({
@@ -444,6 +447,9 @@ export function registerRoutes(app: Express): Server {
           date: toUTC(date, timezone || game.timezone),
           timezone: timezone || game.timezone,
           playerThreshold,
+          endTime: endTime ? toUTC(endTime, timezone || game.timezone) : null,
+          notes: notes || null,
+          webLink: webLink || null,
         })
         .where(eq(games.id, parseInt(id, 10)))
         .returning();
