@@ -176,6 +176,13 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               )}
             </div>
 
+            {game.isRecurring && (
+              <div className="flex items-center text-sm text-muted-foreground mt-1">
+                <Calendar className="mr-2 h-4 w-4" />
+                Recurring {game.recurrenceFrequency} game
+              </div>
+            )}
+
             {game.notes && (
               <div className="flex items-center text-sm text-muted-foreground">
                 <MessageSquare className="mr-2 h-4 w-4" />
