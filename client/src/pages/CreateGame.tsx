@@ -37,8 +37,6 @@ export default function CreateGame() {
       creatorName: user?.displayName || "",
       notes: "",
       webLink: "",
-      isRecurring: false,
-      recurrenceFrequency: undefined,
     },
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
@@ -247,46 +245,6 @@ export default function CreateGame() {
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="isRecurring"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                      <FormControl>
-                        <input
-                          type="checkbox"
-                          checked={field.value}
-                          onChange={field.onChange}
-                          className="h-4 w-4"
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">This is a recurring game</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                {form.watch("isRecurring") && (
-                  <FormField
-                    control={form.control}
-                    name="recurrenceFrequency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Recurrence Frequency</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select frequency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="weekly">Weekly</SelectItem>
-                            <SelectItem value="biweekly">Bi-weekly</SelectItem>
-                            <SelectItem value="monthly">Monthly</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                )}
 
                 <Button type="submit" className="w-full" disabled={createGame.isPending}>
                   Create Game

@@ -23,9 +23,6 @@ export const games = pgTable("games", {
   endTime: timestamp("end_time", { mode: 'string', withTimezone: true }),
   notes: text("notes"),
   webLink: text("web_link"),
-  isRecurring: boolean("is_recurring").default(false),
-  recurrenceFrequency: text("recurrence_frequency"),
-  parentGameId: integer("parent_game_id").references(() => games.id),
 });
 
 export const players = pgTable("players", {
@@ -62,10 +59,7 @@ export const insertSportSchema = createInsertSchema(sports);
 export const selectSportSchema = createSelectSchema(sports);
 
 export type Game = typeof games.$inferSelect;
-export type NewGame = typeof games.$inferInsert & {
-  isRecurring?: boolean;
-  recurrenceFrequency?: 'weekly' | 'biweekly' | 'monthly';
-};
+export type NewGame = typeof games.$inferInsert;
 export type Player = typeof players.$inferSelect;
 export type NewPlayer = typeof players.$inferInsert;
 export type Sport = typeof sports.$inferSelect;

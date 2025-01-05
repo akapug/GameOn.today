@@ -194,31 +194,6 @@ export function registerRoutes(app: Express): Server {
       };
 
       const [newGame] = await db.insert(games).values(gameData).returning();
-
-      // If this is a recurring game, schedule the next one
-      if (gameData.isRecurring && gameData.recurrenceFrequency) {
-        const nextDate = new Date(gameData.date);
-        switch (gameData.recurrenceFrequency) {
-          case 'weekly':
-            nextDate.setDate(nextDate.getDate() + 7);
-            break;
-          case 'biweekly':
-            nextDate.setDate(nextDate.getDate() + 14);
-            break;
-          case 'monthly':
-            nextDate.setMonth(nextDate.getMonth() + 1);
-            break;
-        }
-
-        // Create the next recurring game
-        await db.insert(games).values({
-          ...gameData,
-          date: nextDate.toISOString(),
-          endTime: gameData.endTime ? new Date(new Date(gameData.endTime).getTime() + (nextDate.getTime() - new Date(gameData.date).getTime())).toISOString() : null,
-          parentGameId: newGame.id,
-        });
-      }
-
       res.json(newGame);
     } catch (error) {
       console.error("Failed to create game:", error);
