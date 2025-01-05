@@ -160,6 +160,28 @@ export default function CreateGame() {
 
                 <FormField
                   control={form.control}
+                  name="isPrivate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Game Visibility</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange(value === 'private')}
+                        value={field.value ? 'private' : 'public'}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select game visibility" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="public">Public</SelectItem>
+                          <SelectItem value="private">Private</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="title"
                   render={({ field }) => (
                     <FormItem>

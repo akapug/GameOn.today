@@ -134,6 +134,8 @@ export function registerRoutes(app: Express): Server {
 
   // Get all games with related data
   app.get("/api/games", async (_req, res) => {
+    // Only return public games for the homepage
+    const where = sql`is_private = false`;
     console.log("Fetching games from database...");
     try {
       console.log("Database status:", {
@@ -244,7 +246,14 @@ export function registerRoutes(app: Express): Server {
         recurrenceFrequency: isRecurring === true ? recurrenceFrequency : null
       };
 
-      const [newGame] = await db.insert(games).values(gameData).returning();
+      // Generate a unique hash for the game URL
+      const urlHash = crypto.randomBytes(12).toString('hex');
+      
+      const [newGame] = await db.insert(games).values({
+        ...gameData,
+        urlHash,
+        isPrivate: req.body.isPrivate === true
+      }).returning();
 
       // Ensure boolean conversion in response
       res.json({

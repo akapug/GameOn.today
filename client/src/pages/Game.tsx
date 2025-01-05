@@ -47,7 +47,7 @@ interface GameWithDetails extends GameType {
 }
 
 export default function Game() {
-  const [, params] = useRoute("/games/:id");
+  const [, params] = useRoute("/games/:hash");
   const [, setLocation] = useLocation();
   const [playerName, setPlayerName] = useState("");
   const [playerEmail, setPlayerEmail] = useState("");

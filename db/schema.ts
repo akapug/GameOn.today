@@ -12,6 +12,8 @@ export const activities = pgTable("activities", {
 
 export const games = pgTable("games", {
   id: serial("id").primaryKey(),
+  urlHash: text("url_hash").notNull().unique(),
+  isPrivate: boolean("is_private").notNull().default(false),
   activityId: integer("activity_id").references(() => activities.id),
   title: text("title").notNull(),
   location: text("location").notNull(),
