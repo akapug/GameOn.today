@@ -60,22 +60,26 @@ export default function Game() {
   const [joinType, setJoinType] = useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = useState(0.5);
 
+  const { data: game, isLoading, error } = useQuery<GameWithDetails>({
+    queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined,
+    enabled: !!params?.id,
+    retry: 1,
+  });
+
   const form = useForm<Partial<GameType>>({
     defaultValues: {
-      title: game?.title,
-      location: game?.location,
-      date: game?.date,
+      title: game?.title || "",
+      location: game?.location || "",
+      date: game?.date || "",
       endTime: game?.endTime || "",
-      timezone: game?.timezone,
-      playerThreshold: game?.playerThreshold,
+      timezone: game?.timezone || "",
+      playerThreshold: game?.playerThreshold || 2,
       notes: game?.notes || "",
       webLink: game?.webLink || "",
       isRecurring: game?.isRecurring || false,
       recurrenceFrequency: game?.recurrenceFrequency || undefined,
     },
   });
-
-  const { data: game, isLoading, error } = useQuery<GameWithDetails>({
     queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined,
     enabled: !!params?.id,
     retry: 1,
