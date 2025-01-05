@@ -18,7 +18,7 @@ export default function Changelog() {
         <div className="prose prose-slate dark:prose-invert">
           <ul className="space-y-4">
             <li>
-              <strong>January 5, 2024</strong> - Bugfixes
+              <strong>January 5, 2024</strong> - Bugfixes, private game creation and handling
             </li>
             <li>
               <strong>January 4, 2024</strong> - Added game details and recurring games
