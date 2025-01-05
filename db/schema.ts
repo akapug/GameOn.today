@@ -58,7 +58,7 @@ export const playersRelations = relations(players, ({ one }) => ({
 // Add strict boolean handling to game schema
 export const gameSchema = z.object({
   id: z.number(),
-  sportId: z.number(),
+  activityId: z.number(),
   title: z.string(),
   location: z.string(),
   date: z.string(),
