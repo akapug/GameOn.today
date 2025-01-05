@@ -29,7 +29,7 @@ export default function CreateGame() {
       title: "",
       location: "",
       date: "",
-      timezone: userTimezone, // Use detected timezone as default
+      timezone: userTimezone,
       playerThreshold: 10,
       sportId: undefined,
       creatorId: user?.uid || "",
@@ -153,7 +153,7 @@ export default function CreateGame() {
                   name="date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date & Time ({userTimezone})</FormLabel>
+                      <FormLabel>Date & Time</FormLabel>
                       <FormControl>
                         <Input
                           type="datetime-local"
@@ -169,7 +169,7 @@ export default function CreateGame() {
                   name="timezone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Timezone (detected from your browser)</FormLabel>
+                      <FormLabel>Timezone</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select timezone" />

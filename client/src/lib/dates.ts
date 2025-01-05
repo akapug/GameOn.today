@@ -1,5 +1,5 @@
 import { parseISO } from 'date-fns';
-import { formatInTimeZone, utcToZonedTime } from 'date-fns-tz';
+import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
 
 // Default timezone fallback if none specified
 const DEFAULT_TIMEZONE = 'UTC';
@@ -38,16 +38,15 @@ export function toUTC(
   dateStr: string | Date,
   timezone: string = DEFAULT_TIMEZONE
 ): Date {
-  const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
-
-  // If it's already a UTC ISO string, return as is
-  if (typeof dateStr === 'string' && dateStr.endsWith('Z')) {
-    return new Date(dateStr);
+  if (typeof dateStr === 'string') {
+    // Handle ISO string input
+    if (dateStr.endsWith('Z')) {
+      return new Date(dateStr);
+    }
+    // Convert local datetime to UTC while preserving the wall time
+    return zonedTimeToUtc(dateStr, timezone);
   }
-
-  // Convert the local date to UTC while preserving the wall time
-  const zonedDate = utcToZonedTime(date, timezone);
-  return new Date(zonedDate.toISOString());
+  return zonedTimeToUtc(dateStr, timezone);
 }
 
 /**
