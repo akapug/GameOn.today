@@ -79,6 +79,8 @@ export default function CreateGame() {
         date: toUTC(values.date, values.timezone).toISOString(),
         sportId: Number(values.sportId),
         playerThreshold: Number(values.playerThreshold),
+        isRecurring: Boolean(values.isRecurring),
+        recurrenceFrequency: values.isRecurring ? values.recurrenceFrequency : null,
       };
 
       return await apiRequest("/api/games", {
