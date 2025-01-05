@@ -1,11 +1,10 @@
 import { parseISO, format } from 'date-fns';
-import { formatInTimeZone, toDate } from 'date-fns-tz';
 
 // Default timezone fallback if none specified
 const DEFAULT_TIMEZONE = 'UTC';
 
 /**
- * Format a date with timezone for display
+ * Format a date for display, preserving wall time
  */
 export function formatWithTimezone(
   date: string | Date,
@@ -13,46 +12,63 @@ export function formatWithTimezone(
   timezone: string = DEFAULT_TIMEZONE,
   includeZone: boolean = true
 ): string {
+  // Ensure we're working with a Date object
   const parsedDate = typeof date === 'string' ? parseISO(date) : date;
-  const formattedDate = formatInTimeZone(parsedDate, timezone, formatStr);
+
+  // Format the time components directly without any timezone conversion
+  const formattedDate = format(parsedDate, formatStr);
 
   if (!includeZone) return formattedDate;
 
-  // Add timezone abbreviation
-  const tzAbbr = new Date().toLocaleTimeString('en-US', {
-    timeZone: timezone,
-    timeZoneName: 'short'
-  }).split(' ')[2];
-
-  return `${formattedDate} (${tzAbbr})`;
+  // Add timezone for display only
+  return `${formattedDate} ${timezone}`;
 }
 
 /**
- * Convert a date to UTC for storage, preserving the original timezone's wall time
+ * Store time components exactly as entered
  */
 export function toUTC(
   dateStr: string | Date,
   timezone: string = DEFAULT_TIMEZONE
 ): Date {
-  const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
+  // If a Date object is passed, convert to string first
+  const inputStr = typeof dateStr === 'string' ? dateStr : dateStr.toISOString();
+
+  // Create a date object from the input
+  const date = new Date(inputStr);
+
+  // Create UTC date with the exact same components to preserve wall time
   return new Date(Date.UTC(
     date.getFullYear(),
     date.getMonth(),
     date.getDate(),
     date.getHours(),
-    date.getMinutes()
+    date.getMinutes(),
+    date.getSeconds(),
+    date.getMilliseconds()
   ));
 }
 
 /**
- * Convert a UTC date to local datetime input value
+ * Format UTC date for input, preserving wall time
  */
 export function utcToLocalInput(
   date: Date | string,
   timezone: string = DEFAULT_TIMEZONE
 ): string {
+  // Ensure we have a Date object
   const parsedDate = typeof date === 'string' ? parseISO(date) : date;
-  return formatInTimeZone(parsedDate, timezone, "yyyy-MM-dd'T'HH:mm");
+
+  // Format UTC components directly for input
+  const components = {
+    year: parsedDate.getUTCFullYear(),
+    month: String(parsedDate.getUTCMonth() + 1).padStart(2, '0'),
+    day: String(parsedDate.getUTCDate()).padStart(2, '0'),
+    hours: String(parsedDate.getUTCHours()).padStart(2, '0'),
+    minutes: String(parsedDate.getUTCMinutes()).padStart(2, '0')
+  };
+
+  return `${components.year}-${components.month}-${components.day}T${components.hours}:${components.minutes}`;
 }
 
 /**
