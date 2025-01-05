@@ -524,6 +524,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   return;
                 }
                 const formData = new FormData(e.currentTarget);
+                console.log('Form State:', formState);
+                console.log('Is Recurring Type:', typeof formState.isRecurring);
+                console.log('Is Recurring Value:', formState.isRecurring);
                 const updatedGame = {
                   ...game,
                   title: formData.get('title') as string,
