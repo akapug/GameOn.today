@@ -4,6 +4,8 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SportSelect from "@/components/SportSelect";
@@ -15,6 +17,15 @@ import { useState } from "react";
 import AuthDialog from "@/components/AuthDialog";
 import { apiRequest } from "@/lib/api";
 import { toUTC, getUserTimezone } from "@/lib/dates";
+
+function isValidUrl(string: string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
 
 export default function CreateGame() {
   const [, navigate] = useLocation();
@@ -49,6 +60,9 @@ export default function CreateGame() {
       if (!data.sportId) errors.sportId = { message: "Sport is required" };
       if (!data.playerThreshold || data.playerThreshold <= 1) {
         errors.playerThreshold = { message: "Player threshold must be greater than 1" };
+      }
+      if (data.webLink && !isValidUrl(data.webLink)) {
+        errors.webLink = { message: "Please enter a valid URL" };
       }
 
       return {
@@ -158,7 +172,13 @@ export default function CreateGame() {
                   name="date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date & Time ({userTimezone})</FormLabel>
+                      <FormLabel className="flex items-center gap-2">
+                    Date & Time ({userTimezone})
+                    <Collapsible>
+                      <CollapsibleTrigger className="text-xs text-muted-foreground hover:underline">
+                        Need to override detected timezone?
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-2">
                       <FormControl>
                         <Input
                           type="datetime-local"
@@ -184,27 +204,31 @@ export default function CreateGame() {
                     )}
                   />
 
-                <FormField
-                  control={form.control}
-                  name="timezone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Timezone (detected from your browser)</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select timezone" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Intl.supportedValuesOf('timeZone').map((tz) => (
-                            <SelectItem key={tz} value={tz}>
-                              {tz}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
+                </CollapsibleContent>
+                    </Collapsible>
+                  </FormLabel>
+                  <CollapsibleContent>
+                    <FormField
+                      control={form.control}
+                      name="timezone"
+                      render={({ field }) => (
+                        <FormItem className="mt-2">
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select timezone" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Intl.supportedValuesOf('timeZone').map((tz) => (
+                                <SelectItem key={tz} value={tz}>
+                                  {tz}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                  </CollapsibleContent>
 
                 <FormField
                   control={form.control}
@@ -230,7 +254,7 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel>Notes</FormLabel>
                       <FormControl>
-                        <Input placeholder="Add any details about the game, like level of play, parking instructions, etc." {...field} />
+                        <Textarea placeholder="Add any details about the game, like level of play, parking instructions, etc." className="min-h-[100px]" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
