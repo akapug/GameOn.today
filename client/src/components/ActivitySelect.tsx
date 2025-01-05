@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { defaultSports } from "@/lib/sports"
+import { defaultActivities } from "@/lib/activities"
 import { forwardRef } from "react"
 
 interface ActivitySelectProps {
@@ -39,7 +39,7 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
             !value && "text-muted-foreground"
           )}
         >
-          {value ? defaultSports.find((_, index) => index + 1 === Number(value))?.name : "Select activity..."}
+          {value ? defaultActivities.find((_, index) => index + 1 === Number(value))?.name : "Select activity..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
@@ -62,7 +62,7 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
                 All activities
               </CommandItem>
             )}
-            {defaultSports.map((activity, index) => (
+            {defaultActivities.map((activity, index) => (
               <CommandItem
                 key={index + 1}
                 onSelect={() => {
