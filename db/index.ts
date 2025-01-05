@@ -40,7 +40,8 @@ const getDb = () => {
       });
 
       // Test the connection
-      await client.select().from(schema.activities).limit(1);
+      const testQuery = await client.execute(sql`SELECT NOW()`);
+      console.log("Database connection test successful:", testQuery.rows[0]);
       console.log("Database connection successful");
       return client;
     } catch (error: any) {
