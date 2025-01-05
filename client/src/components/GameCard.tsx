@@ -333,9 +333,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                               if (!response.ok) {
                                 throw new Error('Failed to delete response');
                               }
-                              .then(() => {
-                                queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.urlHash) });
-                                queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                              
+                              queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.urlHash) });
+                              queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
                                 toast({ title: "Success", description: "Response removed successfully" });
                               })
                               .catch(() => {
