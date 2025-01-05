@@ -139,10 +139,16 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               Organized by {game.creatorName}
             </div>
           </div>
-          {hasMinimumPlayers && (
-            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-              Ready to Play!
+          {new Date(game.date) < new Date() ? (
+            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+              Game concluded
             </span>
+          ) : (
+            hasMinimumPlayers && (
+              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                Ready to Play!
+              </span>
+            )
           )}
         </div>
       </CardHeader>
