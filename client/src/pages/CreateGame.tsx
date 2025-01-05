@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import SportSelect from "@/components/SportSelect";
+import ActivitySelect from "@/components/ActivitySelect";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type NewGame } from "@db/schema";
@@ -152,8 +152,8 @@ export default function CreateGame() {
                   name="sportId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sport</FormLabel>
-                      <SportSelect {...field} hideAllSports={true} />
+                      <FormLabel>Activity</FormLabel>
+                      <ActivitySelect {...field} hideAllActivities={true} />
                     </FormItem>
                   )}
                 />
