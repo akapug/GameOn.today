@@ -452,8 +452,8 @@ export function registerRoutes(app: Express): Server {
           endTime: endTime ? toUTC(endTime, timezone || game.timezone) : null,
           notes: notes || null,
           webLink: webLink || null,
-          isRecurring: isRecurring || false,
-          recurrenceFrequency: recurrenceFrequency || null,
+          isRecurring: isRecurring === true,
+          recurrenceFrequency: isRecurring === true ? recurrenceFrequency : null,
         })
         .where(eq(games.id, parseInt(id, 10)))
         .returning();
