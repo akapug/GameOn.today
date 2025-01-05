@@ -602,7 +602,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     </SelectContent>
                   </Select>
                 </div>
-                {game.isRecurring && (
+                {formData.get('isRecurring') === 'true' && (
                   <div className="space-y-2">
                     <Label>Recurrence Frequency</Label>
                     <Select name="recurrenceFrequency" defaultValue={game.recurrenceFrequency || ''}>
