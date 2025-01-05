@@ -25,11 +25,13 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
 
-  const { data: games = [] } = useQuery<GameWithDetails[]>({
+  const { data: games = [], isLoading, error } = useQuery<GameWithDetails[]>({
     queryKey: queryKeys.games.all,
     onSuccess: (data) => console.log('Games fetched:', data),
     onError: (error) => console.error('Games fetch error:', error)
   });
+
+  console.log('Games state:', { games, isLoading, error });
 
   const handleCreateGame = () => {
     if (user) {
@@ -42,8 +44,8 @@ export default function Home() {
   const now = new Date();
 
   const filterGamesByActivity = (games: GameWithDetails[]) => {
-    if (selectedActivity === null) return games;
-    return games.filter(game => game.activity.id === selectedActivity);
+    if (!selectedActivity) return games;
+    return games.filter(game => game.activity?.id === selectedActivity);
   };
 
   const isArchived = (game: GameWithDetails) => {
