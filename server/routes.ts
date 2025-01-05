@@ -458,8 +458,10 @@ export function registerRoutes(app: Express): Server {
         .where(eq(games.id, parseInt(id, 10)))
         .returning();
 
-      // Create duplicate game if recurring is enabled
-      if (isRecurring && recurrenceFrequency) {
+      // Check if game has moved to archived and needs duplication
+      const gameDate = new Date(date);
+      const now = new Date();
+      if (isRecurring && recurrenceFrequency && gameDate < now) {
         const nextDate = new Date(date);
         switch (recurrenceFrequency) {
           case 'weekly':
@@ -472,14 +474,17 @@ export function registerRoutes(app: Express): Server {
             nextDate.setMonth(nextDate.getMonth() + 1);
             break;
         }
-
-        await db.insert(games).values({
-          ...updatedGame,
-          id: undefined,
-          date: nextDate.toISOString(),
-          endTime: endTime ? new Date(new Date(endTime).getTime() + (nextDate.getTime() - new Date(date).getTime())).toISOString() : null,
-          parentGameId: updatedGame.id
-        });
+        
+        // Only create next game if it's not too far in the future
+        if (nextDate > now) {
+          await db.insert(games).values({
+            ...updatedGame,
+            id: undefined,
+            date: nextDate.toISOString(),
+            endTime: endTime ? new Date(new Date(endTime).getTime() + (nextDate.getTime() - new Date(date).getTime())).toISOString() : null,
+            parentGameId: updatedGame.id
+          });
+        }
       }
 
       // Fetch fresh weather data for the updated location/time
