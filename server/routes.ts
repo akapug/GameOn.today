@@ -426,10 +426,10 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Get a single game with related data
-  app.get("/api/games/:id", async (req, res) => {
+  app.get("/api/games/:hash", async (req, res) => {
     try {
       const game = await db.query.games.findFirst({
-        where: eq(games.id, parseInt(req.params.id, 10)),
+        where: eq(games.urlHash, req.params.hash),
         with: {
           activity: true,
           players: {

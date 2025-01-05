@@ -61,8 +61,8 @@ export default function Game() {
   const [likelihood, setLikelihood] = useState(0.5);
 
   const { data: game, isLoading, error } = useQuery<GameWithDetails>({
-    queryKey: params?.id ? queryKeys.games.single(parseInt(params.id, 10)) : undefined,
-    enabled: !!params?.id,
+    queryKey: params?.hash ? ['games', params.hash] : undefined,
+    enabled: !!params?.hash,
     retry: 1,
   });
 
@@ -107,7 +107,7 @@ export default function Game() {
 
   const joinGame = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/games/${params?.id}/join`, {
+      const res = await fetch(`/api/games/${params?.hash}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
