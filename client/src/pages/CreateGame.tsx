@@ -142,6 +142,9 @@ export default function CreateGame() {
     },
   });
 
+
+              <p className="text-sm text-muted-foreground mb-4">Fields marked with * are required</p>
+
   if (!user) {
     return (
       <AuthDialog
@@ -174,7 +177,7 @@ export default function CreateGame() {
                   name="activityId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Activity</FormLabel>
+                      <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Activity</FormLabel>
                       <ActivitySelect {...field} hideAllActivities={true} />
                     </FormItem>
                   )}
@@ -207,7 +210,7 @@ export default function CreateGame() {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title</FormLabel>
+                      <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Title</FormLabel>
                       <FormControl>
                         <Input placeholder="Game title..." {...field} />
                       </FormControl>
@@ -220,7 +223,7 @@ export default function CreateGame() {
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location</FormLabel>
+                      <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Location</FormLabel>
                       <FormControl>
                         <Input placeholder="Game location..." {...field} />
                       </FormControl>
@@ -233,7 +236,7 @@ export default function CreateGame() {
                   name="date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
+                      <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
                         Date & Time ({userTimezone})
                       </FormLabel>
                       <FormControl>
@@ -294,7 +297,7 @@ export default function CreateGame() {
                   name="playerThreshold"
                   render={({ field: { onChange, ...field } }) => (
                     <FormItem>
-                      <FormLabel>Player Threshold</FormLabel>
+                      <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Player Threshold</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
