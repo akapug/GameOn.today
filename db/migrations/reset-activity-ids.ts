@@ -3,17 +3,12 @@ import { db } from "../index";
 import { sql } from "drizzle-orm";
 
 async function main() {
-  // First, update games to use temporary IDs to avoid conflicts
-  await db.execute(sql`
-    UPDATE games 
-    SET activity_id = activity_id + 1000 
-    WHERE activity_id IS NOT NULL;
+  // First get all current activity mappings
+  const currentActivities = await db.execute(sql`
+    SELECT id, name FROM activities ORDER BY id;
   `);
-
-  // Delete Baseball activity
-  await db.execute(sql`DELETE FROM activities WHERE name = 'Baseball'`);
-
-  // Reset activity IDs to original values
+  
+  // Create a mapping of old to new IDs
   const activityMapping = [
     { name: 'Basketball', newId: 1 },
     { name: 'Soccer', newId: 2 },
@@ -28,18 +23,26 @@ async function main() {
     { name: 'Golf', newId: 11 }
   ];
 
+  // Update each activity one by one
   for (const mapping of activityMapping) {
     await db.execute(
-      sql`UPDATE activities SET id = ${mapping.newId} WHERE name = ${mapping.name}`
+      sql`UPDATE activities SET id = -${mapping.newId} WHERE name = ${mapping.name}`
     );
   }
 
-  // Update games back to use new activity IDs
-  await db.execute(sql`
-    UPDATE games 
-    SET activity_id = activity_id - 1000 
-    WHERE activity_id >= 1000;
-  `);
+  // Update games to use new activity IDs
+  for (const mapping of activityMapping) {
+    const oldActivity = currentActivities.rows.find(a => a.name === mapping.name);
+    if (oldActivity) {
+      await db.execute(
+        sql`UPDATE games SET activity_id = -${mapping.newId} WHERE activity_id = ${oldActivity.id}`
+      );
+    }
+  }
+
+  // Finally, make IDs positive again
+  await db.execute(sql`UPDATE activities SET id = -id WHERE id < 0`);
+  await db.execute(sql`UPDATE games SET activity_id = -activity_id WHERE activity_id < 0`);
 
   console.log('Activity IDs reset complete');
   process.exit(0);
