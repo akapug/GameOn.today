@@ -10,20 +10,22 @@ async function main() {
     WHERE activity_id IS NOT NULL;
   `);
 
+  // Delete Baseball activity
+  await db.execute(sql`DELETE FROM activities WHERE name = 'Baseball'`);
+
   // Reset activity IDs to original values
   const activityMapping = [
     { name: 'Basketball', newId: 1 },
     { name: 'Soccer', newId: 2 },
     { name: 'Tennis', newId: 3 },
     { name: 'Volleyball', newId: 4 },
-    { name: 'Baseball', newId: 5 },
-    { name: 'Poker', newId: 6 },
-    { name: 'Board Games', newId: 7 },
-    { name: 'Going Out', newId: 8 },
-    { name: 'Other', newId: 9 },
-    { name: 'Frisbee', newId: 10 },
-    { name: 'Pickleball', newId: 11 },
-    { name: 'Golf', newId: 12 }
+    { name: 'Poker', newId: 5 },
+    { name: 'Board Games', newId: 6 },
+    { name: 'Going Out', newId: 7 },
+    { name: 'Other', newId: 8 },
+    { name: 'Frisbee', newId: 9 },
+    { name: 'Pickleball', newId: 10 },
+    { name: 'Golf', newId: 11 }
   ];
 
   for (const mapping of activityMapping) {
