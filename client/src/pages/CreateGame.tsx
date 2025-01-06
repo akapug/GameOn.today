@@ -119,6 +119,7 @@ export default function CreateGame() {
         creatorName: values.creatorName || '',
       };
 
+      console.log('Sending game creation request:', gameData);
       const res = await fetch("/api/games", {
         method: "POST",
         headers: {
@@ -127,6 +128,12 @@ export default function CreateGame() {
         },
         body: JSON.stringify(gameData),
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Server response:', errorData);
+        throw new Error(errorData.message + (errorData.fields ? `: ${errorData.fields.join(', ')}` : ''));
+      }
 
       if (!res.ok) {
         const errorData = await res.json();

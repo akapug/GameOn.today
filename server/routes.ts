@@ -215,8 +215,20 @@ export function registerRoutes(app: Express): Server {
     try {
       const { activityId, title, location, date, timezone, playerThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
 
-      if (!activityId || !location || !date || !playerThreshold || !creatorId) {
-        return res.status(400).json({ message: "Missing required fields" });
+      const missingFields = [];
+      if (!activityId) missingFields.push('activityId');
+      if (!location) missingFields.push('location');
+      if (!date) missingFields.push('date');
+      if (!playerThreshold) missingFields.push('playerThreshold');
+      if (!creatorId) missingFields.push('creatorId');
+
+      if (missingFields.length > 0) {
+        console.error('Missing fields in request:', missingFields);
+        console.error('Request body:', req.body);
+        return res.status(400).json({ 
+          message: "Missing required fields", 
+          fields: missingFields 
+        });
       }
 
       // Generate a unique URL hash
