@@ -34,6 +34,11 @@ export const defaultActivities: Omit<Activity, "id">[] = [
     color: "purple",
     icon: "dice",
   },
+  {
+    name: "Going Out",
+    color: "purple",
+    icon: "wine",
+  },
 ];
 
 export const activityColors = {

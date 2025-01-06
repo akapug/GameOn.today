@@ -248,6 +248,14 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   - {formatWithTimezone(game.endTime, "p", game.timezone)}
                 </span>
               )}
+              <a
+                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(game.title || `${game.activity.name} Game`)}&dates=${new Date(game.date).toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${game.endTime ? new Date(game.endTime).toISOString().replace(/[-:]/g, '').split('.')[0] : new Date(new Date(game.date).getTime() + 3600000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(`Join us for ${game.activity.name}! ${window.location.origin}/games/${game.urlHash}`)}&location=${encodeURIComponent(game.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 text-xs text-primary hover:underline"
+              >
+                Add to Calendar
+              </a>
             </div>
 
             {game.isRecurring && (
