@@ -8,6 +8,9 @@ const defaultActivities = [
   { name: "Tennis", color: "#45B7D1", icon: "🎾" },
   { name: "Volleyball", color: "#96CEB4", icon: "🏐" },
   { name: "Baseball", color: "#D4A373", icon: "⚾" },
+  { name: "Poker", color: "#E63946", icon: "🃏" },
+  { name: "Board Games", color: "#457B9D", icon: "🎲" },
+  { name: "Going Out", color: "#2A9D8F", icon: "🎉" },
   { name: "Other", color: "#6C757D", icon: "🎮" }
 ];
 
