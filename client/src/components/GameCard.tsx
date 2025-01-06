@@ -68,6 +68,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   };
 
   const calculateProgress = () => {
+    if (!game?.players) return 0;
     const total = game.players.reduce((sum, player) => {
       const likelihood = player.likelihood ? Number(player.likelihood) : 1;
       return sum + likelihood;
@@ -209,16 +210,16 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             <Link href={`/games/${game.urlHash}`}>
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                  {game.title || `${game.activity.name}`}
+                  {game.title || (game.activity?.name || 'Game')}
                 </h3>
                 <span 
                   className="text-sm px-2 py-0.5 rounded-full" 
                   style={{ 
-                    backgroundColor: `${activityColors[game.activity.color as keyof typeof activityColors]}20`,
-                    color: activityColors[game.activity.color as keyof typeof activityColors]
+                    backgroundColor: game.activity?.color ? `${activityColors[game.activity.color as keyof typeof activityColors]}20` : '#eee',
+                    color: game.activity?.color ? activityColors[game.activity.color as keyof typeof activityColors] : '#666'
                   }}
                 >
-                  {game.activity.name}
+                  {game.activity?.name || 'Activity'}
                 </span>
               </div>
             </Link>
