@@ -253,7 +253,19 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 </span>
               )}
               <a
-                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(game?.title || `${game?.activity?.name || ''} Game`)}&dates=${new Date(game?.date || '').toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${game?.endTime ? new Date(game.endTime).toISOString().replace(/[-:]/g, '').split('.')[0] : new Date(new Date(game?.date || '').getTime() + 3600000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(`Join us for ${game?.activity?.name || 'the game'}! ${window.location.origin}/games/${game?.urlHash}`)}&location=${encodeURIComponent(game?.location || '')}`}
+                href={(() => {
+                  const startDate = game?.date ? new Date(game.date) : null;
+                  const endDate = game?.endTime ? new Date(game.endTime) : (startDate ? new Date(startDate.getTime() + 3600000) : null);
+                  
+                  if (!startDate || isNaN(startDate.getTime())) return '#';
+                  
+                  const startStr = startDate.toISOString().replace(/[-:]/g, '').split('.')[0];
+                  const endStr = (endDate && !isNaN(endDate.getTime())) ? 
+                    endDate.toISOString().replace(/[-:]/g, '').split('.')[0] : 
+                    new Date(startDate.getTime() + 3600000).toISOString().replace(/[-:]/g, '').split('.')[0];
+                    
+                  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(game?.title || `${game?.activity?.name || ''} Game`)}&dates=${startStr}Z/${endStr}Z&details=${encodeURIComponent(`Join us for ${game?.activity?.name || 'the game'}! ${window.location.origin}/games/${game?.urlHash}`)}&location=${encodeURIComponent(game?.location || '')}`;
+                })()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-2 text-xs text-primary hover:underline"
