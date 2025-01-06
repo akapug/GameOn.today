@@ -610,7 +610,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               window.open(
-                `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${window.location.origin}/games/${game.urlHash}`)}&text=${encodeURIComponent(`Join our ${game.activity.name} game!`)}`,
+                `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${window.location.origin}/games/${game.urlHash}`)}&text=${encodeURIComponent(`Join our ${game.activity?.name || 'upcoming'} game!`)}`,
                 '_blank'
               );
             }}>
