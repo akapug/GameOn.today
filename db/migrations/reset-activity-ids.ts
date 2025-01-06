@@ -53,9 +53,10 @@ async function main() {
   }
 
   // Delete old activities
+  const tempIds = activityMapping.map(m => m.newId + 1000);
   await db.execute(sql`
     DELETE FROM activities 
-    WHERE id NOT IN (${sql.join(activityMapping.map(m => m.newId + 1000))})
+    WHERE id NOT IN (SELECT unnest(array[${sql.join(tempIds)}]::int[]))
   `);
 
   // Update temporary activities to final IDs
