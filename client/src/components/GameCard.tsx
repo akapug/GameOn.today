@@ -210,16 +210,16 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             <Link href={`/games/${game.urlHash}`}>
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                  {game.title || (game.activity?.name || 'Game')}
+                  {game?.title || (game?.activity?.name || 'Game')}
                 </h3>
                 <span 
                   className="text-sm px-2 py-0.5 rounded-full" 
                   style={{ 
-                    backgroundColor: game.activity?.color ? `${activityColors[game.activity.color as keyof typeof activityColors]}20` : '#eee',
-                    color: game.activity?.color ? activityColors[game.activity.color as keyof typeof activityColors] : '#666'
+                    backgroundColor: game?.activity?.color ? `${activityColors[game.activity.color as keyof typeof activityColors]}20` : '#eee',
+                    color: game?.activity?.color ? activityColors[game.activity.color as keyof typeof activityColors] : '#666'
                   }}
                 >
-                  {game.activity?.name || 'Activity'}
+                  {game?.activity?.name || 'Activity'}
                 </span>
               </div>
             </Link>
@@ -253,7 +253,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 </span>
               )}
               <a
-                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(game.title || `${game.activity.name} Game`)}&dates=${new Date(game.date).toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${game.endTime ? new Date(game.endTime).toISOString().replace(/[-:]/g, '').split('.')[0] : new Date(new Date(game.date).getTime() + 3600000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(`Join us for ${game.activity.name}! ${window.location.origin}/games/${game.urlHash}`)}&location=${encodeURIComponent(game.location)}`}
+                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(game?.title || `${game?.activity?.name || ''} Game`)}&dates=${new Date(game?.date || '').toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${game?.endTime ? new Date(game.endTime).toISOString().replace(/[-:]/g, '').split('.')[0] : new Date(new Date(game?.date || '').getTime() + 3600000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(`Join us for ${game?.activity?.name || 'the game'}! ${window.location.origin}/games/${game?.urlHash}`)}&location=${encodeURIComponent(game?.location || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-2 text-xs text-primary hover:underline"
@@ -610,7 +610,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               window.open(
-                `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${window.location.origin}/games/${game.urlHash}`)}&text=${encodeURIComponent(`Join our ${game.activity?.name || 'upcoming'} game!`)}`,
+                `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${window.location.origin}/games/${game?.urlHash || ''}`)}&text=${encodeURIComponent(`Join our ${game?.activity?.name || 'upcoming'} game!`)}`,
                 '_blank'
               );
             }}>
