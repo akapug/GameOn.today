@@ -215,11 +215,11 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <span 
                   className="text-sm px-2 py-0.5 rounded-full" 
                   style={{ 
-                    backgroundColor: `${activityColors[game.activity.color as keyof typeof activityColors]}20`,
-                    color: activityColors[game.activity.color as keyof typeof activityColors]
+                    backgroundColor: game.activity?.color ? `${activityColors[game.activity.color as keyof typeof activityColors]}20` : '#eee',
+                    color: game.activity?.color ? activityColors[game.activity.color as keyof typeof activityColors] : '#666'
                   }}
                 >
-                  {game.activity.name}
+                  {game.activity?.name}
                 </span>
               </div>
             </Link>
