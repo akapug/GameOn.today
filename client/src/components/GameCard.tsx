@@ -210,7 +210,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             <Link href={`/games/${game.urlHash}`}>
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                  {game.title || (game.activity?.name || 'Game')}
+                  {game.title || (game.activity ? game.activity.name : 'Game')}
                 </h3>
                 <span 
                   className="text-sm px-2 py-0.5 rounded-full" 
@@ -219,7 +219,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     color: game.activity?.color ? activityColors[game.activity.color as keyof typeof activityColors] : '#666'
                   }}
                 >
-                  {game.activity?.name || 'Activity'}
+                  {game.activity?.name}
                 </span>
               </div>
             </Link>
