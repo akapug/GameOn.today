@@ -110,7 +110,7 @@ export default function CreateGame() {
         ...values,
         date: toUTC(values.date, values.timezone).toISOString(),
         endTime: values.endTime ? toUTC(values.endTime, values.timezone).toISOString() : null,
-        activityId: values.activityId ? Number(values.activityId) : null,
+        activityId: typeof values.activityId === 'string' ? parseInt(values.activityId, 10) : values.activityId,
         playerThreshold: Number(values.playerThreshold),
         isRecurring: values.isRecurring === true,
         recurrenceFrequency: values.isRecurring === true ? values.recurrenceFrequency : null,
