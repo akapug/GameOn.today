@@ -1,0 +1,57 @@
+POST https://07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/games 500 (Internal Server Error)
+mutationFn @ CreateGame.tsx:124
+fn @ @tanstack_react-query.js?v=fb09d0d9:1189
+run @ @tanstack_react-query.js?v=fb09d0d9:494
+start @ @tanstack_react-query.js?v=fb09d0d9:536
+execute @ @tanstack_react-query.js?v=fb09d0d9:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=fb09d0d9:2630
+(anonymous) @ @tanstack_react-query.js?v=fb09d0d9:3295
+(anonymous) @ CreateGame.tsx:193
+(anonymous) @ react-hook-form.js?v=fb09d0d9:1675
+await in (anonymous)
+callCallback2 @ chunk-RPCDYKBN.js?v=fb09d0d9:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=fb09d0d9:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=fb09d0d9:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=fb09d0d9:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=fb09d0d9:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=fb09d0d9:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=fb09d0d9:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=fb09d0d9:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=fb09d0d9:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=fb09d0d9:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=fb09d0d9:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=fb09d0d9:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=fb09d0d9:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=fb09d0d9:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=fb09d0d9:5449Understand this errorAI
+CreateGame.tsx:135 Server response: {message: 'insert or update on table "games" violates foreign…y constraint "games_activity_id_activities_id_fk"', details: {…}}
+mutationFn @ CreateGame.tsx:135
+await in mutationFn
+fn @ @tanstack_react-query.js?v=fb09d0d9:1189
+run @ @tanstack_react-query.js?v=fb09d0d9:494
+start @ @tanstack_react-query.js?v=fb09d0d9:536
+execute @ @tanstack_react-query.js?v=fb09d0d9:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=fb09d0d9:2630
+(anonymous) @ @tanstack_react-query.js?v=fb09d0d9:3295
+(anonymous) @ CreateGame.tsx:193
+(anonymous) @ react-hook-form.js?v=fb09d0d9:1675
+await in (anonymous)
+callCallback2 @ chunk-RPCDYKBN.js?v=fb09d0d9:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=fb09d0d9:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=fb09d0d9:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=fb09d0d9:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=fb09d0d9:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=fb09d0d9:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=fb09d0d9:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=fb09d0d9:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=fb09d0d9:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=fb09d0d9:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=fb09d0d9:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=fb09d0d9:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=fb09d0d9:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=fb09d0d9:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=fb09d0d9:5449Understand this errorAI
+CreateGame.tsx:155 Create error: Error: insert or update on table "games" violates foreign key constraint "games_activity_id_activities_id_fk"
+    at Object.mutationFn (CreateGame.tsx:136:15)
