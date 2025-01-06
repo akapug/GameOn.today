@@ -1,6 +1,7 @@
 
 import { db } from "@db";
 import { activities } from "@db/schema";
+import { sql } from "drizzle-orm";
 
 const defaultActivities = [
   { name: "Basketball", color: "#FF6B6B", icon: "🏀" },
@@ -15,10 +16,16 @@ const defaultActivities = [
 ];
 
 async function main() {
+  // Use ON CONFLICT to update existing records
   for (const activity of defaultActivities) {
-    await db.insert(activities).values(activity).onConflictDoNothing();
+    await db.execute(
+      sql`INSERT INTO activities (name, color, icon)
+          VALUES (${activity.name}, ${activity.color}, ${activity.icon})
+          ON CONFLICT (name) 
+          DO UPDATE SET color = EXCLUDED.color, icon = EXCLUDED.icon`
+    );
   }
-  console.log('Default activities inserted');
+  console.log('Default activities inserted/updated');
   process.exit(0);
 }
 
