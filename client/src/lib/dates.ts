@@ -10,10 +10,13 @@ export function formatWithTimezone(
   timezone: string = DEFAULT_TIMEZONE,
   includeZone: boolean = true
 ): string {
-  const parsedDate = typeof date === 'string' ? parseISO(date) : date;
-  const formattedDate = formatInTimeZone(parsedDate, timezone, formatStr);
+  if (!date) return '';
+  try {
+    const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+    if (isNaN(parsedDate.getTime())) return '';
+    const formattedDate = formatInTimeZone(parsedDate, timezone, formatStr);
 
-  if (!includeZone) return formattedDate;
+    if (!includeZone) return formattedDate;
 
   const tzAbbr = new Date().toLocaleTimeString('en-US', {
     timeZone: timezone,
@@ -21,6 +24,10 @@ export function formatWithTimezone(
   }).split(' ')[2];
 
   return `${formattedDate} (${tzAbbr})`;
+  } catch (e) {
+    console.warn('Invalid date or timezone:', date, timezone);
+    return '';
+  }
 }
 
 export function toUTC(
