@@ -12,7 +12,10 @@ const defaultActivities = [
   { name: "Poker", color: "#E63946", icon: "🃏" },
   { name: "Board Games", color: "#457B9D", icon: "🎲" },
   { name: "Going Out", color: "#2A9D8F", icon: "🎉" },
-  { name: "Other", color: "#6C757D", icon: "🎮" }
+  { name: "Other", color: "#6C757D", icon: "🎮" },
+  { name: "Frisbee", color: "#4CAF50", icon: "🥏" },
+  { name: "Pickleball", color: "#FF9800", icon: "🎾" },
+  { name: "Golf", color: "#8BC34A", icon: "⛳" }
 ];
 
 async function main() {
