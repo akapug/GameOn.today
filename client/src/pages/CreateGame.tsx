@@ -42,7 +42,7 @@ export default function CreateGame() {
       endTime: "",
       timezone: userTimezone,
       playerThreshold: 10,
-      activityId: undefined,
+      activityId: null,
       creatorId: user?.uid || undefined,
       creatorName: user?.displayName || "",
       notes: "",
@@ -105,6 +105,7 @@ export default function CreateGame() {
         throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
       }
 
+      console.log('Activity ID:', values.activityId, typeof values.activityId);
       const gameData = {
         ...values,
         date: toUTC(values.date, values.timezone).toISOString(),
