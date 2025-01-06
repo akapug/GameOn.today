@@ -68,6 +68,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   };
 
   const calculateProgress = () => {
+    if (!game?.players) return 0;
     const total = game.players.reduce((sum, player) => {
       const likelihood = player.likelihood ? Number(player.likelihood) : 1;
       return sum + likelihood;
