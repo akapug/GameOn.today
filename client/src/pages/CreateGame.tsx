@@ -77,8 +77,21 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: NewGame) => {
-      if (!values.activityId || !values.location || !values.date || !values.playerThreshold) {
-        throw new Error("Please fill in all required fields (activity, location, date, and player threshold)");
+      const requiredFields = {
+        activityId: values.activityId,
+        location: values.location?.trim(),
+        date: values.date,
+        playerThreshold: values.playerThreshold,
+        creatorId: values.creatorId || user?.uid,
+        title: values.title?.trim()
+      };
+
+      const missingFields = Object.entries(requiredFields)
+        .filter(([_, value]) => !value)
+        .map(([key]) => key);
+
+      if (missingFields.length > 0) {
+        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
       }
 
       const gameData = {
