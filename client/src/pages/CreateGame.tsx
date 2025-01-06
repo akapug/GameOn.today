@@ -77,6 +77,10 @@ export default function CreateGame() {
 
   const createGame = useMutation({
     mutationFn: async (values: NewGame) => {
+      if (!values.activityId || !values.location || !values.date || !values.playerThreshold) {
+        throw new Error("Please fill in all required fields (activity, location, date, and player threshold)");
+      }
+
       const gameData = {
         ...values,
         date: toUTC(values.date, values.timezone).toISOString(),
@@ -86,6 +90,9 @@ export default function CreateGame() {
         isRecurring: values.isRecurring === true,
         recurrenceFrequency: values.isRecurring === true ? values.recurrenceFrequency : null,
         isPrivate: values.isPrivate === true,
+        title: values.title || '',
+        creatorId: values.creatorId || '',
+        creatorName: values.creatorName || '',
       };
 
       const res = await fetch("/api/games", {
