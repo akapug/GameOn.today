@@ -26,7 +26,7 @@ async function main() {
   // Update each activity one by one
   for (const mapping of activityMapping) {
     await db.execute(
-      sql`UPDATE activities SET id = -${mapping.newId} WHERE name = ${mapping.name}`
+      sql`UPDATE activities SET id = (-${mapping.newId}::integer) WHERE name = ${mapping.name}`
     );
   }
 
@@ -35,14 +35,14 @@ async function main() {
     const oldActivity = currentActivities.rows.find(a => a.name === mapping.name);
     if (oldActivity) {
       await db.execute(
-        sql`UPDATE games SET activity_id = -${mapping.newId} WHERE activity_id = ${oldActivity.id}`
+        sql`UPDATE games SET activity_id = (-${mapping.newId}::integer) WHERE activity_id = ${oldActivity.id}`
       );
     }
   }
 
   // Finally, make IDs positive again
-  await db.execute(sql`UPDATE activities SET id = -id WHERE id < 0`);
-  await db.execute(sql`UPDATE games SET activity_id = -activity_id WHERE activity_id < 0`);
+  await db.execute(sql`UPDATE activities SET id = (-id::integer) WHERE id < 0`);
+  await db.execute(sql`UPDATE games SET activity_id = (-activity_id::integer) WHERE activity_id < 0`);
 
   console.log('Activity IDs reset complete');
   process.exit(0);
