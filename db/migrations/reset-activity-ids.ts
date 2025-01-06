@@ -22,6 +22,11 @@ async function main() {
     { name: 'Golf', newId: 11 }
   ];
 
+  // Drop the unique constraint
+  await db.execute(sql`
+    ALTER TABLE activities DROP CONSTRAINT IF EXISTS activities_name_idx
+  `);
+
   // First create temporary activities with new IDs
   for (const mapping of activityMapping) {
     const oldActivity = currentActivities.rows.find(a => a.name === mapping.name);
@@ -30,7 +35,7 @@ async function main() {
         INSERT INTO activities (id, name, color, icon)
         SELECT ${mapping.newId + 1000}, name, color, icon
         FROM activities
-        WHERE name = ${mapping.name}
+        WHERE name = ${mapping.name} AND id = ${oldActivity.id}
       `);
     }
   }
@@ -71,6 +76,11 @@ async function main() {
     `);
   }
 
+  // Recreate the unique constraint
+  await db.execute(sql`
+    ALTER TABLE activities ADD CONSTRAINT activities_name_idx UNIQUE (name)
+  `);
+  
   console.log('Activity IDs reset complete');
   process.exit(0);
 }
