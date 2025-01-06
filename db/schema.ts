@@ -5,9 +5,13 @@ import { z } from "zod";
 
 export const activities = pgTable("activities", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull().unique(),
+  name: text("name").notNull(),
   color: text("color").notNull(),
   icon: text("icon").notNull(),
+}, (table) => {
+  return {
+    nameIdx: unique("activities_name_idx").on(table.name),
+  };
 });
 
 export const games = pgTable("games", {
