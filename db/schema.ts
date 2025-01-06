@@ -5,7 +5,7 @@ import { z } from "zod";
 
 export const activities = pgTable("activities", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+  name: text("name").notNull().unique(),
   color: text("color").notNull(),
   icon: text("icon").notNull(),
 });
