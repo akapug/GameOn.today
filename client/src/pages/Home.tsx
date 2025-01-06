@@ -25,10 +25,12 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
 
-  const { data: games = [], isLoading, error } = useQuery<GameWithDetails[]>({
+  const { data: games, isLoading, error } = useQuery<GameWithDetails[]>({
     queryKey: queryKeys.games.all,
     queryFn: () => fetch('/api/games').then(res => res.json()),
   });
+
+  const gamesList = games || [];
 
   const handleCreateGame = () => {
     if (user) {
@@ -51,8 +53,8 @@ export default function Home() {
     return isBefore(threeHoursAfterStart, now);
   };
 
-  // Only show public games in the main list if games data is available
-  const publicGames = games?.filter(game => !game.isPrivate) ?? [];
+  // Only show public games in the main list
+  const publicGames = gamesList.filter(game => !game.isPrivate);
 
   const upcomingGames = filterGamesByActivity(
     publicGames.filter(game => !isArchived(game))
