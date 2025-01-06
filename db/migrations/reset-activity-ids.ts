@@ -39,6 +39,9 @@ async function main() {
     }
   }
 
+  // Temporarily disable foreign key checks
+  await db.execute(sql`SET CONSTRAINTS games_activity_id_activities_id_fk DEFERRED`);
+
   // Update activities
   for (const mapping of activityMapping) {
     await db.execute(
@@ -46,6 +49,9 @@ async function main() {
           WHERE name = ${mapping.name}`
     );
   }
+
+  // Re-enable foreign key checks
+  await db.execute(sql`SET CONSTRAINTS games_activity_id_activities_id_fk IMMEDIATE`);
 
   // Update games back to final IDs
   for (const mapping of activityMapping) {
