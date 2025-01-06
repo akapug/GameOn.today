@@ -89,6 +89,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           email: playerEmail,
           likelihood: joinType === "yes" ? 1 : (joinType === "no" ? 0 : likelihood),
           uid: user?.uid,
+          comment: comment // Added comment field
         }),
       });
       if (!res.ok) {
@@ -115,7 +116,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   });
 
   const editResponse = useMutation({
-    mutationFn: async (values: { playerId: number; name: string; email: string; likelihood: number }) => {
+    mutationFn: async (values: { playerId: number; name: string; email: string; likelihood: number; comment: string }) => { // Added comment
       const responseToken = user?.uid || localStorage.getItem(`response-token-${values.playerId}`);
       if (!responseToken) throw new Error("Not authorized to edit");
 
@@ -197,6 +198,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       });
     }
   };
+
+  const [comment, setComment] = useState(''); // Added comment state
 
   return (
     <Card className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""}`}>
@@ -312,7 +315,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               {game.players.map((player, index) => (
                 <div key={player.id} className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    {index + 1}. {player.name}
+                    {index + 1}. {player.name} {player.comment && <span className="ml-2">({player.comment})</span>} {/* Display comment */}
                     {(!player.likelihood || player.likelihood === 1) ? (
                       <span className="ml-1 text-xs text-green-600">Yes!</span>
                     ) : (
@@ -332,6 +335,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                           setPlayerEmail(player.email || '');
                           setJoinType(!player.likelihood || player.likelihood === 1 ? "yes" : "maybe");
                           setLikelihood(player.likelihood || 0.5);
+                          setComment(player.comment || ''); // Set comment state
                           setIsResponseEditDialogOpen(true);
                         }}
                       >
@@ -434,6 +438,17 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   type="email"
                   value={playerEmail}
                   onChange={(e) => setPlayerEmail(e.target.value)}
+                  placeholder="your@email.com (optional)"
+                />
+              </div>
+              <div>
+                <Label htmlFor="comment">Comment (optional)</Label>
+                <Input
+                  id="comment"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Any notes about your attendance?"
+                  maxLength={100}
                 />
               </div>
 
@@ -482,6 +497,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   name: playerName,
                   email: playerEmail,
                   likelihood: joinType === "yes" ? 1 : likelihood,
+                  comment: comment //Added comment
                 });
               }
             }} className="space-y-4">
@@ -538,7 +554,16 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   onChange={(e) => setPlayerEmail(e.target.value)}
                 />
               </div>
-
+              <div>
+                <Label htmlFor="edit-comment">Comment (optional)</Label>
+                <Input
+                  id="edit-comment"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Any notes about your attendance?"
+                  maxLength={100}
+                />
+              </div>
               <Button
                 type="submit"
                 variant={joinType === "no" ? "destructive" : "default"}

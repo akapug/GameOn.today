@@ -40,6 +40,7 @@ export const players = pgTable("players", {
   joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow(),
   likelihood: decimal("likelihood").notNull().default('1'),
   responseToken: text("response_token").notNull(),
+  comment: text("comment"),
 });
 
 export const gamesRelations = relations(games, ({ one, many }) => ({

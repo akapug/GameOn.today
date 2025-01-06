@@ -320,7 +320,7 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/games/:hash/join", async (req, res) => {
     try {
       const { hash } = req.params;
-      const { name, email, likelihood, uid } = req.body;
+      const { name, email, likelihood, uid, comment } = req.body;
 
       if (!name) {
         return res.status(400).json({ message: "Name is required" });
@@ -356,6 +356,7 @@ export function registerRoutes(app: Express): Server {
         email: email?.trim(),
         likelihood: likelihood || 1,
         responseToken,
+        comment: comment?.trim(),
       }).returning();
 
       const expectedPlayers = game.players.reduce((sum, player) => {
