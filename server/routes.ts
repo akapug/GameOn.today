@@ -229,6 +229,18 @@ export function registerRoutes(app: Express): Server {
     try {
       const { activityId, title, location, date, timezone, playerThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
 
+      // Verify activity exists first
+      const activity = await db.query.activities.findFirst({
+        where: eq(activities.id, Number(activityId))
+      });
+
+      if (!activity) {
+        return res.status(400).json({ 
+          message: `Activity with ID ${activityId} does not exist`,
+          details: { field: 'activityId' }
+        });
+      }
+
       const missingFields = [];
       if (!activityId) missingFields.push('activityId');
       if (!location) missingFields.push('location');
