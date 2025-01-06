@@ -86,11 +86,15 @@ export default function CreateGame() {
         title: values.title?.trim()
       };
 
+      console.log('Form values:', values);
+      console.log('Required fields:', requiredFields);
+
       const missingFields = Object.entries(requiredFields)
         .filter(([_, value]) => !value)
         .map(([key]) => key);
 
       if (missingFields.length > 0) {
+        console.error('Missing fields:', missingFields);
         throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
       }
 
