@@ -8,7 +8,6 @@ async function main() {
     SELECT id, name FROM activities ORDER BY id;
   `);
   
-  // Create a mapping of old to new IDs
   const activityMapping = [
     { name: 'Basketball', newId: 1 },
     { name: 'Soccer', newId: 2 },
@@ -23,27 +22,36 @@ async function main() {
     { name: 'Golf', newId: 11 }
   ];
 
-  // First, update games with temporary IDs to avoid conflicts
+  // First update any games with invalid activity IDs to use "Other" (ID 8)
+  await db.execute(sql`
+    UPDATE games SET activity_id = 8 
+    WHERE activity_id NOT IN (SELECT id FROM activities)
+  `);
+
+  // Update games with temporary IDs
   for (const mapping of activityMapping) {
     const oldActivity = currentActivities.rows.find(a => a.name === mapping.name);
     if (oldActivity) {
       await db.execute(
-        sql`UPDATE games SET activity_id = ${mapping.newId + 1000} WHERE activity_id = ${oldActivity.id}`
+        sql`UPDATE games SET activity_id = ${mapping.newId + 1000} 
+            WHERE activity_id = ${oldActivity.id}`
       );
     }
   }
 
-  // Then update activities
+  // Update activities
   for (const mapping of activityMapping) {
     await db.execute(
-      sql`UPDATE activities SET id = ${mapping.newId} WHERE name = ${mapping.name}`
+      sql`UPDATE activities SET id = ${mapping.newId} 
+          WHERE name = ${mapping.name}`
     );
   }
 
-  // Finally update games back to real IDs
+  // Update games back to final IDs
   for (const mapping of activityMapping) {
     await db.execute(
-      sql`UPDATE games SET activity_id = ${mapping.newId} WHERE activity_id = ${mapping.newId + 1000}`
+      sql`UPDATE games SET activity_id = ${mapping.newId} 
+          WHERE activity_id = ${mapping.newId + 1000}`
     );
   }
 
