@@ -34,8 +34,15 @@ export function utcToLocalInput(
   date: Date | string,
   timezone: string = DEFAULT_TIMEZONE
 ): string {
-  const parsedDate = typeof date === 'string' ? parseISO(date) : date;
-  return formatInTimeZone(parsedDate, timezone, "yyyy-MM-dd'T'HH:mm");
+  if (!date) return '';
+  try {
+    const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+    if (isNaN(parsedDate.getTime())) return '';
+    return formatInTimeZone(parsedDate, timezone, "yyyy-MM-dd'T'HH:mm");
+  } catch (e) {
+    console.warn('Invalid date:', date);
+    return '';
+  }
 }
 
 export function getUserTimezone(): string {
