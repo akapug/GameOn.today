@@ -24,7 +24,7 @@ export default function GameList({ games, emptyMessage = "No games found", onCre
     cacheTime: 1000 * 60 * 30,
   });
 
-  const gamesToDisplay = fetchedGames || games; // Use fetchedGames if available, otherwise fallback to props
+  const gamesToDisplay = Array.isArray(fetchedGames) ? fetchedGames : (Array.isArray(games) ? games : []); // Use fetchedGames if available, otherwise fallback to props
 
   if (gamesToDisplay.length === 0 && onCreateGame) {
     return (

@@ -30,7 +30,7 @@ export default function Home() {
     queryFn: () => fetch('/api/games').then(res => res.json()),
   });
 
-  const gamesList = games || [];
+  const gamesList = Array.isArray(games) ? games : [];
 
   const handleCreateGame = () => {
     if (user) {
