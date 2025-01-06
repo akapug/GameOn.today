@@ -81,6 +81,10 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
   const joinGame = useMutation({
     mutationFn: async () => {
+      if (game.isPrivate && !user) {
+        throw new Error("You must be logged in to join a private game");
+      }
+      
       const res = await fetch(`/api/games/${game.urlHash}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
