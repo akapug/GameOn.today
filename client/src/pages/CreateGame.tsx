@@ -86,8 +86,15 @@ export default function CreateGame() {
         title: values.title?.trim()
       };
 
-      console.log('Form values:', values);
-      console.log('Required fields:', requiredFields);
+      console.log('Form submission details:', {
+        values,
+        requiredFields,
+        user: user?.uid,
+        isAuthenticated: !!user,
+        activityIdType: typeof values.activityId,
+        dateType: typeof values.date,
+        playerThresholdType: typeof values.playerThreshold
+      });
 
       const missingFields = Object.entries(requiredFields)
         .filter(([_, value]) => !value)
