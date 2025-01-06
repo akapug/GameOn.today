@@ -25,29 +25,15 @@ export async function setupVite(app: Express, server: Server) {
   const vite = await createViteServer({
     ...viteConfig,
     configFile: false,
-    customLogger: {
-      ...viteLogger,
-      error: (msg, options) => {
-        if (
-          msg.includes("[TypeScript] Found 0 errors. Watching for file changes")
-        ) {
-          log("no errors found", "tsc");
-          return;
-        }
-
-        if (msg.includes("[TypeScript] ")) {
-          const [errors, summary] = msg.split("[TypeScript] ", 2);
-          log(`${summary} ${errors}\u001b[0m`, "tsc");
-          return;
-        } else {
-          viteLogger.error(msg, options);
-          process.exit(1);
-        }
-      },
-    },
+    customLogger: viteLogger,
     server: {
       middlewareMode: true,
       hmr: { server },
+      watch: {
+        usePolling: true,
+        interval: 100
+      },
+      host: '0.0.0.0'
     },
     appType: "custom",
   });
