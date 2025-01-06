@@ -3,11 +3,27 @@ import { db } from "../index";
 import { sql } from "drizzle-orm";
 
 async function main() {
-  // First get all current activity mappings
-  const currentActivities = await db.execute(sql`
-    SELECT id, name FROM activities ORDER BY id;
+  // First drop all constraints
+  await db.execute(sql`
+    ALTER TABLE games DROP CONSTRAINT IF EXISTS games_activity_id_activities_id_fk;
+    ALTER TABLE activities DROP CONSTRAINT IF EXISTS activities_name_idx;
+    ALTER TABLE activities DROP CONSTRAINT IF EXISTS sports_pkey;
   `);
-  
+
+  // Delete all duplicate activities keeping only the lowest ID for each name
+  await db.execute(sql`
+    WITH duplicates AS (
+      SELECT MIN(id) as keep_id, name
+      FROM activities
+      GROUP BY name
+    )
+    DELETE FROM activities a
+    WHERE NOT EXISTS (
+      SELECT 1 FROM duplicates d
+      WHERE d.keep_id = a.id AND d.name = a.name
+    );
+  `);
+
   const activityMapping = [
     { name: 'Basketball', newId: 1 },
     { name: 'Soccer', newId: 2 },
@@ -22,53 +38,27 @@ async function main() {
     { name: 'Golf', newId: 11 }
   ];
 
-  // Drop the unique constraint
-  await db.execute(sql`
-    ALTER TABLE activities DROP CONSTRAINT IF EXISTS activities_name_idx
-  `);
-
-  // First create temporary activities with new IDs
+  // Update games to use placeholder IDs first
   for (const mapping of activityMapping) {
-    const oldActivity = currentActivities.rows.find(a => a.name === mapping.name);
-    if (oldActivity) {
-      await db.execute(sql`
-        INSERT INTO activities (id, name, color, icon)
-        SELECT ${mapping.newId + 1000}, name, color, icon
-        FROM activities
-        WHERE name = ${mapping.name} AND id = ${oldActivity.id}
-      `);
-    }
+    await db.execute(sql`
+      UPDATE games 
+      SET activity_id = ${mapping.newId + 1000}
+      FROM activities
+      WHERE games.activity_id = activities.id 
+      AND activities.name = ${mapping.name}
+    `);
   }
 
-  // Update games to use temporary activity IDs
-  for (const mapping of activityMapping) {
-    const oldActivity = currentActivities.rows.find(a => a.name === mapping.name);
-    if (oldActivity) {
-      await db.execute(sql`
-        UPDATE games 
-        SET activity_id = ${mapping.newId + 1000}
-        WHERE activity_id = ${oldActivity.id}
-      `);
-    }
-  }
-
-  // Delete old activities
-  const tempIds = activityMapping.map(m => m.newId + 1000);
-  await db.execute(sql`
-    DELETE FROM activities 
-    WHERE id NOT IN (SELECT unnest(array[${sql.join(tempIds)}]::int[]))
-  `);
-
-  // Update temporary activities to final IDs
+  // Update activities to use new IDs
   for (const mapping of activityMapping) {
     await db.execute(sql`
       UPDATE activities 
       SET id = ${mapping.newId}
-      WHERE id = ${mapping.newId + 1000}
+      WHERE name = ${mapping.name}
     `);
   }
 
-  // Update games to use final activity IDs
+  // Update games to use final IDs
   for (const mapping of activityMapping) {
     await db.execute(sql`
       UPDATE games 
@@ -77,11 +67,14 @@ async function main() {
     `);
   }
 
-  // Recreate the unique constraint
+  // Recreate constraints
   await db.execute(sql`
-    ALTER TABLE activities ADD CONSTRAINT activities_name_idx UNIQUE (name)
+    ALTER TABLE activities ADD CONSTRAINT sports_pkey PRIMARY KEY (id);
+    ALTER TABLE activities ADD CONSTRAINT activities_name_idx UNIQUE (name);
+    ALTER TABLE games ADD CONSTRAINT games_activity_id_activities_id_fk 
+      FOREIGN KEY (activity_id) REFERENCES activities(id);
   `);
-  
+
   console.log('Activity IDs reset complete');
   process.exit(0);
 }
