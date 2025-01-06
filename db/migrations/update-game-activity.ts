@@ -1,6 +1,6 @@
 
-const { db } = require("../index");
-const { sql } = require("drizzle-orm");
+import { db } from "../index";
+import { sql } from "drizzle-orm";
 
 async function main() {
   await db.execute(sql`UPDATE games SET activity_id = 9 WHERE id = 60`);
