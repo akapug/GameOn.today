@@ -263,6 +263,7 @@ export default function Game() {
   };
 
   const calculateProgress = () => {
+    if (!game || !game.players) return 0;
     const total = game.players.reduce((sum, player) => {
       const likelihood = player.likelihood ? Number(player.likelihood) : 1;
       return sum + likelihood;
