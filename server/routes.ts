@@ -244,7 +244,8 @@ export function registerRoutes(app: Express): Server {
       res.json(gameWithWeather);
     } catch (error) {
       console.error("Failed to create game:", error);
-      res.status(500).json({ message: "Failed to create game" });
+      const errorMessage = error instanceof Error ? error.message : "Failed to create game";
+      res.status(500).json({ message: errorMessage, details: error });
     }
   });
 

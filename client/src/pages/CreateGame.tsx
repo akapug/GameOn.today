@@ -98,8 +98,8 @@ export default function CreateGame() {
       });
 
       if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error || "Failed to create game");
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to create game");
       }
 
       return res.json();
