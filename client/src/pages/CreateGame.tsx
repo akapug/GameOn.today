@@ -43,7 +43,7 @@ export default function CreateGame() {
       timezone: userTimezone,
       playerThreshold: 10,
       activityId: undefined,
-      creatorId: user?.uid || "",
+      creatorId: user?.uid || undefined,
       creatorName: user?.displayName || "",
       notes: "",
       webLink: "",
@@ -82,7 +82,7 @@ export default function CreateGame() {
         location: values.location?.trim(),
         date: values.date,
         playerThreshold: values.playerThreshold,
-        creatorId: values.creatorId || user?.uid,
+        creatorId: user?.uid,
         title: values.title?.trim()
       };
 
