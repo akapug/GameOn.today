@@ -315,14 +315,13 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               {game.players.map((player, index) => (
                 <div key={player.id} className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    {index + 1}. {player.name} {player.comment && <span className="ml-2">({player.comment})</span>} {/* Display comment */}
-                    {(!player.likelihood || player.likelihood === 1) ? (
+                    {index + 1}. {player.name} {(!player.likelihood || player.likelihood === 1) ? (
                       <span className="ml-1 text-xs text-green-600">Yes!</span>
                     ) : (
                       <span className="ml-1 text-xs text-yellow-600">
                         Maybe ({Math.round(Number(player.likelihood) * 100)}%)
                       </span>
-                    )}
+                    )} {player.comment && <span className="ml-2 text-muted-foreground">({player.comment})</span>}
                   </div>
                   <div className="flex gap-1">
                     {canEditResponse(player) && (
