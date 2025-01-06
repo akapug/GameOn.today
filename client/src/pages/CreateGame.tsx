@@ -115,8 +115,8 @@ export default function CreateGame() {
         recurrenceFrequency: values.isRecurring === true ? values.recurrenceFrequency : null,
         isPrivate: values.isPrivate === true,
         title: values.title || '',
-        creatorId: values.creatorId || '',
-        creatorName: values.creatorName || '',
+        creatorId: user?.uid,
+        creatorName: user?.displayName || '',
       };
 
       console.log('Sending game creation request:', gameData);
