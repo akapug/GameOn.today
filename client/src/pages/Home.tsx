@@ -51,8 +51,8 @@ export default function Home() {
     return isBefore(threeHoursAfterStart, now);
   };
 
-  // Only show public games in the main list
-  const publicGames = games.filter(game => !game.isPrivate);
+  // Only show public games in the main list if games data is available
+  const publicGames = games?.filter(game => !game.isPrivate) ?? [];
 
   const upcomingGames = filterGamesByActivity(
     publicGames.filter(game => !isArchived(game))
