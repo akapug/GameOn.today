@@ -374,6 +374,48 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Update player response
+  app.put("/api/games/:hash/players/:playerId", async (req, res) => {
+    try {
+      const { hash, playerId } = req.params;
+      const { name, email, likelihood, responseToken, comment } = req.body;
+
+      const game = await db.query.games.findFirst({
+        where: eq(games.urlHash, hash),
+        with: {
+          players: {
+            where: eq(players.id, parseInt(playerId))
+          }
+        }
+      });
+
+      if (!game || !game.players.length) {
+        return res.status(404).json({ message: "Player not found" });
+      }
+
+      const player = game.players[0];
+      if (player.responseToken !== responseToken) {
+        return res.status(403).json({ message: "Not authorized to edit response" });
+      }
+
+      const [updatedPlayer] = await db
+        .update(players)
+        .set({
+          name,
+          email,
+          likelihood,
+          comment
+        })
+        .where(eq(players.id, parseInt(playerId)))
+        .returning();
+
+      res.json(updatedPlayer);
+    } catch (error) {
+      console.error("Failed to update player:", error);
+      res.status(500).json({ message: "Failed to update player" });
+    }
+  });
+
   // Delete player response
   app.delete("/api/games/:hash/players/:playerId", async (req, res) => {
     try {
