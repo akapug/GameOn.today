@@ -119,6 +119,20 @@ export function registerRoutes(app: Express): Server {
     next();
   });
 
+  // Init endpoint for app initialization data
+  app.get("/api/init", async (_req, res) => {
+    try {
+      const allActivities = await db.query.activities.findMany();
+      res.json({
+        activities: allActivities,
+        serverTime: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Failed to fetch init data:", error);
+      res.status(500).json({ message: "Failed to fetch initialization data" });
+    }
+  });
+
   // Get user's games (both private and public)
   app.get("/api/games/user", async (req, res) => {
     try {
