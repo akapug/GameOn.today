@@ -1,15 +1,24 @@
-
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { neon } from '@neondatabase/serverless';
 import { sql } from "drizzle-orm";
 import ws from "ws";
 import * as schema from "@db/schema";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
+// Environment-specific database URLs
+const getDatabaseUrl = () => {
+  const env = process.env.NODE_ENV || 'development';
+  if (env === 'production') {
+    if (!process.env.PROD_DATABASE_URL) {
+      throw new Error("PROD_DATABASE_URL must be set for production environment");
+    }
+    return process.env.PROD_DATABASE_URL;
+  }
+
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL must be set for development environment");
+  }
+  return process.env.DATABASE_URL;
+};
 
 const getDb = () => {
   const maxRetries = 5;
@@ -17,22 +26,20 @@ const getDb = () => {
 
   const connect = async () => {
     try {
-      if (!process.env.DATABASE_URL) {
-        throw new Error("DATABASE_URL is not set");
-      }
+      const databaseUrl = getDatabaseUrl();
+      const env = process.env.NODE_ENV || 'development';
 
-      console.log("Attempting database connection...");
+      console.log(`Attempting database connection for ${env} environment...`);
       // Use connection pooling URL
-      const poolUrl = process.env.DATABASE_URL.replace('.aws-eu-central-1', '-pooler.aws-eu-central-1')
-                                           .replace('.aws-eu-west-1', '-pooler.aws-eu-west-1')
-                                           .replace('.aws-us-east-1', '-pooler.aws-us-east-1')
-                                           .replace('.aws-us-west-2', '-pooler.aws-us-west-2');
+      const poolUrl = databaseUrl.replace('.aws-eu-central-1', '-pooler.aws-eu-central-1')
+                                .replace('.aws-eu-west-1', '-pooler.aws-eu-west-1')
+                                .replace('.aws-us-east-1', '-pooler.aws-us-east-1')
+                                .replace('.aws-us-west-2', '-pooler.aws-us-west-2');
 
       const client = drizzle({
         connection: poolUrl,
         schema,
         ws: ws,
-        // Add specific type handling for booleans
         connectionOptions: {
           transformValues: {
             boolean: (val: unknown) => val === true || val === 'true' || val === 't',
@@ -42,14 +49,13 @@ const getDb = () => {
 
       // Test the connection
       const testQuery = await client.execute(sql`SELECT NOW()`);
-      console.log("Database connection test successful:", testQuery.rows[0]);
-      console.log("Database connection successful");
+      console.log(`${env} database connection test successful:`, testQuery.rows[0]);
       return client;
     } catch (error: any) {
       const errorMsg = error.message.toLowerCase();
       if (errorMsg.includes('endpoint is disabled') || errorMsg.includes('paused')) {
         console.error("Database connection error: Database appears to be paused. This may be due to billing issues or inactivity.");
-        throw new Error("Database is paused - please check your database status and billing information in the Replit Database tool");
+        throw new Error("Database is paused - please check your database status and billing information");
       }
 
       console.error("Database connection error:", error.message);
