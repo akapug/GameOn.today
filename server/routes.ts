@@ -338,13 +338,16 @@ export function registerRoutes(app: Express): Server {
       }
 
       // Generate a simple random string for response token
-      const responseToken = uid || generateRandomString();
-
-      if (email) {
-        const existingPlayer = game.players.find(p => p.email === email);
-        if (existingPlayer) {
-          return res.status(400).json({ message: "You have already joined this game" });
-        }
+      const responseToken = uid || generateGameHash();
+      
+      // Check for existing player by email or response token
+      const existingPlayer = game.players.find(p => 
+        (email && p.email === email) || 
+        (uid && p.responseToken === uid)
+      );
+      
+      if (existingPlayer) {
+        return res.status(400).json({ message: "You have already joined this game" });
       }
 
       const [newPlayer] = await db.insert(players).values({
