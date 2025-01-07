@@ -50,15 +50,12 @@ export const activityColors = {
   purple: "hsl(280 68.2% 50.6%)",
 };
 
+import { activityConfig } from "../../db/config/activities";
+
 export function useActivities() {
-  return useQuery<Activity[]>({
-    queryKey: queryKeys.activities,
-    queryFn: async () => {
-      const res = await fetch("/api/activities");
-      if (!res.ok) {
-        throw new Error(`Failed to fetch activities: ${res.status}`);
-      }
-      return res.json();
-    },
-  });
+  return {
+    data: activityConfig,
+    error: null,
+    isLoading: false
+  };
 }
