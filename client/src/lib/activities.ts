@@ -1,47 +1,8 @@
-
 import { useQuery } from "@tanstack/react-query";
-import { type Activity } from "@db/schema";
+import { type EventType } from "@db/schema";
 import { queryKeys } from "./queryClient";
 
-export const defaultActivities: Omit<Activity, "id">[] = [
-  {
-    name: "Frisbee",
-    color: "emerald",
-    icon: "disc",
-  },
-  {
-    name: "Basketball",
-    color: "orange",
-    icon: "circle",
-  },
-  {
-    name: "Soccer",
-    color: "green",
-    icon: "circle-dot",
-  },
-  {
-    name: "Volleyball",
-    color: "yellow",
-    icon: "circle",
-  },
-  {
-    name: "Poker",
-    color: "red",
-    icon: "diamond",
-  },
-  {
-    name: "Board Games",
-    color: "purple",
-    icon: "dice",
-  },
-  {
-    name: "Going Out",
-    color: "purple",
-    icon: "wine",
-  },
-];
-
-export const activityColors = {
+export const eventTypeColors = {
   emerald: "hsl(152.2 76% 60.6%)",
   orange: "hsl(24.6 95% 53.1%)",
   green: "hsl(142.1 76.2% 36.3%)",
@@ -50,12 +11,26 @@ export const activityColors = {
   purple: "hsl(280 68.2% 50.6%)",
 };
 
-import { activityConfig } from "../../../db/config/activities";
-
+// This function is kept for backwards compatibility
+// but should be replaced with useEventTypes hook
 export function useActivities() {
+  const { data: eventTypes, error, isLoading } = useQuery<EventType[]>({
+    queryKey: ['/api/event-types'],
+  });
+
   return {
-    data: activityConfig,
-    error: null,
-    isLoading: false
+    data: eventTypes?.map(et => ({
+      ...et,
+      color: et.color || 'emerald',
+      icon: et.icon || 'circle'
+    })),
+    error,
+    isLoading
   };
+}
+
+export function useEventTypes() {
+  return useQuery<EventType[]>({
+    queryKey: ['/api/event-types'],
+  });
 }

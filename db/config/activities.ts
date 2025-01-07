@@ -1,5 +1,4 @@
-
-export const activityConfig = [
+export const eventTypeConfig = [
   { id: 1, name: "Frisbee", color: "emerald", icon: "disc" },
   { id: 2, name: "Basketball", color: "orange", icon: "circle" },
   { id: 3, name: "Soccer", color: "green", icon: "circle-dot" },

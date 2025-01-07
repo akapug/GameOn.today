@@ -1,5 +1,5 @@
-import { activityColors } from "./activities";
+import { eventTypeColors } from "./activities";
 
-export function setActivityTheme(color: keyof typeof activityColors) {
-  document.documentElement.style.setProperty("--primary", activityColors[color]);
+export function setEventTypeTheme(color: keyof typeof eventTypeColors) {
+  document.documentElement.style.setProperty("--primary", eventTypeColors[color]);
 }

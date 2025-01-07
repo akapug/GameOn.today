@@ -1,2 +1,2 @@
-// This file is deprecated and replaced by EventTypeSelect.tsx
-// File to be deleted as part of the game-to-event system refactoring
+// This component has been replaced by EventTypeSelect.tsx
+// This file is being removed as part of the game-to-event system refactoring
