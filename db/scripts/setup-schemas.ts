@@ -3,23 +3,19 @@ import { sql } from "drizzle-orm";
 
 async function main() {
   console.log('Setting up database schemas...');
+  const schema = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+  await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+  console.log(`Set database search_path to schema: ${schema}`);
+
+  console.log(`${schema.toUpperCase()} MODE: Using ${schema} schema`);
 
   try {
-    // Create schemas first
-    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS production`);
-    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS development`);
+    // Create schemas if they don't exist
+    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS ${sql.identifier(schema)}`);
 
     // Create event_types table first (replaces activities)
     await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS production.event_types (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        color TEXT NOT NULL,
-        icon TEXT NOT NULL
-      )`);
-
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS development.event_types (
+      CREATE TABLE IF NOT EXISTS ${sql.identifier(schema)}.event_types (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         color TEXT NOT NULL,
@@ -33,10 +29,7 @@ async function main() {
         IF NOT EXISTS (
           SELECT 1 FROM pg_constraint WHERE conname = 'event_types_name_key'
         ) THEN
-          ALTER TABLE production.event_types 
-          ADD CONSTRAINT event_types_name_key UNIQUE (name);
-
-          ALTER TABLE development.event_types 
+          ALTER TABLE ${sql.identifier(schema)}.event_types 
           ADD CONSTRAINT event_types_name_key UNIQUE (name);
         END IF;
       END $$;
@@ -44,11 +37,11 @@ async function main() {
 
     // Create events table
     await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS production.events (
+      CREATE TABLE IF NOT EXISTS ${sql.identifier(schema)}.events (
         id SERIAL PRIMARY KEY,
         url_hash TEXT NOT NULL UNIQUE,
         is_private BOOLEAN NOT NULL DEFAULT false,
-        event_type_id INTEGER REFERENCES production.event_types(id),
+        event_type_id INTEGER REFERENCES ${sql.identifier(schema)}.event_types(id),
         title TEXT NOT NULL,
         location TEXT NOT NULL,
         date TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -62,49 +55,14 @@ async function main() {
         web_link TEXT,
         is_recurring BOOLEAN NOT NULL DEFAULT false,
         recurrence_frequency TEXT,
-        parent_event_id INTEGER REFERENCES production.events(id)
-      )`);
-
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS development.events (
-        id SERIAL PRIMARY KEY,
-        url_hash TEXT NOT NULL UNIQUE,
-        is_private BOOLEAN NOT NULL DEFAULT false,
-        event_type_id INTEGER REFERENCES development.event_types(id),
-        title TEXT NOT NULL,
-        location TEXT NOT NULL,
-        date TIMESTAMP WITH TIME ZONE NOT NULL,
-        participant_threshold INTEGER NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        creator_id TEXT NOT NULL,
-        creator_name TEXT NOT NULL,
-        timezone TEXT NOT NULL,
-        end_time TIMESTAMP WITH TIME ZONE,
-        notes TEXT,
-        web_link TEXT,
-        is_recurring BOOLEAN NOT NULL DEFAULT false,
-        recurrence_frequency TEXT,
-        parent_event_id INTEGER REFERENCES development.events(id)
+        parent_event_id INTEGER REFERENCES ${sql.identifier(schema)}.events(id)
       )`);
 
     // Create participants table
     await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS production.participants (
+      CREATE TABLE IF NOT EXISTS ${sql.identifier(schema)}.participants (
         id SERIAL PRIMARY KEY,
-        event_id INTEGER REFERENCES production.events(id),
-        name TEXT NOT NULL,
-        email TEXT,
-        phone TEXT,
-        joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        likelihood DECIMAL NOT NULL DEFAULT 1,
-        response_token TEXT NOT NULL,
-        comment TEXT
-      )`);
-
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS development.participants (
-        id SERIAL PRIMARY KEY,
-        event_id INTEGER REFERENCES development.events(id),
+        event_id INTEGER REFERENCES ${sql.identifier(schema)}.events(id),
         name TEXT NOT NULL,
         email TEXT,
         phone TEXT,
@@ -123,35 +81,8 @@ async function main() {
     ];
 
     for (const eventType of defaultEventTypes) {
-      // First ensure schemas exist
-      await db.execute(sql`CREATE SCHEMA IF NOT EXISTS production`);
-      await db.execute(sql`CREATE SCHEMA IF NOT EXISTS development`);
-      
-      // Then create event_types tables if they don't exist
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS production.event_types (
-          id SERIAL PRIMARY KEY,
-          name TEXT NOT NULL UNIQUE,
-          color TEXT NOT NULL,
-          icon TEXT NOT NULL
-        )`);
-        
-      await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS development.event_types (
-          id SERIAL PRIMARY KEY,
-          name TEXT NOT NULL UNIQUE,
-          color TEXT NOT NULL,
-          icon TEXT NOT NULL
-        )`);
-
-      // Insert the data
-      await db.execute(sql`
-        INSERT INTO production.event_types (name, color, icon)
-        VALUES (${eventType.name}, ${eventType.color}, ${eventType.icon})
-        ON CONFLICT (name) DO NOTHING`);
-
-      await db.execute(sql`
-        INSERT INTO development.event_types (name, color, icon)
+        INSERT INTO ${sql.identifier(schema)}.event_types (name, color, icon)
         VALUES (${eventType.name}, ${eventType.color}, ${eventType.icon})
         ON CONFLICT (name) DO NOTHING`);
     }
