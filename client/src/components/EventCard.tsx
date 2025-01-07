@@ -90,9 +90,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
       const data = await res.json();
       
-      // Update the local event data first
-      event.eventTypeId = data.eventTypeId;
-      event.eventType = data.eventType;
+      // Update all event properties
+      Object.assign(event, data);
 
       // Then invalidate queries
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
