@@ -90,11 +90,18 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
       const data = await res.json();
       
-      // Update all event properties
+      // Update all event properties including event type
       Object.assign(event, data);
+      
+      // Update form state with new data
+      setFormState(prev => ({
+        ...prev,
+        eventTypeId: data.eventTypeId,
+      }));
 
       // Then invalidate queries
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+      await queryClient.invalidateQueries({ queryKey: ['/api/event-types'] });
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
       
       toast({ title: "Success", description: "Event updated successfully" });
