@@ -11,11 +11,11 @@ export function formatWithTimezone(date: string | Date, formatStr: string, timez
 }
 
 // Convert local time to UTC for DB storage
-export function toUTC(dateStr: string, timezone: string): string {
-  if (!dateStr) return '';
+export function toUTC(dateStr: string, timezone: string): Date {
+  if (!dateStr) return new Date();
   const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return '';
-  return date.toISOString();
+  if (isNaN(date.getTime())) return new Date();
+  return date;
 }
 
 // Convert UTC time from DB to specified timezone for form inputs
