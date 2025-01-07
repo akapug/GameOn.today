@@ -244,10 +244,10 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <div className="flex flex-wrap items-center text-sm gap-x-4">
               <div className="flex items-center">
                 <Calendar className="mr-2 h-4 w-4" />
-                <span>{formatWithTimezone(event.date, "PPP p", event.timezone || 'UTC')}</span>
+                <span>{formatWithTimezone(event.date, "PPP p z", event.timezone || 'UTC')}</span>
                 {event.endTime && (
                   <span className="text-muted-foreground ml-1">
-                    - {formatWithTimezone(event.endTime, "p", event.timezone || 'UTC')}
+                    - {formatWithTimezone(event.endTime, "p z", event.timezone || 'UTC')}
                   </span>
                 )}
               </div>
@@ -607,8 +607,11 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <Input
                 id="date"
                 type="datetime-local"
-                value={utcToLocalInput(formState.date, event.timezone)}
-                onChange={(e) => setFormState(prev => ({ ...prev, date: e.target.value }))}
+                value={utcToLocalInput(formState.date, event.timezone || 'UTC')}
+                onChange={(e) => setFormState(prev => ({ 
+                  ...prev, 
+                  date: localToUTCInput(e.target.value, event.timezone || 'UTC')
+                }))}
               />
             </div>
             <div className="space-y-2">
