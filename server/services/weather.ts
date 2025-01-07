@@ -1,14 +1,9 @@
 
-import OpenWeatherMap from 'openweathermap-ts';
 import fetch from 'node-fetch';
 
 if (!process.env.OPENWEATHER_API_KEY) {
   throw new Error('OPENWEATHER_API_KEY environment variable is required');
 }
-
-const openWeather = new OpenWeatherMap({
-  apiKey: process.env.OPENWEATHER_API_KEY
-});
 
 export interface WeatherInfo {
   temperature: number;
@@ -45,12 +40,16 @@ export async function getWeatherForecast(location: string, date: Date) {
       return null;
     }
 
-    const forecast = await openWeather.getThreeHourForecastByGeoCoordinates(
-      coordinates.lat,
-      coordinates.lon
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${process.env.OPENWEATHER_API_KEY}&units=imperial`
     );
+    const data = await response.json();
+    
+    if (!data || !data.list) {
+      return null;
+    }
 
-    return forecast;
+    return data;
   } catch (error) {
     console.error('Error fetching weather:', error);
     return null;
