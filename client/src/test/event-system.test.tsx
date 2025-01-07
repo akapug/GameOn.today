@@ -102,9 +102,10 @@ describe('Event System', () => {
       await userEvent.click(submitButton);
 
       // Wait for validation messages
-      await screen.findByText('Event type is required');
-      await screen.findByText('Title is required');
-      await screen.findByText('Location is required');
+      const errorMessages = await screen.findAllByRole('alert');
+      expect(errorMessages.some(el => el.textContent === 'Event type is required')).toBe(true);
+      expect(errorMessages.some(el => el.textContent === 'Title is required')).toBe(true);
+      expect(errorMessages.some(el => el.textContent === 'Location is required')).toBe(true);
     });
 
     it('handles event creation form submission', async () => {

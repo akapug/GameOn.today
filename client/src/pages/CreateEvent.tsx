@@ -377,15 +377,13 @@ export default function CreateEvent() {
                   />
                 )}
 
-                {form.formState.errors.eventTypeId && (
-                  <p className="text-destructive text-sm">{form.formState.errors.eventTypeId.message}</p>
-                )}
-                {form.formState.errors.title && (
-                  <p className="text-destructive text-sm">{form.formState.errors.title.message}</p>
-                )}
-                {form.formState.errors.location && (
-                  <p className="text-destructive text-sm">{form.formState.errors.location.message}</p>
-                )}
+                <div className="space-y-2">
+                  {Object.entries(form.formState.errors).map(([field, error]) => (
+                    <p key={field} className="text-destructive text-sm" role="alert">
+                      {error?.message}
+                    </p>
+                  ))}
+                </div>
                 <Button 
                   type="submit" 
                   className="w-full" 
