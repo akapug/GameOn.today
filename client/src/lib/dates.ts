@@ -4,6 +4,7 @@ export function formatWithTimezone(date: string | Date, formatStr: string, timez
   if (!date) return '';
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '';
+  // Format the UTC date directly in the target timezone
   return formatInTimeZone(d, timezone || 'UTC', formatStr);
 }
 
