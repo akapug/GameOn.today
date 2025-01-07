@@ -31,8 +31,8 @@ export default defineConfig({
       clientPort: 443,
       protocol: 'wss',
       host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
-      port: 443,
-      secure: true
+      timeout: 5000,
+      overlay: false
     }
   },
 });
