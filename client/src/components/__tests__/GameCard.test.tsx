@@ -35,9 +35,14 @@ vi.mock('@tanstack/react-query', async () => {
   };
 });
 
-const queryClient = new QueryClient();
-
 describe('EventCard', () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false }
+    }
+  });
+
   const mockEvent = {
     id: 1,
     urlHash: 'test-event',
@@ -47,14 +52,13 @@ describe('EventCard', () => {
     participantThreshold: 10,
     participants: [],
     timezone: 'America/Los_Angeles',
-    eventTypeId: 1
+    eventTypeId: 1,
+    eventType: { id: 1, name: 'Test Type', color: '#000000' }
   };
 
-  const wrapper = ({ children }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  beforeEach(() => {
+    queryClient.clear();
+  });
 
   it('should render event title', () => {
     render(<EventCard event={mockEvent} />, { wrapper });
