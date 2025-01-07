@@ -1,9 +1,11 @@
-
 import { db } from "../index";
 import { sql } from "drizzle-orm";
+import { activityConfig } from "../config/activities";
 
 async function reorderActivities(schema: string) {
-  // First drop constraints
+  console.log(`Reordering activities in ${schema} schema...`);
+
+  // First drop constraints to allow modifications
   await db.execute(sql`
     ALTER TABLE ${sql.identifier(schema)}.games 
     DROP CONSTRAINT IF EXISTS games_activity_id_activities_id_fk;
@@ -14,7 +16,7 @@ async function reorderActivities(schema: string) {
     DROP CONSTRAINT IF EXISTS activities_pkey;
   `);
 
-  // Clean up duplicates keeping lowest IDs
+  // Remove duplicates keeping only lowest ID entry for each name
   await db.execute(sql`
     WITH duplicates AS (
       SELECT MIN(id) as keep_id, name
@@ -28,52 +30,37 @@ async function reorderActivities(schema: string) {
     );
   `);
 
-  // Now add primary key constraint
+  // Update activities using temporary IDs first
+  for (const activity of activityConfig) {
+    const tempId = activity.id + 1000;
+
+    await db.execute(sql`
+      UPDATE ${sql.identifier(schema)}.games 
+      SET activity_id = ${tempId}
+      FROM ${sql.identifier(schema)}.activities
+      WHERE games.activity_id = activities.id 
+      AND activities.name = ${activity.name};
+    `);
+
+    await db.execute(sql`
+      UPDATE ${sql.identifier(schema)}.activities 
+      SET id = ${activity.id}
+      WHERE name = ${activity.name};
+    `);
+
+    await db.execute(sql`
+      UPDATE ${sql.identifier(schema)}.games 
+      SET activity_id = ${activity.id}
+      WHERE activity_id = ${tempId};
+    `);
+  }
+
+  // Add back constraints
   await db.execute(sql`
     ALTER TABLE ${sql.identifier(schema)}.activities 
     ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
   `);
 
-  const activityOrder = [
-    { oldId: 9, name: "Frisbee" },
-    { oldId: 2, name: "Basketball" },
-    { oldId: 3, name: "Soccer" },
-    { oldId: 4, name: "Volleyball" },
-    { oldId: 5, name: "Poker" },
-    { oldId: 6, name: "Board Games" },
-    { oldId: 7, name: "Going Out" },
-    { oldId: 8, name: "Tennis" },
-    { oldId: 10, name: "Pickleball" },
-    { oldId: 11, name: "Golf" },
-    { oldId: 8, name: "Other" }
-  ];
-
-  for (let i = 0; i < activityOrder.length; i++) {
-    const newId = i + 1;
-    const { oldId, name } = activityOrder[i];
-    
-    const tempId = oldId + 1000;
-    
-    await db.execute(sql`
-      UPDATE ${sql.identifier(schema)}.games 
-      SET activity_id = ${tempId}
-      WHERE activity_id = ${oldId}
-    `);
-    
-    await db.execute(sql`
-      UPDATE ${sql.identifier(schema)}.activities 
-      SET id = ${newId}
-      WHERE id = ${oldId} AND name = ${name}
-    `);
-    
-    await db.execute(sql`
-      UPDATE ${sql.identifier(schema)}.games 
-      SET activity_id = ${newId}
-      WHERE activity_id = ${tempId}
-    `);
-  }
-
-  // Recreate foreign key constraint
   await db.execute(sql`
     ALTER TABLE ${sql.identifier(schema)}.games 
     ADD CONSTRAINT games_activity_id_activities_id_fk 
