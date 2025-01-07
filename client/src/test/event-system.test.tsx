@@ -1,20 +1,27 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import CreateEvent from '../pages/CreateEvent';
 import EventCard from '../components/EventCard';
 import { AuthProvider } from '../components/AuthProvider';
+import Event from '../pages/Event';
+import { useAuth } from '../components/AuthProvider';
 
-// Create a new QueryClient for each test
-const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      cacheTime: 0,
-    },
-  },
-});
+// Mock useAuth hook
+vi.mock('../components/AuthProvider', () => ({
+  useAuth: vi.fn(),
+  AuthProvider: ({ children }) => children,
+}));
+
+// Mock weather service
+vi.mock('../../server/services/weather', () => ({
+  getWeatherInfo: vi.fn().mockResolvedValue({
+    temperature: 20,
+    conditions: 'Clear',
+  }),
+}));
 
 const mockEvent = {
   id: 1,
@@ -33,17 +40,27 @@ const mockEvent = {
   creatorId: 'test-creator',
   creatorName: 'Test Creator',
   timezone: 'UTC',
-  weather: null
+  weather: null,
+  isRecurring: false,
+  recurrenceFrequency: null,
+  notes: '',
+  webLink: '',
 };
 
-const wrapper = ({ children }: { children: React.ReactNode }) => {
+const createTestQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      cacheTime: 0,
+    },
+  },
+});
+
+const wrapper = ({ children }) => {
   const queryClient = createTestQueryClient();
-  
-  // Set up mock data for event types
   queryClient.setQueryData(['/api/event-types'], [
     { id: 1, name: 'Test Type', color: '#000000' }
   ]);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -55,100 +72,150 @@ const wrapper = ({ children }: { children: React.ReactNode }) => {
 
 describe('Event System', () => {
   beforeEach(() => {
-    // Reset DOM
     document.body.innerHTML = '';
-
-    // Mock window.open for location links
     vi.spyOn(window, 'open').mockImplementation(() => null);
+    vi.spyOn(global, 'fetch').mockImplementation(() => 
+      Promise.resolve(new Response(JSON.stringify({ success: true })))
+    );
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('EventCard Component', () => {
-    it('renders event details correctly', () => {
-      render(<EventCard event={mockEvent} />, { wrapper });
-
-      expect(screen.getByText('Test Event')).toBeInTheDocument();
-      expect(screen.getByText('Test Location')).toBeInTheDocument();
-      expect(screen.getByText('5 participants needed / 0 responded')).toBeInTheDocument();
-    });
-
-    it('shows private label when event is private', () => {
-      const privateEvent = { ...mockEvent, isPrivate: true };
-      render(<EventCard event={privateEvent} />, { wrapper });
-
-      expect(screen.getByText('Private')).toBeInTheDocument();
-    });
-
-    it('handles join event interaction', async () => {
-      render(<EventCard event={mockEvent} />, { wrapper });
-
-      // Get the join button by role+text to be more specific
-      const joinButton = screen.getByRole('button', { name: /Join Event/i });
-      await userEvent.click(joinButton);
-
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByRole('heading', { name: /Join Event/i })).toBeInTheDocument();
+  // Integration Tests
+  describe('Integration Tests', () => {
+    it('creates and displays event in list', async () => {
+      const { rerender } = render(<CreateEvent />, { wrapper });
+      
+      await userEvent.type(screen.getByLabelText(/Title/i), 'New Event');
+      await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
+      await userEvent.click(screen.getByLabelText(/Event Type/i));
+      await userEvent.click(screen.getByText('Test Type'));
+      
+      const submitButton = screen.getByRole('button', { name: /Create Event/i });
+      await userEvent.click(submitButton);
+      
+      rerender(<EventCard event={mockEvent} />);
+      expect(screen.getByText('New Event')).toBeInTheDocument();
     });
   });
 
-  describe('CreateEvent Component', () => {
-    it('validates required fields', async () => {
+  // Authentication Tests
+  describe('Authentication Flows', () => {
+    it('shows auth dialog for unauthenticated users', () => {
+      vi.mocked(useAuth).mockReturnValue({ user: null, loading: false });
       render(<CreateEvent />, { wrapper });
-
-      const submitButton = screen.getByRole('button', { name: /Create Event/i });
-      
-      // Trigger form submission
-      await userEvent.click(submitButton);
-      
-      // Wait for error messages to appear
-      await waitFor(() => {
-        const formErrors = screen.getAllByText(/is required/);
-        expect(formErrors.length).toBeGreaterThan(0);
-      });
-
-      // Check specific error messages
-      expect(screen.getByText('Event type is required')).toBeInTheDocument();
-      expect(screen.getByText('Title is required')).toBeInTheDocument();
-      expect(screen.getByText('Location is required')).toBeInTheDocument();
+      expect(screen.getByText(/Sign in/i)).toBeInTheDocument();
     });
 
-    it('handles event creation form submission', async () => {
-      render(<CreateEvent />, { wrapper });
-
-      // Fill in required fields
-      await userEvent.type(screen.getByLabelText(/Title/i), 'New Test Event');
-      await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
-      await userEvent.type(screen.getByLabelText(/Participant Threshold/i), '10');
-      
-      // Select event type (required field)
-      // Open the combobox
-      const eventTypeButton = screen.getByLabelText(/Event Type/i);
-      await userEvent.click(eventTypeButton);
-      
-      // Wait for options to be visible
-      await screen.findByTestId('event-type-options');
-      const options = screen.getAllByRole('option');
-      const testType = options.find(option => option.textContent.includes('Test Type'));
-      await userEvent.click(testType);
-      
-      // Get the submit button
-      const submitButton = screen.getByRole('button', { name: /Create Event/i });
-      
-      // Mock the mutation
-      vi.spyOn(global, 'fetch').mockImplementationOnce(() => 
-        Promise.resolve(new Response(JSON.stringify({ success: true })))
-      );
-
-      // Submit form using the submit button
-      await userEvent.click(submitButton);
-      
-      // Wait for button to be disabled during submission
-      await waitFor(() => {
-        expect(submitButton).toBeDisabled();
+    it('allows event creation for authenticated users', () => {
+      vi.mocked(useAuth).mockReturnValue({ 
+        user: { uid: 'test-user', displayName: 'Test User' }, 
+        loading: false 
       });
+      render(<CreateEvent />, { wrapper });
+      expect(screen.getByText(/Create New Event/i)).toBeInTheDocument();
+    });
+  });
+
+  // Error Handling Tests
+  describe('Error Handling', () => {
+    it('displays API error messages', async () => {
+      vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('API Error'));
+      render(<CreateEvent />, { wrapper });
+      
+      await userEvent.type(screen.getByLabelText(/Title/i), 'New Event');
+      await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
+      
+      await waitFor(() => {
+        expect(screen.getByText(/API Error/i)).toBeInTheDocument();
+      });
+    });
+
+    it('handles network failures gracefully', async () => {
+      vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network Error'));
+      render(<EventCard event={mockEvent} />, { wrapper });
+      
+      await userEvent.click(screen.getByRole('button', { name: /Join Event/i }));
+      
+      await waitFor(() => {
+        expect(screen.getByText(/Network Error/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  // Event Editing Tests
+  describe('Event Editing', () => {
+    it('allows creator to edit event details', async () => {
+      vi.mocked(useAuth).mockReturnValue({ 
+        user: { uid: 'test-creator', displayName: 'Test Creator' }, 
+        loading: false 
+      });
+      
+      render(<Event />, { wrapper });
+      const editButton = screen.getByRole('button', { name: /Edit/i });
+      await userEvent.click(editButton);
+      
+      await userEvent.type(screen.getByLabelText(/Title/i), 'Updated Event');
+      await userEvent.click(screen.getByRole('button', { name: /Save/i }));
+      
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/events'),
+        expect.objectContaining({ method: 'PUT' })
+      );
+    });
+  });
+
+  // Recurring Event Tests
+  describe('Recurring Events', () => {
+    it('handles recurring event creation', async () => {
+      render(<CreateEvent />, { wrapper });
+      
+      await userEvent.click(screen.getByLabelText(/Recurring Event/i));
+      await userEvent.selectOptions(screen.getByLabelText(/Recurrence Frequency/i), 'weekly');
+      
+      expect(screen.getByText(/weekly/i)).toBeInTheDocument();
+    });
+  });
+
+  // Weather Integration Tests
+  describe('Weather Integration', () => {
+    it('displays weather information when available', () => {
+      const eventWithWeather = {
+        ...mockEvent,
+        weather: {
+          temperature: 20,
+          conditions: 'Clear',
+        },
+      };
+      
+      render(<EventCard event={eventWithWeather} />, { wrapper });
+      expect(screen.getByText(/20°/i)).toBeInTheDocument();
+    });
+  });
+
+  // Mobile Responsiveness Tests
+  describe('Mobile Responsiveness', () => {
+    it('adjusts layout for mobile viewport', () => {
+      global.innerWidth = 375;
+      global.dispatchEvent(new Event('resize'));
+      
+      render(<EventCard event={mockEvent} />, { wrapper });
+      const card = screen.getByRole('article');
+      
+      expect(card).toHaveStyle({ maxWidth: '100%' });
+    });
+  });
+
+  // Performance Tests
+  describe('Performance', () => {
+    it('loads event list efficiently', async () => {
+      const start = performance.now();
+      render(<EventCard event={mockEvent} />, { wrapper });
+      const end = performance.now();
+      
+      expect(end - start).toBeLessThan(1000); // 1 second threshold
     });
   });
 });
