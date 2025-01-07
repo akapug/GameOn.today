@@ -27,10 +27,15 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    hmr: false,
-    logger: {
-      info: true,
-      error: true
-    }
+    hmr: {
+      clientPort: 443,
+      timeout: 30000,
+      path: '/@hmr'
+    },
+    watch: {
+      usePolling: false,
+      interval: 1000
+    },
+    middlewareMode: false
   },
 });
