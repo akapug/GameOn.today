@@ -51,7 +51,10 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
     participantThreshold: event.participantThreshold,
     notes: event.notes || '',
     isPrivate: event.isPrivate,
-    eventTypeId: event.eventTypeId
+    eventTypeId: event.eventTypeId,
+    webLink: event.webLink || '',
+    isRecurring: event.isRecurring || false,
+    recurrenceFrequency: event.recurrenceFrequency || null
   });
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -61,7 +64,17 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
     const updatedEvent = {
       ...event,
-      ...formState,
+      title: formState.title,
+      location: formState.location,
+      date: formState.date,
+      endTime: formState.endTime,
+      participantThreshold: formState.participantThreshold,
+      notes: formState.notes,
+      isPrivate: formState.isPrivate,
+      eventTypeId: formState.eventTypeId,
+      webLink: formState.webLink,
+      isRecurring: formState.isRecurring,
+      recurrenceFrequency: formState.recurrenceFrequency
     };
 
     try {
