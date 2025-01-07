@@ -163,12 +163,7 @@ export function registerRoutes(app: Express): Server {
       });
 
       const eventsWithWeather = await Promise.all(
-        userEvents.map(async event => ({
-          ...event,
-          isRecurring: event.isRecurring === true || event.isRecurring === 't',
-          isPrivate: event.isPrivate === true || event.isPrivate === 't',
-          weather: await getWeatherForecast(event.location, new Date(event.date))
-        }))
+        userEvents.map(getEventWithWeather)
       );
 
       res.json(eventsWithWeather);
@@ -190,12 +185,7 @@ export function registerRoutes(app: Express): Server {
       });
 
       const eventsWithWeather = await Promise.all(
-        allEvents.map(async event => ({
-          ...event,
-          isRecurring: event.isRecurring === true || event.isRecurring === 't',
-          isPrivate: event.isPrivate === true || event.isPrivate === 't',
-          weather: await getWeatherForecast(event.location, new Date(event.date))
-        }))
+        allEvents.map(getEventWithWeather)
       );
 
       res.json(eventsWithWeather);
@@ -221,13 +211,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "Event not found" });
       }
 
-      const eventWithWeather = {
-        ...event,
-        isRecurring: event.isRecurring === true || event.isRecurring === 't',
-        isPrivate: event.isPrivate === true || event.isPrivate === 't',
-        weather: await getWeatherForecast(event.location, new Date(event.date))
-      };
-
+      const eventWithWeather = await getEventWithWeather(event);
       res.json(eventWithWeather);
     } catch (error) {
       console.error("Failed to fetch event:", error);
