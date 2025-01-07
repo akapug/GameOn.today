@@ -292,7 +292,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <div className="flex items-center text-sm mb-2">
               <Users className="mr-2 h-4 w-4" />
               <span>
-                {event.participantThreshold} participants needed / {event.participants.length || 0} responded
+                {event.participantThreshold} participants needed / {event.participants?.length || 0} responded
                 <span className="text-xs text-muted-foreground ml-1">
                   (~{((event.participantThreshold || 0) * (progressPercentage / 100)).toFixed(1)} expected)
                 </span>
