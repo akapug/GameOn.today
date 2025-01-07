@@ -26,12 +26,13 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    host: true,
+    host: '0.0.0.0',
     hmr: {
       clientPort: 443,
       protocol: 'wss',
       host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
-      port: 443
+      port: 443,
+      secure: true
     }
   },
 });
