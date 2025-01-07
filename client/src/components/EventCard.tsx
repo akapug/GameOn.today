@@ -89,11 +89,15 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       }
 
       const data = await res.json();
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.events.all }),
-        queryClient.invalidateQueries({ queryKey: ['/api/event-types'] }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) })
-      ]);
+      
+      // Update the local event data first
+      event.eventTypeId = data.eventTypeId;
+      event.eventType = data.eventType;
+
+      // Then invalidate queries
+      await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
+      
       toast({ title: "Success", description: "Event updated successfully" });
       setIsEventEditDialogOpen(false);
     } catch (error) {
