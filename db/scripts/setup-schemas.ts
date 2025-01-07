@@ -10,15 +10,18 @@ async function main() {
     await db.execute(sql`CREATE SCHEMA IF NOT EXISTS production`);
     await db.execute(sql`CREATE SCHEMA IF NOT EXISTS development`);
 
-    // Create production tables with constraints
+    // Create production tables first
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS production.activities (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         color TEXT NOT NULL,
-        icon TEXT NOT NULL,
-        CONSTRAINT activities_name_key UNIQUE (name)
+        icon TEXT NOT NULL
       )`);
+
+    await db.execute(sql`
+      ALTER TABLE production.activities 
+      ADD CONSTRAINT activities_name_key UNIQUE (name)`);
 
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS production.games (
@@ -55,15 +58,18 @@ async function main() {
         comment TEXT
       )`);
 
-    // Create development tables with constraints
+    // Create development tables
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS development.activities (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         color TEXT NOT NULL,
-        icon TEXT NOT NULL,
-        CONSTRAINT activities_name_key UNIQUE (name)
+        icon TEXT NOT NULL
       )`);
+
+    await db.execute(sql`
+      ALTER TABLE development.activities 
+      ADD CONSTRAINT activities_name_key UNIQUE (name)`);
 
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS development.games (
@@ -112,12 +118,12 @@ async function main() {
       await db.execute(sql`
         INSERT INTO production.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT ON CONSTRAINT activities_name_key DO NOTHING`);
+        ON CONFLICT (name) DO NOTHING`);
       
       await db.execute(sql`
         INSERT INTO development.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT ON CONSTRAINT activities_name_key DO NOTHING`);
+        ON CONFLICT (name) DO NOTHING`);
     }
 
     console.log('Schema setup completed successfully');
