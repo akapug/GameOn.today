@@ -24,12 +24,17 @@ const getDb = () => {
 
       console.log(`Attempting database connection for ${env} environment using ${schemaName} schema...`);
 
-      // Create the Drizzle client
-      const client = drizzle({
-        connection: databaseUrl,
-        schema,
-        ws: ws,
+      const connectionPromise = new Promise((resolve, reject) => {
+        const client = drizzle({
+          connection: databaseUrl,
+          schema,
+          ws: ws,
+        });
+        resolve(client);
+        setTimeout(() => reject(new Error('Database connection timeout')), 5000);
       });
+
+      const client = await connectionPromise;
 
       // Set schema explicitly before any operations
       await client.execute(sql`SET search_path TO ${sql.identifier(schemaName)}`);
