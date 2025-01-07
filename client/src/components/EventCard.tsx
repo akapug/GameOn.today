@@ -97,14 +97,22 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
       const data = await res.json();
 
-      // Update the local event data first
-      event.eventTypeId = formState.eventTypeId;
-      event.eventType = data.eventType;
+      // Update cache with new data
+      queryClient.setQueryData(
+        queryKeys.events.detail(event.urlHash),
+        (oldData: any) => ({
+          ...oldData,
+          ...data,
+          eventTypeId: formState.eventTypeId,
+          eventType: data.eventType
+        })
+      );
 
-      // Then invalidate and refetch queries
-      await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
-      await queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(event.urlHash) });
-      await queryClient.refetchQueries({ queryKey: queryKeys.events.detail(event.urlHash), exact: true });
+      // Invalidate and refetch all relevant queries
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.events.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(event.urlHash) })
+      ]);
 
       toast({ title: "Success", description: "Event updated successfully" });
       setIsEventEditDialogOpen(false);
