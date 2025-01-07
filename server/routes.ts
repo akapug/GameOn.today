@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { db } from "@db";
 import { events, participants, eventTypes } from "@db/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
-import { defaultEventTypes } from "../client/src/lib/activities";
 import nodemailer from "nodemailer";
 import { getWeatherForecast } from "./services/weather";
 import { formatWithTimezone, toUTC } from "../client/src/lib/dates";
@@ -127,12 +126,6 @@ async function getEventWithWeather(event: any) {
 
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
-
-  // API response headers middleware
-  app.use('/api', (req, res, next) => {
-    res.setHeader('Content-Type', 'application/json');
-    next();
-  });
 
   // Add schema middleware to all API routes
   app.use('/api', setSchemaMiddleware);
@@ -268,7 +261,6 @@ export function registerRoutes(app: Express): Server {
 
       if (missingFields.length > 0) {
         console.error('Missing fields in request:', missingFields);
-        console.error('Request body:', req.body);
         return res.status(400).json({
           message: "Missing required fields",
           fields: missingFields

@@ -47,12 +47,17 @@ export const participants = pgTable("participants", {
   comment: text("comment"),
 });
 
+// Define relationships
 export const eventsRelations = relations(events, ({ one, many }) => ({
   eventType: one(eventTypes, {
     fields: [events.eventTypeId],
     references: [eventTypes.id],
   }),
   participants: many(participants),
+  parentEvent: one(events, {
+    fields: [events.parentEventId],
+    references: [events.id],
+  }),
 }));
 
 export const participantsRelations = relations(participants, ({ one }) => ({
@@ -61,6 +66,14 @@ export const participantsRelations = relations(participants, ({ one }) => ({
     references: [events.id],
   }),
 }));
+
+// Zod schemas for validation
+export const eventTypeSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  color: z.string(),
+  icon: z.string(),
+});
 
 export const eventSchema = z.object({
   id: z.number(),
@@ -83,6 +96,22 @@ export const eventSchema = z.object({
   parentEventId: z.number().nullable(),
 });
 
+export const participantSchema = z.object({
+  id: z.number(),
+  eventId: z.number(),
+  name: z.string(),
+  email: z.string().nullable(),
+  phone: z.string().nullable(),
+  joinedAt: z.string(),
+  likelihood: z.number(),
+  responseToken: z.string(),
+  comment: z.string().nullable(),
+});
+
+// Create insert and select schemas
+export const insertEventTypeSchema = createInsertSchema(eventTypes);
+export const selectEventTypeSchema = createSelectSchema(eventTypes);
+
 export const insertEventSchema = createInsertSchema(events, {
   isRecurring: z.boolean(),
   isPrivate: z.boolean(),
@@ -94,11 +123,11 @@ export const selectEventSchema = createSelectSchema(events, {
 
 export const insertParticipantSchema = createInsertSchema(participants);
 export const selectParticipantSchema = createSelectSchema(participants);
-export const insertEventTypeSchema = createInsertSchema(eventTypes);
-export const selectEventTypeSchema = createSelectSchema(eventTypes);
 
+// Type exports
+export type EventType = typeof eventTypes.$inferSelect;
+export type NewEventType = typeof eventTypes.$inferInsert;
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
 export type Participant = typeof participants.$inferSelect;
 export type NewParticipant = typeof participants.$inferInsert;
-export type EventType = typeof eventTypes.$inferSelect;

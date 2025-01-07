@@ -13,17 +13,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Enhanced logging middleware for debugging static asset serving
+// Enhanced logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-
-  // Debug logging for static asset requests in production
-  if (process.env.NODE_ENV === 'production') {
-    log(`Incoming request: ${req.method} ${path}`);
-    log(`Headers: ${JSON.stringify(req.headers)}`);
-  }
-
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
@@ -34,16 +27,12 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (process.env.NODE_ENV !== "production" || path.startsWith("/api")) {
-      log(`${req.method} ${path} ${res.statusCode} ${duration}ms${
-        capturedJsonResponse ? ` :: ${JSON.stringify(capturedJsonResponse)}` : ''
-      }`);
-    }
-
-    // Debug logging for responses in production
-    if (process.env.NODE_ENV === 'production') {
-      log(`Response sent: ${res.statusCode} for ${path} in ${duration}ms`);
-      log(`Response headers: ${JSON.stringify(res.getHeaders())}`);
+    if (path.startsWith("/api")) {
+      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
+      log(logLine);
     }
   });
 
@@ -57,16 +46,9 @@ app.use((req, res, next) => {
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);
-    const isProd = process.env.NODE_ENV === "production";
     const status = err.status || err.statusCode || 500;
-    const message = isProd ? "Internal Server Error" : (err.message || "Internal Server Error");
-
-    if (!res.headersSent) {
-      if (_req.path.startsWith("/api")) {
-        return res.status(status).json({ message });
-      }
-      res.status(status).send(message);
-    }
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
   });
 
   if (process.env.NODE_ENV !== "production") {
@@ -143,8 +125,9 @@ app.use((req, res, next) => {
     });
   }
 
-  const PORT = process.env.PORT || 3000;
+  // ALWAYS serve the app on port 5000
+  const PORT = 5000;
   server.listen(PORT, "0.0.0.0", () => {
-    log(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
+    log(`Server running on port ${PORT}`);
   });
 })();

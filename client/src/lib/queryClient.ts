@@ -18,5 +18,5 @@ export const queryKeys = {
     single: (id: string) => ['/api/events', id],
     user: (uid: string) => ['/api/events/user', { uid }],
   },
-  eventTypes: ['/api/init'],
+  eventTypes: ['/api/event-types'],
 };

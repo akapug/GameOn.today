@@ -1,7 +1,7 @@
 import { Switch, Route, Link } from "wouter";
 import Home from "./pages/Home";
-import CreateGame from "./pages/CreateGame";
-import Game from "./pages/Game";
+import CreateEvent from "./pages/CreateEvent";
+import Event from "./pages/Event";
 import About from "./pages/About";
 import Changelog from "./pages/Changelog";
 import { AuthProvider } from "./components/AuthProvider";
@@ -30,8 +30,8 @@ function App() {
         <main className="flex-1">
           <Switch>
             <Route path="/" component={Home} />
-            <Route path="/create" component={CreateGame} />
-            <Route path="/games/:hash" component={Game} />
+            <Route path="/create" component={CreateEvent} />
+            <Route path="/events/:hash" component={Event} />
             <Route path="/about" component={About} />
             <Route path="/changelog" component={Changelog} />
           </Switch>
