@@ -133,6 +133,7 @@ export function registerRoutes(app: Express): Server {
   // Init endpoint for app initialization data
   app.get("/api/init", async (_req, res) => {
     try {
+      await db.execute(sql`SET search_path TO ${sql.identifier(process.env.NODE_ENV === 'production' ? 'production' : 'development')}, public`);
       const allEventTypes = await db.query.eventTypes.findMany();
       res.json({
         eventTypes: allEventTypes,
