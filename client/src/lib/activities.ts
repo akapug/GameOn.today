@@ -50,7 +50,7 @@ export const activityColors = {
   purple: "hsl(280 68.2% 50.6%)",
 };
 
-import { activityConfig } from "../../db/config/activities";
+import { activityConfig } from "../../../db/config/activities";
 
 export function useActivities() {
   return {
