@@ -380,8 +380,12 @@ export default function CreateEvent() {
                 {Object.entries(formErrors).map(([field, message]) => (
                   <p key={field} className="text-destructive text-sm">{message}</p>
                 ))}
-                <Button type="submit" className="w-full" disabled={createEvent.isPending}>
-                  Create Event
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={createEvent.isPending || form.formState.isSubmitting}
+                >
+                  {createEvent.isPending ? "Creating..." : "Create Event"}
                 </Button>
               </form>
             </Form>
