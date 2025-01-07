@@ -300,14 +300,10 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/events/:hash", async (req, res) => {
     try {
       const { hash } = req.params;
-      const { title, location, date, timezone, participantThreshold, creatorId, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate, eventTypeId } = req.body;
+      const { title, location, date, timezone, participantThreshold, creatorId, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
 
       const event = await db.query.events.findFirst({
         where: eq(events.urlHash, hash),
-        with: {
-          eventType: true,
-          participants: true
-        }
       });
 
       if (!event) {
@@ -318,50 +314,29 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Only the creator can edit this event" });
       }
 
-      await db
+      const [updatedEvent] = await db
         .update(events)
         .set({
           title,
           location,
-          date: toUTC(date, timezone || event.timezone || 'UTC'),
-          timezone: timezone || event.timezone || 'UTC',
+          date: toUTC(date, timezone || event.timezone),
+          timezone: timezone || event.timezone,
           participantThreshold,
-          eventTypeId: eventTypeId ? Number(eventTypeId) : event.eventTypeId,
-          endTime: endTime ? toUTC(endTime, timezone || event.timezone || 'UTC') : null,
+          endTime: endTime ? toUTC(endTime, timezone || event.timezone) : null,
           notes: notes || null,
           webLink: webLink || null,
           isRecurring: isRecurring === true,
           recurrenceFrequency: isRecurring === true ? recurrenceFrequency : null,
           isPrivate: isPrivate === true
         })
-        .where(eq(events.urlHash, hash));
+        .where(eq(events.urlHash, hash))
+        .returning();
 
-      const updatedEventWithRels = await db.query.events.findFirst({
-        where: eq(events.urlHash, hash),
-        with: {
-          eventType: true,
-          participants: true,
-        }
-      });
-
-      const eventWithWeather = await getEventWithWeather(updatedEventWithRels);
+      const eventWithWeather = await getEventWithWeather(updatedEvent);
       res.json(eventWithWeather);
     } catch (error) {
-      console.error("Failed to update event:", {
-        error,
-        requestBody: req.body,
-        hash: req.params?.hash,
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      
-      const errorMessage = error instanceof Error 
-        ? `Failed to update event: ${error.message}`
-        : "Failed to update event";
-        
-      res.status(500).json({ 
-        message: errorMessage,
-        details: process.env.NODE_ENV !== 'production' ? error : undefined
-      });
+      console.error("Failed to update event:", error);
+      res.status(500).json({ message: "Failed to update event" });
     }
   });
 

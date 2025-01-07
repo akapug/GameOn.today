@@ -5,7 +5,7 @@ describe('date utilities', () => {
   it('should format date with timezone', () => {
     const date = new Date('2024-01-01T10:00:00Z');
     const formatted = formatWithTimezone(date, 'PPp', 'America/Los_Angeles');
-    expect(formatted).toMatch(/Jan 1, 2024/);
+    expect(formatted).toMatch(/\d{1,2}:\d{2} [AP]M PST/);
   });
 
   it('should convert to UTC', () => {

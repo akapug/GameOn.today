@@ -51,15 +51,9 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
   });
 
-  const startupTimeout = setTimeout(() => {
-    console.error('Server startup timeout exceeded');
-    process.exit(1);
-  }, 30000);
-
   if (process.env.NODE_ENV !== "production") {
     log("Starting development server with Vite...");
     await setupVite(app, server);
-    clearTimeout(startupTimeout);
   } else {
     // Production: Serve static files with enhanced error handling
     log("Starting production server...");
@@ -131,7 +125,7 @@ app.use((req, res, next) => {
     });
   }
 
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 3000;
   server.listen(PORT, "0.0.0.0", () => {
     log(`Server running on port ${PORT}`);
     log(`Environment: ${process.env.NODE_ENV}`);

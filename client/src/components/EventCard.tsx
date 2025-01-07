@@ -20,7 +20,7 @@ import EventTypeSelect from "./EventTypeSelect";
 import type { Event, Participant, EventType } from "@db/schema";
 import type { WeatherInfo } from "../../server/services/weather";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { formatWithTimezone, utcToLocalInput, localToUTCInput } from "@/lib/dates";
+import { formatWithTimezone, utcToLocalInput } from "@/lib/dates";
 
 interface EventCardProps {
   event: Event & {
@@ -63,78 +63,47 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
     e.preventDefault();
 
     const updatedEvent = {
-      title: formState.title.trim(),
-      location: formState.location.trim(),
+      ...event,
+      title: formState.title,
+      location: formState.location,
       date: formState.date,
       endTime: formState.endTime,
-      participantThreshold: Number(formState.participantThreshold),
-      notes: formState.notes?.trim(),
+      participantThreshold: formState.participantThreshold,
+      notes: formState.notes,
       isPrivate: formState.isPrivate,
-      eventTypeId: Number(formState.eventTypeId),
-      webLink: formState.webLink?.trim(),
+      eventTypeId: formState.eventTypeId,
+      webLink: formState.webLink,
       isRecurring: formState.isRecurring,
-      recurrenceFrequency: formState.recurrenceFrequency,
-      creatorId: event.creatorId,
-      timezone: event.timezone || 'UTC'
+      recurrenceFrequency: formState.recurrenceFrequency
     };
-
-    // Validate required fields
-    if (!updatedEvent.title || !updatedEvent.location || !updatedEvent.date || !updatedEvent.participantThreshold || !updatedEvent.eventTypeId) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
     try {
       const res = await fetch(`/api/events/${event.urlHash}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...updatedEvent,
-          eventTypeId: Number(formState.eventTypeId)
-        }),
-        signal: controller.signal
+        body: JSON.stringify(updatedEvent),
       });
 
       if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || 'Failed to update event');
+        throw new Error(await res.text());
       }
 
       const data = await res.json();
-      clearTimeout(timeout);
-
-      // Update all event properties including event type
-      Object.assign(event, data);
-
-      // Update form state with new data
-      setFormState(prev => ({
-        ...prev,
-        eventTypeId: data.eventTypeId,
-      }));
+      
+      // Update the local event data first
+      event.eventTypeId = data.eventTypeId;
+      event.eventType = data.eventType;
 
       // Then invalidate queries
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
-      await queryClient.invalidateQueries({ queryKey: ['/api/event-types'] });
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
-
+      
       toast({ title: "Success", description: "Event updated successfully" });
       setIsEventEditDialogOpen(false);
     } catch (error) {
-      clearTimeout(timeout);
-      const errorMessage = error instanceof Error 
-        ? (error.name === 'AbortError' ? 'Request timed out' : error.message)
-        : "Failed to update event";
-      
       toast({
         title: "Error",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "Failed to update event",
         variant: "destructive",
       });
     }
@@ -269,10 +238,10 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <div className="flex flex-wrap items-center text-sm gap-x-4">
               <div className="flex items-center">
                 <Calendar className="mr-2 h-4 w-4" />
-                <span>{formatWithTimezone(event.date, "PPP p z", event.timezone || 'UTC')}</span>
+                <span>{formatWithTimezone(event.date, "PPP p", event.timezone || 'UTC')}</span>
                 {event.endTime && (
                   <span className="text-muted-foreground ml-1">
-                    - {formatWithTimezone(event.endTime, "p z", event.timezone || 'UTC')}
+                    - {formatWithTimezone(event.endTime, "p", event.timezone || 'UTC')}
                   </span>
                 )}
               </div>
@@ -590,10 +559,10 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             handleEditSubmit(e);
           }} className="space-y-4">
             <div className="space-y-2">
-              <Label>Event Type <span className="text-red-500">*</span></Label>
+              <Label>Event Type</Label>
               <EventTypeSelect 
                 value={formState.eventTypeId}
-                onChange={(value) => setFormState(prev => ({ ...prev, eventTypeId: Number(value) }))}
+                onChange={(value) => setFormState(prev => ({ ...prev, eventTypeId: value ? parseInt(value) : 0 }))}
               />
             </div>
             <div className="space-y-2">
@@ -612,34 +581,28 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
+              <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
                 value={formState.title}
                 onChange={(e) => setFormState(prev => ({ ...prev, title: e.target.value }))}
-                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="location">Location <span className="text-red-500">*</span></Label>
+              <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
                 value={formState.location}
                 onChange={(e) => setFormState(prev => ({ ...prev, location: e.target.value }))}
-                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="date">Date & Time ({event.timezone}) <span className="text-red-500">*</span></Label>
+              <Label htmlFor="date">Date & Time</Label>
               <Input
                 id="date"
                 type="datetime-local"
-                value={utcToLocalInput(formState.date, event.timezone || 'UTC')}
-                onChange={(e) => setFormState(prev => ({ 
-                  ...prev, 
-                  date: localToUTCInput(e.target.value, event.timezone || 'UTC')
-                }))}
-                required
+                value={utcToLocalInput(formState.date, event.timezone)}
+                onChange={(e) => setFormState(prev => ({ ...prev, date: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -652,14 +615,13 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="participantThreshold">Participant Threshold <span className="text-red-500">*</span></Label>
+              <Label htmlFor="participantThreshold">Participant Threshold</Label>
               <Input
                 id="participantThreshold"
                 type="number"
                 min="2"
                 value={formState.participantThreshold}
                 onChange={(e) => setFormState(prev => ({ ...prev, participantThreshold: parseInt(e.target.value) }))}
-                required
               />
             </div>
             <div className="space-y-2">

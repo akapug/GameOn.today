@@ -11,7 +11,7 @@ import { useAuth } from '../components/AuthProvider';
 
 // Mock useAuth hook
 vi.mock('../components/AuthProvider', () => ({
-  useAuth: vi.fn(() => ({ user: null, loading: false })),
+  useAuth: vi.fn(),
   AuthProvider: ({ children }) => children,
 }));
 
@@ -20,7 +20,6 @@ vi.mock('../../server/services/weather', () => ({
   getWeatherInfo: vi.fn().mockResolvedValue({
     temperature: 20,
     conditions: 'Clear',
-    icon: '01d',
   }),
 }));
 
@@ -87,23 +86,18 @@ describe('Event System', () => {
   // Integration Tests
   describe('Integration Tests', () => {
     it('creates and displays event in list', async () => {
-      vi.mocked(useAuth).mockReturnValue({ 
-        user: { uid: 'test-user', displayName: 'Test User' }, 
-        loading: false 
-      });
-
-      render(<CreateEvent />, { wrapper });
+      const { rerender } = render(<CreateEvent />, { wrapper });
       
       await userEvent.type(screen.getByLabelText(/Title/i), 'New Event');
       await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
-      
-      const eventTypeSelect = screen.getByLabelText(/Event Type/i);
-      await userEvent.click(eventTypeSelect);
+      await userEvent.click(screen.getByLabelText(/Event Type/i));
       await userEvent.click(screen.getByText('Test Type'));
       
-      await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
+      const submitButton = screen.getByRole('button', { name: /Create Event/i });
+      await userEvent.click(submitButton);
       
-      expect(screen.getByLabelText(/Title/i)).toBeInTheDocument();
+      rerender(<EventCard event={mockEvent} />);
+      expect(screen.getByText('New Event')).toBeInTheDocument();
     });
   });
 
@@ -158,40 +152,30 @@ describe('Event System', () => {
         user: { uid: 'test-creator', displayName: 'Test Creator' }, 
         loading: false 
       });
-
-      const mockEventWithCreator = {
-        ...mockEvent,
-        creatorId: 'test-creator',
-        eventType: { id: 1, name: 'Test Type', color: '#000000' }
-      };
       
-      render(<EventCard event={mockEventWithCreator} />, { wrapper });
-      
+      render(<Event />, { wrapper });
       const editButton = screen.getByRole('button', { name: /Edit/i });
       await userEvent.click(editButton);
       
-      const titleInput = screen.getByLabelText(/Title/i);
-      await userEvent.clear(titleInput);
-      await userEvent.type(titleInput, 'Updated Event');
+      await userEvent.type(screen.getByLabelText(/Title/i), 'Updated Event');
+      await userEvent.click(screen.getByRole('button', { name: /Save/i }));
       
-      await userEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
-      
-      expect(global.fetch).toHaveBeenCalled();
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/events'),
+        expect.objectContaining({ method: 'PUT' })
+      );
     });
   });
 
   // Recurring Event Tests
   describe('Recurring Events', () => {
     it('handles recurring event creation', async () => {
-      vi.mocked(useAuth).mockReturnValue({ 
-        user: { uid: 'test-user', displayName: 'Test User' },
-        loading: false 
-      });
       render(<CreateEvent />, { wrapper });
       
-      await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
+      await userEvent.click(screen.getByLabelText(/Recurring Event/i));
+      await userEvent.selectOptions(screen.getByLabelText(/Recurrence Frequency/i), 'weekly');
       
-      expect(screen.getByText(/Event Type/i)).toBeInTheDocument();
+      expect(screen.getByText(/weekly/i)).toBeInTheDocument();
     });
   });
 

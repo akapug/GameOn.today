@@ -15,7 +15,6 @@ interface WeatherDisplayProps {
 export default function WeatherDisplay({ weather, className = "" }: WeatherDisplayProps) {
   const getWeatherIcon = (iconCode: string) => {
     // Map OpenWeather icon codes to Lucide icons
-    if (!iconCode) return null;
     if (iconCode.includes('01')) return <Sun className="h-4 w-4" />;
     if (iconCode.includes('02') || iconCode.includes('03') || iconCode.includes('04')) 
       return <Cloud className="h-4 w-4" />;
