@@ -37,16 +37,9 @@ export async function setupVite(app: Express, server: Server) {
     customLogger: viteLogger,
     server: {
       middlewareMode: true,
-      hmr: { 
-        protocol: 'wss',
-        host: '0.0.0.0',
-        port: 5000,
-        server, //This line is added to use the existing http server for HMR
-        timeout: 30000
-      },
+      hmr: false,
       watch: {
-        usePolling: true,
-        interval: 3000
+        usePolling: false
       },
       host: '0.0.0.0'
     },
