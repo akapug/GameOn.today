@@ -1,9 +1,11 @@
+
 import '@testing-library/jest-dom';
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
 import React from 'react';
 import { useAuth, AuthProvider } from '../components/AuthProvider';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 expect.extend(matchers);
 
@@ -38,15 +40,6 @@ vi.mock('../lib/activities', () => ({
     { id: 1, name: "Basketball", color: "orange", icon: "circle" }
   ]
 }));
-
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false }
-  }
-});
 
 const queryClient = new QueryClient({
   defaultOptions: {
