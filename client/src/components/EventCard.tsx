@@ -36,6 +36,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
   const [likelihood, setLikelihood] = React.useState(0.5);
   const [isOpen, setIsOpen] = React.useState(false);
   const [comment, setComment] = useState('');
+  const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
+  const [isResponseEditDialogOpen, setIsResponseEditDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
