@@ -452,10 +452,76 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             setIsEventEditDialogOpen(false);
           }} className="space-y-4">
             <div className="space-y-2">
+              <Label>Event Type</Label>
+              <EventTypeSelect 
+                value={event.eventTypeId}
+                onChange={(value) => {/* Event edit logic */}}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Event Visibility</Label>
+              <Select
+                value={event.isPrivate ? 'private' : 'public'}
+                onValueChange={(value) => {/* Event edit logic */}}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select event visibility" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="public">Public (Visible on homepage)</SelectItem>
+                  <SelectItem value="private">Private (Only accessible via URL)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
                 value={event.title}
+                onChange={(e) => {/* Event edit logic */}}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                value={event.location}
+                onChange={(e) => {/* Event edit logic */}}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="date">Date & Time</Label>
+              <Input
+                id="date"
+                type="datetime-local"
+                value={event.date.slice(0, 16)}
+                onChange={(e) => {/* Event edit logic */}}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="endTime">End Time (Optional)</Label>
+              <Input
+                id="endTime"
+                type="datetime-local"
+                value={event.endTime?.slice(0, 16) || ''}
+                onChange={(e) => {/* Event edit logic */}}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="participantThreshold">Participant Threshold</Label>
+              <Input
+                id="participantThreshold"
+                type="number"
+                min="2"
+                value={event.participantThreshold}
+                onChange={(e) => {/* Event edit logic */}}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={event.notes || ''}
                 onChange={(e) => {/* Event edit logic */}}
               />
             </div>
