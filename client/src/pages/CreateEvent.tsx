@@ -389,9 +389,9 @@ export default function CreateEvent() {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={createEvent.isPending || form.formState.isSubmitting}
+                  disabled={createEvent.isPending || form.formState.isSubmitting || !form.formState.isValid}
                 >
-                  {createEvent.isPending || form.formState.isSubmitting ? "Creating..." : "Create Event"}
+                  {(createEvent.isPending || form.formState.isSubmitting) ? "Creating..." : "Create Event"}
                 </Button>
               </form>
             </Form>
