@@ -15,6 +15,12 @@ export function utcToLocalInput(dateStr: string, timezone: string = 'UTC'): stri
   return format(date, "yyyy-MM-dd'T'HH:mm", { timeZone: timezone });
 }
 
+export function localToUTCInput(dateStr: string, timezone: string = 'UTC'): string {
+  const date = new Date(dateStr);
+  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+  return utcDate.toISOString();
+}
+
 export function getUserTimezone(): string {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
