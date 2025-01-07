@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, Edit, Trash2, MessageSquare } from "lucide-react";
+import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, Edit, Trash2, MessageSquare, EyeOff } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Progress } from "./ui/progress";
@@ -237,11 +237,11 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                                 method: "DELETE",
                                 headers: { "Content-Type": "application/json" }
                               });
-                              
+
                               if (!response.ok) {
                                 throw new Error('Failed to delete response');
                               }
-                              
+
                               queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
                               queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
                               toast({ title: "Success", description: "Response removed successfully" });
@@ -268,6 +268,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
         </div>
       </CardContent>
       <CardFooter className="flex gap-2">
+        {/*  Add sharing, edit, and delete button functionality here.  */}
         <Button
           className="flex-1"
           onClick={() => setIsOpen(true)}
