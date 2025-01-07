@@ -3,24 +3,21 @@ import { db } from "../index";
 import { sql } from "drizzle-orm";
 
 async function reorderActivities(schema: string) {
-  // First drop foreign key constraints
+  // Drop existing constraints
   await db.execute(sql`
     ALTER TABLE ${sql.identifier(schema)}.games 
     DROP CONSTRAINT IF EXISTS games_activity_id_activities_id_fk;
   `);
 
-  // Only add constraint if it doesn't exist
   await db.execute(sql`
-    DO $$ 
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint 
-        WHERE conname = 'activities_name_key'
-      ) THEN
-        ALTER TABLE ${sql.identifier(schema)}.activities 
-        ADD CONSTRAINT activities_name_key UNIQUE (name);
-      END IF;
-    END $$;
+    ALTER TABLE ${sql.identifier(schema)}.activities 
+    DROP CONSTRAINT IF EXISTS activities_pkey;
+  `);
+
+  // Add primary key constraint
+  await db.execute(sql`
+    ALTER TABLE ${sql.identifier(schema)}.activities 
+    ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
   `);
 
   const activityOrder = [
