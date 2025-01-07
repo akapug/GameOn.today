@@ -1,0 +1,1162 @@
+ RERUN  ../src/test/event-system.test.tsx 
+
+stderr | src/test/event-system.test.tsx > Event System > Integration Tests > creates and displays event in list
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/test/event-system.test.tsx > Event System > Authentication Flows > shows auth dialog for unauthenticated users
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/test/event-system.test.tsx > Event System > Error Handling > handles network failures gracefully
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/test/event-system.test.tsx > Event System > Event Editing > allows creator to edit event details
+Error: Uncaught [TypeError: Cannot read properties of undefined (reading 'length')]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) TypeError: Cannot read properties of undefined (reading 'length')
+    at EventCard (/home/runner/GameOntoday/client/src/components/EventCard.tsx:276:88)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+Error: Uncaught [TypeError: Cannot read properties of undefined (reading 'length')]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) TypeError: Cannot read properties of undefined (reading 'length')
+    at EventCard (/home/runner/GameOntoday/client/src/components/EventCard.tsx:276:88)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+The above error occurred in the <EventCard> component:
+
+    at EventCard (/home/runner/GameOntoday/client/src/components/EventCard.tsx:45:22)
+    at main
+    at div
+    at Event (/home/runner/GameOntoday/client/src/pages/Event.tsx:40:44)
+    at AuthProvider (/home/runner/GameOntoday/client/src/test/event-system.test.tsx:4:20)
+    at QueryClientProvider (/home/runner/GameOntoday/client/src/test/setup.ts:38:27)
+    at wrapper (/home/runner/GameOntoday/client/src/test/event-system.test.tsx:63:20)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+ ✓ src/lib/__tests__/dates.test.ts (3)
+ ❯ src/test/event-system.test.tsx (10) 3288ms
+   ❯ Event System (10) 3287ms
+     ❯ Integration Tests (1) 369ms
+       × creates and displays event in list 367ms
+     ❯ Authentication Flows (2)
+       × shows auth dialog for unauthenticated users
+       ✓ allows event creation for authenticated users
+     ❯ Error Handling (2) 2531ms
+       × displays API error messages 1381ms
+       × handles network failures gracefully 1150ms
+     ❯ Event Editing (1)
+       × allows creator to edit event details
+     ❯ Recurring Events (1)
+       × handles recurring event creation
+     ✓ Weather Integration (1)
+     ❯ Mobile Responsiveness (1)
+       × adjusts layout for mobile viewport
+     ✓ Performance (1)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Integration Tests > creates and displays event in list
+TestingLibraryElementError: Unable to find a label with the text of: /Title/i
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  />
+  <div
+    aria-hidden="true"
+    class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+    data-aria-hidden="true"
+    data-state="open"
+    style="pointer-events: auto;"
+  />
+  <div
+    aria-describedby="radix-:r2:"
+    aria-labelledby="radix-:r1:"
+    class="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg"
+    data-state="open"
+    id="radix-:r0:"
+    role="dialog"
+    style="pointer-events: auto;"
+    tabindex="-1"
+  >
+    <div
+      class="flex flex-col space-y-1.5 text-center sm:text-left"
+    >
+      <h2
+        class="text-lg font-semibold leading-none tracking-tight"
+        id="radix-:r1:"
+      >
+        Sign in Required
+      </h2>
+    </div>
+    <p
+      class="text-sm text-muted-foreground"
+    >
+      You need to sign in to create a game. You can still join existing games without signing in.
+    </p>
+    <div
+      class="flex justify-end gap-2 mt-4"
+    >
+      <button
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+      >
+        Sign in with Google
+      </button>
+    </div>
+    <button
+      class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+      type="button"
+    >
+      <svg
+        class="lucide lucide-x h-4 w-4"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M18 6 6 18"
+        />
+        <path
+          d="m6 6 12 12"
+        />
+      </svg>
+      <span
+        class="sr-only"
+      >
+        Close
+      </span>
+    </button>
+  </div>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+</body>
+ ❯ Object.getElementError ../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText ../node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/test/event-system.test.tsx:92:35
+     90|       const { rerender } = render(<CreateEvent />, { wrapper });
+     91|       
+     92|       await userEvent.type(screen.getByLabelText(/Title/i), 'New Event');
+       |                                   ^
+     93|       await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
+     94|       await userEvent.click(screen.getByLabelText(/Event Type/i));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Authentication Flows > shows auth dialog for unauthenticated users
+TestingLibraryElementError: Found multiple elements with the text: /Sign in/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<h2
+  class="text-lg font-semibold leading-none tracking-tight"
+  id="radix-:r4:"
+>
+  Sign in Required
+</h2>
+
+Ignored nodes: comments, script, style
+<p
+  class="text-sm text-muted-foreground"
+>
+  You need to sign in to create a game. You can still join existing games without signing in.
+</p>
+
+Ignored nodes: comments, script, style
+<button
+  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+>
+  Sign in with Google
+</button>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  />
+  <div
+    aria-hidden="true"
+    class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+    data-aria-hidden="true"
+    data-state="open"
+    style="pointer-events: auto;"
+  />
+  <div
+    aria-describedby="radix-:r5:"
+    aria-labelledby="radix-:r4:"
+    class="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg"
+    data-state="open"
+    id="radix-:r3:"
+    role="dialog"
+    style="pointer-events: auto;"
+    tabindex="-1"
+  >
+    <div
+      class="flex flex-col space-y-1.5 text-center sm:text-left"
+    >
+      <h2
+        class="text-lg font-semibold leading-none tracking-tight"
+        id="radix-:r4:"
+      >
+        Sign in Required
+      </h2>
+    </div>
+    <p
+      class="text-sm text-muted-foreground"
+    >
+      You need to sign in to create a game. You can still join existing games without signing in.
+    </p>
+    <div
+      class="flex justify-end gap-2 mt-4"
+    >
+      <button
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+      >
+        Sign in with Google
+      </button>
+    </div>
+    <button
+      class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+      type="button"
+    >
+      <svg
+        class="lucide lucide-x h-4 w-4"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M18 6 6 18"
+        />
+        <path
+          d="m6 6 12 12"
+        />
+      </svg>
+      <span
+        class="sr-only"
+      >
+        Close
+      </span>
+    </button>
+  </div>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+</body>
+ ❯ Object.getElementError ../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError ../node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError ../node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/test/event-system.test.tsx:110:21
+    108|       vi.mocked(useAuth).mockReturnValue({ user: null, loading: false });
+    109|       render(<CreateEvent />, { wrapper });
+    110|       expect(screen.getByText(/Sign in/i)).toBeInTheDocument();
+       |                     ^
+    111|     });
+    112| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Error Handling > displays API error messages
+TestingLibraryElementError: Unable to find an element with the text: /API Error/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="min-h-screen bg-background"
+    >
+      <header
+        class="p-4 border-b"
+      >
+        <div
+          class="container flex items-center"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          >
+            <svg
+              class="lucide lucide-arrow-left mr-2 h-4 w-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m12 19-7-7 7-7"
+              />
+              <path
+                d="M19 12H5"
+              />
+            </svg>
+            Back
+          </button>
+          <h1
+            class="text-2xl font-bold ml-4"
+          >
+            Create New Event
+          </h1>
+        </div>
+      </header>
+      <main
+        class="container py-6"
+      >
+        <div
+          class="rounded-lg border bg-card text-card-foreground shadow-sm"
+        >
+          <div
+            class="p-6 pt-6"
+          >
+            <form
+              class="space-y-6"
+            >
+              <div
+                class="space-y-2"
+              >
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 after:content-['*'] after:ml-0.5 after:text-red-500"
+                  for=":ro:-form-item"
+                >
+                  Event Type
+                </label>
+                <button
+                  aria-controls="radix-:rp:"
+                  aria-expanded="false"
+                  aria-haspopup="dialog"
+                  aria-label="Event Type"
+                  class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full justify-between text-muted-foreground"
+                  data-state="closed"
+                  role="combobox"
+                  type="button"
+                >
+                  Select event type...
+                </button>
+              </div>
+              <div
+                class="space-y-2"
+              >
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  for=":rq:-form-item"
+                >
+                  Event Visibility
+                </label>
+                <button
+                  aria-autocomplete="none"
+                  aria-controls="radix-:rr:"
+                  aria-expanded="false"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+                  data-state="closed"
+                  dir="ltr"
+                  role="combobox"
+                  type="button"
+                >
+                  <span
+                    style="pointer-events: none;"
+                  >
+                    Public (Visible on homepage)
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-chevron-down h-4 w-4 opacity-50"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m6 9 6 6 6-6"
+                    />
+                  </svg>
+                </button>
+                <select
+                  aria-hidden="true"
+                  style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"
+                  tabindex="-1"
+                >
+                  <option
+                    selected=""
+                    value="public"
+ ...
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body
+    style=""
+  >
+    <div>
+      <div
+        class="min-h-screen bg-background"
+      >
+        <header
+          class="p-4 border-b"
+        >
+          <div
+            class="container flex items-center"
+          >
+            <button
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            >
+              <svg
+                class="lucide lucide-arrow-left mr-2 h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="m12 19-7-7 7-7"
+                />
+                <path
+                  d="M19 12H5"
+                />
+              </svg>
+              Back
+            </button>
+            <h1
+              class="text-2xl font-bold ml-4"
+            >
+              Create New Event
+            </h1>
+          </div>
+        </header>
+        <main
+          class="container py-6"
+        >
+          <div
+            class="rounded-lg border bg-card text-card-foreground shadow-sm"
+          >
+            <div
+              class="p-6 pt-6"
+            >
+              <form
+                class="space-y-6"
+              >
+                <div
+                  class="space-y-2"
+                >
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 after:content-['*'] after:ml-0.5 after:text-red-500"
+                    for=":ro:-form-item"
+                  >
+                    Event Type
+                  </label>
+                  <button
+                    aria-controls="radix-:rp:"
+                    aria-expanded="false"
+                    aria-haspopup="dialog"
+                    aria-label="Event Type"
+                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full justify-between text-muted-foreground"
+                    data-state="closed"
+                    role="combobox"
+                    type="button"
+                  >
+                    Select event type...
+                  </button>
+                </div>
+                <div
+                  class="space-y-2"
+                >
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    for=":rq:-form-item"
+                  >
+                    Event Visibility
+                  </label>
+                  <button
+                    aria-autocomplete="none"
+                    aria-controls="radix-:rr:"
+                    aria-expanded="false"
+                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+                    data-state="closed"
+                    dir="ltr"
+                    role="combobox"
+                    type="button"
+                  >
+                    <span
+                      style="pointer-events: none;"
+                    >
+                      Public (Visible on homepage)
+                    </span>
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-chevron-down h-4 w-4 opacity-50"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="m6 9 6 6 6-6"
+                      />
+                    </svg>
+                  </button>
+                  <select
+                    aria-hidden="true"
+                    style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0p...
+ ❯ Proxy.waitForWrapper ../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/test/event-system.test.tsx:132:13
+    130|       await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
+    131|       
+    132|       await waitFor(() => {
+       |             ^
+    133|         expect(screen.getByText(/API Error/i)).toBeInTheDocument();
+    134|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Error Handling > handles network failures gracefully
+TestingLibraryElementError: Unable to find an element with the text: /Network Error/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <div
+      class="rounded-lg border bg-card text-card-foreground shadow-sm w-full"
+    >
+      <div
+        class="flex flex-col space-y-1.5 p-6"
+      >
+        <div
+          class="flex justify-between items-start"
+        >
+          <div
+            class="flex flex-col gap-1"
+          >
+            <a
+              href="/events/test-event"
+            >
+              <div
+                class="flex items-center gap-2"
+              >
+                <h3
+                  class="text-xl font-semibold hover:text-primary cursor-pointer"
+                >
+                  Test Event
+                </h3>
+                <span
+                  class="text-sm px-2 py-0.5 rounded-full"
+                  style="background-color: rgba(0, 0, 0, 0.125); color: rgb(0, 0, 0);"
+                >
+                  Test Type
+                </span>
+              </div>
+            </a>
+            <div
+              class="text-sm text-muted-foreground flex items-center"
+            >
+              <svg
+                class="lucide lucide-map-pin mr-2 h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                />
+                <circle
+                  cx="12"
+                  cy="10"
+                  r="3"
+                />
+              </svg>
+              <button
+                class="text-primary hover:underline"
+              >
+                Test Location
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="p-6 pt-0"
+      >
+        <div
+          class="space-y-4"
+        >
+          <div
+            class="space-y-2"
+          >
+            <div
+              class="flex flex-wrap items-center text-sm gap-x-4"
+            >
+              <div
+                class="flex items-center"
+              >
+                <svg
+                  class="lucide lucide-calendar mr-2 h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M8 2v4"
+                  />
+                  <path
+                    d="M16 2v4"
+                  />
+                  <rect
+                    height="18"
+                    rx="2"
+                    width="18"
+                    x="3"
+                    y="4"
+                  />
+                  <path
+                    d="M3 10h18"
+                  />
+                </svg>
+                <span>
+                  January 7th, 2025 9:34 AM
+                </span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div
+              class="flex items-center text-sm mb-2"
+            >
+              <svg
+                class="lucide lucide-users mr-2 h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                />
+                <circle
+                  cx="9"
+                  cy="7"
+                  r="4"
+                />
+                <path
+                  d="M22 21v-2a4 4 0 0 0-3-3.87"
+                />
+                <path
+                  d="M16 3.13a4 4 0 0 1 0 7.75"
+                />
+              </svg>
+              <span>
+                5
+                 participants needed / 
+                0
+       ...
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body
+    data-scroll-locked="1"
+    style="pointer-events: none;"
+  >
+    <span
+      aria-hidden="true"
+      data-aria-hidden="true"
+      data-radix-focus-guard=""
+      style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+      tabindex="0"
+    />
+    <div
+      aria-hidden="true"
+      data-aria-hidden="true"
+    >
+      <div
+        class="rounded-lg border bg-card text-card-foreground shadow-sm w-full"
+      >
+        <div
+          class="flex flex-col space-y-1.5 p-6"
+        >
+          <div
+            class="flex justify-between items-start"
+          >
+            <div
+              class="flex flex-col gap-1"
+            >
+              <a
+                href="/events/test-event"
+              >
+                <div
+                  class="flex items-center gap-2"
+                >
+                  <h3
+                    class="text-xl font-semibold hover:text-primary cursor-pointer"
+                  >
+                    Test Event
+                  </h3>
+                  <span
+                    class="text-sm px-2 py-0.5 rounded-full"
+                    style="background-color: rgba(0, 0, 0, 0.125); color: rgb(0, 0, 0);"
+                  >
+                    Test Type
+                  </span>
+                </div>
+              </a>
+              <div
+                class="text-sm text-muted-foreground flex items-center"
+              >
+                <svg
+                  class="lucide lucide-map-pin mr-2 h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                  />
+                  <circle
+                    cx="12"
+                    cy="10"
+                    r="3"
+                  />
+                </svg>
+                <button
+                  class="text-primary hover:underline"
+                >
+                  Test Location
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="p-6 pt-0"
+        >
+          <div
+            class="space-y-4"
+          >
+            <div
+              class="space-y-2"
+            >
+              <div
+                class="flex flex-wrap items-center text-sm gap-x-4"
+              >
+                <div
+                  class="flex items-center"
+                >
+                  <svg
+                    class="lucide lucide-calendar mr-2 h-4 w-4"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M8 2v4"
+                    />
+                    <path
+                      d="M16 2v4"
+                    />
+                    <rect
+                      height="18"
+                      rx="2"
+                      width="18"
+                      x="3"
+                      y="4"
+                    />
+                    <path
+                      d="M3 10h18"
+                    />
+                  </svg>
+                  <span>
+                    January 7th, 2025 9:34 AM
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div
+                class="flex items-center text-sm mb-2"
+              >
+                <svg
+                  class="lucide lucide-users mr-2 h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                  />
+                  <circle
+                    cx="9"
+                    cy="7"
+                    r="4"
+                  />
+                  <path
+                    d="M22 21v-2a4 ...
+ ❯ Proxy.waitForWrapper ../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/test/event-system.test.tsx:143:13
+    141|       await userEvent.click(screen.getByRole('button', { name: /Join Event/i }));
+    142|       
+    143|       await waitFor(() => {
+       |             ^
+    144|         expect(screen.getByText(/Network Error/i)).toBeInTheDocument();
+    145|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Event Editing > allows creator to edit event details
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ EventCard src/components/EventCard.tsx:276:88
+    274|               <Users className="mr-2 h-4 w-4" />
+    275|               <span>
+    276|                 {event.participantThreshold} participants needed / {event.participants.leng…
+       |                                                                                        ^
+    277|                 <span className="text-xs text-muted-foreground ml-1">
+    278|                   (~{((event.participantThreshold || 0) * (progressPercentage / 100)).toFix…
+ ❯ renderWithHooks ../node_modules/react-dom/cjs/react-dom.development.js:15486:18
+ ❯ mountIndeterminateComponent ../node_modules/react-dom/cjs/react-dom.development.js:20103:13
+ ❯ beginWork ../node_modules/react-dom/cjs/react-dom.development.js:21626:16
+ ❯ beginWork$1 ../node_modules/react-dom/cjs/react-dom.development.js:27465:14
+ ❯ performUnitOfWork ../node_modules/react-dom/cjs/react-dom.development.js:26599:12
+ ❯ workLoopSync ../node_modules/react-dom/cjs/react-dom.development.js:26505:5
+ ❯ renderRootSync ../node_modules/react-dom/cjs/react-dom.development.js:26473:7
+ ❯ recoverFromConcurrentError ../node_modules/react-dom/cjs/react-dom.development.js:25889:20
+ ❯ performSyncWorkOnRoot ../node_modules/react-dom/cjs/react-dom.development.js:26135:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Recurring Events > handles recurring event creation
+TestingLibraryElementError: Found multiple elements with the text: /Event Type/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<label
+  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 after:content-['*'] after:ml-0.5 after:text-red-500"
+  for=":r27:-form-item"
+>
+  Event Type
+</label>
+
+Ignored nodes: comments, script, style
+<button
+  aria-controls="radix-:r28:"
+  aria-expanded="false"
+  aria-haspopup="dialog"
+  aria-label="Event Type"
+  class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full justify-between text-muted-foreground"
+  data-state="closed"
+  role="combobox"
+  type="button"
+>
+  Select event type...
+</button>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="min-h-screen bg-background"
+    >
+      <header
+        class="p-4 border-b"
+      >
+        <div
+          class="container flex items-center"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          >
+            <svg
+              class="lucide lucide-arrow-left mr-2 h-4 w-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m12 19-7-7 7-7"
+              />
+              <path
+                d="M19 12H5"
+              />
+            </svg>
+            Back
+          </button>
+          <h1
+            class="text-2xl font-bold ml-4"
+          >
+            Create New Event
+          </h1>
+        </div>
+      </header>
+      <main
+        class="container py-6"
+      >
+        <div
+          class="rounded-lg border bg-card text-card-foreground shadow-sm"
+        >
+          <div
+            class="p-6 pt-6"
+          >
+            <form
+              class="space-y-6"
+            >
+              <div
+                class="space-y-2"
+              >
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 after:content-['*'] after:ml-0.5 after:text-red-500"
+                  for=":r27:-form-item"
+                >
+                  Event Type
+                </label>
+                <button
+                  aria-controls="radix-:r28:"
+                  aria-expanded="false"
+                  aria-haspopup="dialog"
+                  aria-label="Event Type"
+                  class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full justify-between text-muted-foreground"
+                  data-state="closed"
+                  role="combobox"
+                  type="button"
+                >
+                  Select event type...
+                </button>
+              </div>
+              <div
+                class="space-y-2"
+              >
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  for=":r29:-form-item"
+                >
+                  Event Visibility
+                </label>
+                <button
+                  aria-autocomplete="none"
+                  aria-controls="radix-:r2a:"
+                  aria-expanded="false"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+                  data-state="closed"
+                  dir="ltr"
+                  role="combobox"
+                  type="button"
+                >
+                  <span
+                    style="pointer-events: none;"
+                  >
+                    Public (Visible on homepage)
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-chevron-down h-4 w-4 opacity-50"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m6 9 6 6 6-6"
+                    />
+                  </svg>
+                </button>
+                <select
+                  aria-hidden="true"
+                  style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"
+                  tabindex="-1"
+                >
+                  <option
+                    selected=""
+                    value="public"
+ ❯ Object.getElementError ../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError ../node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError ../node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/test/event-system.test.tsx:182:21
+    180|       await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
+    181|       
+    182|       expect(screen.getByText(/Event Type/i)).toBeInTheDocument();
+       |                     ^
+    183|     });
+    184|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Mobile Responsiveness > adjusts layout for mobile viewport
+Error: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem.
+ ❯ Object.throwInvalidHookError ../node_modules/react-dom/cjs/react-dom.development.js:15408:9
+ ❯ useContext ../node_modules/react/cjs/react.development.js:1618:21
+ ❯ useRouter ../node_modules/wouter/esm/index.js:67:25
+     65| 
+     66| // gets the closest parent router from the context
+     67| const useRouter = () => useContext(RouterCtx);
+       |                         ^
+     68| 
+     69| /**
+ ❯ Module.useRoute ../node_modules/wouter/esm/index.js:153:14
+ ❯ new Event src/pages/Event.tsx:47:22
+ ❯ src/test/event-system.test.tsx:206:28
