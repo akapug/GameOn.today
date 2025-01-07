@@ -11,16 +11,13 @@ export function getUserTimezone(): string {
 }
 
 export function toUTC(dateStr: string, timezone: string): Date {
-  const date = new Date(dateStr);
-  return date;
+  return new Date(formatInTimeZone(new Date(dateStr), timezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 }
 
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
-  const utcDate = new Date(date);
-  return formatInTimeZone(utcDate, timezone, formatStr);
+  return formatInTimeZone(new Date(date), timezone, formatStr);
 }
 
 export function utcToLocalInput(date: string | Date, timezone: string = 'UTC'): string {
-  const utcDate = new Date(date);
-  return formatInTimeZone(utcDate, timezone, "yyyy-MM-dd'T'HH:mm");
+  return formatInTimeZone(new Date(date), timezone, "yyyy-MM-dd'T'HH:mm");
 }

@@ -224,7 +224,7 @@ export default function CreateEvent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                        Date & Time ({userTimezone})
+                        Date & Time ({form.watch('timezone') || userTimezone})
                       </FormLabel>
                       <FormControl>
                         <Input
