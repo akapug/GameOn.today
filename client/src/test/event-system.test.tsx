@@ -80,20 +80,21 @@ describe('Event System', () => {
     it('handles join event interaction', async () => {
       render(<EventCard event={mockEvent} />, { wrapper });
 
-      const joinButton = screen.getByText(/Join Event/);
+      // Get the join button by role+text to be more specific
+      const joinButton = screen.getByRole('button', { name: /Join Event/i });
       await userEvent.click(joinButton);
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByText('Join Event')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Join Event/i })).toBeInTheDocument();
     });
   });
 
   describe('CreateEvent Component', () => {
     it('validates required fields', async () => {
-      const { container } = render(<CreateEvent />, { wrapper });
+      render(<CreateEvent />, { wrapper });
 
-      const form = container.querySelector('form');
-      await userEvent.submit(form);
+      const submitButton = screen.getByRole('button', { name: /Create Event/i });
+      await userEvent.click(submitButton);
 
       // Wait for validation messages
       await screen.findByText('Event type is required');
@@ -102,19 +103,18 @@ describe('Event System', () => {
     });
 
     it('handles event creation form submission', async () => {
-      const { container } = render(<CreateEvent />, { wrapper });
+      render(<CreateEvent />, { wrapper });
 
       // Fill in required fields
       await userEvent.type(screen.getByLabelText(/Title/i), 'New Test Event');
       await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
       await userEvent.type(screen.getByLabelText(/Participant Threshold/i), '10');
       
-      // Submit form
-      const form = container.querySelector('form');
-      await userEvent.submit(form);
+      // Submit form using button click
+      const submitButton = screen.getByRole('button', { name: /Create Event/i });
+      await userEvent.click(submitButton);
 
       // Wait for disabled state
-      const submitButton = screen.getByRole('button', { name: /Create Event/i });
       await expect(submitButton).toBeDisabled();
     });
   });
