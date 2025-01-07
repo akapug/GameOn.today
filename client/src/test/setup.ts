@@ -41,11 +41,8 @@ const queryClient = new QueryClient({
   }
 });
 
-export const wrapper = ({ children }) => (
-  <QueryClientProvider client={queryClient}>
-    {children}
-  </QueryClientProvider>
-);
+export const wrapper = ({ children }) => 
+  React.createElement(QueryClientProvider, { client: queryClient }, children);
 
 // Mock auth functionality
 vi.mock('../components/AuthProvider', () => ({
