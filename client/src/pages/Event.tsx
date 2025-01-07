@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
 import { apiRequest } from "@/lib/api";
@@ -206,7 +205,7 @@ export default function Event() {
       </header>
       <main className="container py-6 px-4">
         <EventCard event={event} extended={true} />
-        
+
         {event.weather && <WeatherDisplay weather={event.weather} />}
 
         <div className="flex gap-2 mt-4">
