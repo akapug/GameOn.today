@@ -21,7 +21,9 @@ async function main() {
 
     await db.execute(sql`
       ALTER TABLE production.activities 
-      ADD CONSTRAINT activities_name_key UNIQUE (name)`);
+      DROP CONSTRAINT IF EXISTS activities_name_key;
+      ALTER TABLE production.activities 
+      ADD CONSTRAINT activities_name_key UNIQUE (name);`);
 
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS production.games (
@@ -69,7 +71,9 @@ async function main() {
 
     await db.execute(sql`
       ALTER TABLE development.activities 
-      ADD CONSTRAINT activities_name_key UNIQUE (name)`);
+      DROP CONSTRAINT IF EXISTS activities_name_key;
+      ALTER TABLE development.activities 
+      ADD CONSTRAINT activities_name_key UNIQUE (name);`);
 
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS development.games (
