@@ -2,6 +2,29 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import EventCard from '../EventCard';
+
+const mockEvent = {
+  id: 1,
+  urlHash: 'test-event',
+  title: 'Test Event',
+  location: 'Test Location',
+  date: new Date().toISOString(),
+  participantThreshold: 5,
+  participants: [],
+  eventType: { id: 1, name: 'Test Type', color: '#000000' },
+  isPrivate: false,
+  creatorId: 'test-creator',
+  creatorName: 'Test Creator',
+  timezone: 'UTC'
+};
+
+describe('EventCard', () => {
+  it('renders event details correctly', () => {
+    render(<EventCard event={mockEvent} />);
+    expect(screen.getByText('Test Event')).toBeInTheDocument();
+    expect(screen.getByText('Test Location')).toBeInTheDocument();
+  });
+});
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 vi.mock('@tanstack/react-query', async () => {
