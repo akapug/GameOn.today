@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
@@ -26,20 +27,11 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-      host: '0.0.0.0',
-      hmr: {
-        clientPort: 443,
-        protocol: 'wss',
-        host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
-        timeout: 15000,
-        overlay: false,
-        reconnect: true,
-        maxRetries: 5
-      },
-      watch: {
-        usePolling: true,
-        interval: 2000,
-        followSymlinks: false
-      }
-    },
+    host: '0.0.0.0',
+    hmr: {
+      clientPort: 443,
+      protocol: 'wss',
+      host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+    }
+  },
 });
