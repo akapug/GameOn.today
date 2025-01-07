@@ -148,6 +148,50 @@ export default function Event() {
     return null;
   }
 
+  const shareEvent = async (method: 'copy' | 'facebook' | 'twitter' | 'sms') => {
+    const eventUrl = `${window.location.origin}/events/${event.urlHash}`;
+    const text = `Join our ${event.eventType.name} event: ${event.title} at ${event.location}`;
+
+    switch (method) {
+      case 'copy':
+        await navigator.clipboard.writeText(eventUrl);
+        toast({
+          title: "Link Copied",
+          description: "Event link copied to clipboard!",
+        });
+        break;
+      case 'facebook':
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(eventUrl)}`,
+          '_blank'
+        );
+        break;
+      case 'twitter':
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(eventUrl)}&text=${encodeURIComponent(text)}`,
+          '_blank'
+        );
+        break;
+      case 'sms':
+        window.open(
+          `sms:?body=${encodeURIComponent(`${text}\n${eventUrl}`)}`,
+          '_blank'
+        );
+        break;
+    }
+  };
+
+  const calculateProgress = () => {
+    if (!event || !event.participants) return 0;
+    const total = event.participants.reduce((sum, participant) => {
+      const likelihood = participant.likelihood ? Number(participant.likelihood) : 1;
+      return sum + likelihood;
+    }, 0);
+    return (total / event.participantThreshold) * 100;
+  };
+
+  const progressPercentage = calculateProgress();
+  const hasMinimumParticipants = progressPercentage >= 100;
   const canDelete = user && event.creatorId === user.uid;
 
   return (
@@ -163,7 +207,34 @@ export default function Event() {
       </header>
       <main className="container py-6 px-4">
         <EventCard event={event} extended={true} />
-        {canDelete && (
+        
+        {event.weather && <WeatherDisplay weather={event.weather} />}
+
+        <div className="flex gap-2 mt-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => shareEvent('copy')}>
+                <LinkIcon className="h-4 w-4 mr-2" />
+                Copy Link
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => shareEvent('facebook')}>
+                <Facebook className="h-4 w-4 mr-2" />
+                Share on Facebook
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => shareEvent('twitter')}>
+                <Twitter className="h-4 w-4 mr-2" />
+                Share on Twitter
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {canDelete && (
           <>
             <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
               <Edit2 className="h-4 w-4" />
