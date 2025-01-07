@@ -110,12 +110,12 @@ async function main() {
       await db.execute(sql`
         INSERT INTO production.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT ON CONSTRAINT activities_name_key DO NOTHING`);
+        ON CONFLICT (name) DO NOTHING`);
       
       await db.execute(sql`
         INSERT INTO development.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT ON CONSTRAINT activities_name_key DO NOTHING`);
+        ON CONFLICT (name) DO NOTHING`);
     }
 
     console.log('Schema setup completed successfully');
