@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, MessageSquare, Trash2, Edit, EyeOff } from "lucide-react";
 import { activityColors } from "@/lib/activities";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { formatWithTimezone, utcToLocalInput, localInputToUTC } from "@/lib/dates";
+import { formatWithTimezone, utcToLocalInput } from "@/lib/dates";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Progress } from "./ui/progress";
@@ -18,84 +18,83 @@ import { Link, useLocation } from "wouter";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "./WeatherDisplay";
-import type { Game, Player, Activity } from "@db/schema";
+import type { Event, Participant, EventType } from "@db/schema";
 import type { WeatherInfo } from "../../server/services/weather";
-import type { Sport } from "@/types";
 
-interface GameCardProps {
-  game: Game & {
-    players: Player[];
-    sport: Sport;
+interface EventCardProps {
+  event: Event & {
+    participants: Array<Participant>;
+    eventType: EventType;
     weather: WeatherInfo | null;
   };
   fullscreen?: boolean;
 }
 
-export default function GameCard({ game, fullscreen = false }: GameCardProps) {
+export default function EventCard({ event, fullscreen = false }: EventCardProps) {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const [playerName, setPlayerName] = React.useState(user?.displayName || "");
-  const [playerEmail, setPlayerEmail] = React.useState(user?.email || "");
+  const [participantName, setParticipantName] = React.useState(user?.displayName || "");
+  const [participantEmail, setParticipantEmail] = React.useState(user?.email || "");
   const [joinType, setJoinType] = React.useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = React.useState(0.5);
   const [isOpen, setIsOpen] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-  const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
-  const [isGameEditDialogOpen, setIsGameEditDialogOpen] = useState(false);
+  const [editingParticipant, setEditingParticipant] = React.useState<Participant | null>(null);
+  const [isEventEditDialogOpen, setIsEventEditDialogOpen] = useState(false);
   const [isResponseEditDialogOpen, setIsResponseEditDialogOpen] = useState(false);
   const [formState, setFormState] = useState({
-    title: game.title,
-    location: game.location,
-    date: utcToLocalInput(game.date, game.timezone),
-    endTime: game.endTime ? utcToLocalInput(game.endTime, game.timezone) : '',
-    playerThreshold: game.playerThreshold,
-    notes: game.notes || '',
-    webLink: game.webLink || '',
-    isRecurring: game.isRecurring === true,
-    recurrenceFrequency: game.recurrenceFrequency,
-    isPrivate: game.isPrivate === true
+    title: event.title,
+    location: event.location,
+    date: utcToLocalInput(event.date, event.timezone),
+    endTime: event.endTime ? utcToLocalInput(event.endTime, event.timezone) : '',
+    participantThreshold: event.participantThreshold,
+    notes: event.notes || '',
+    webLink: event.webLink || '',
+    isRecurring: event.isRecurring === true,
+    recurrenceFrequency: event.recurrenceFrequency,
+    isPrivate: event.isPrivate === true
   });
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const canEditResponse = (player: Player) => {
-    if (!player.responseToken) return false;
+  const canEditResponse = (participant: Participant) => {
+    if (!participant.responseToken) return false;
     if (user?.uid) {
-      return player.responseToken === user.uid;
+      return participant.responseToken === user.uid;
     }
-    const storedToken = localStorage.getItem(`response-token-${player.id}`);
-    return Boolean(storedToken && storedToken === player.responseToken);
+    const storedToken = localStorage.getItem(`response-token-${participant.id}`);
+    return Boolean(storedToken && storedToken === participant.responseToken);
   };
 
   const calculateProgress = () => {
-    if (!game?.players) return 0;
-    const total = game.players.reduce((sum, player) => {
-      const likelihood = player.likelihood ? Number(player.likelihood) : 1;
+    if (!event?.participants) return 0;
+    const total = event.participants.reduce((sum, participant) => {
+      const likelihood = participant.likelihood ? Number(participant.likelihood) : 1;
       return sum + likelihood;
     }, 0);
-    return (total / game.playerThreshold) * 100;
+    return (total / event.participantThreshold) * 100;
   };
 
   const progressPercentage = calculateProgress();
-  const hasMinimumPlayers = progressPercentage >= 100;
-  const canDelete = user && game.creatorId === user.uid;
+  const hasMinimumParticipants = progressPercentage >= 100;
+  const canDelete = user && event.creatorId === user.uid;
 
-  const joinGame = useMutation({
+  const joinEvent = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/games/${game.urlHash}/join`, {
+      const res = await fetch(`/api/events/${event.urlHash}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: playerName,
-          email: playerEmail,
+          name: participantName,
+          email: participantEmail,
           likelihood: joinType === "yes" ? 1 : (joinType === "no" ? 0 : likelihood),
           uid: user?.uid,
-          comment: comment // Added comment field
+          comment: comment
         }),
       });
       if (!res.ok) {
         const error = await res.text();
-        throw new Error(error || "Failed to join game");
+        throw new Error(error || "Failed to join event");
       }
       return res.json();
     },
@@ -103,8 +102,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       if (!user?.uid && data.responseToken) {
         localStorage.setItem(`response-token-${data.id}`, data.responseToken);
       }
-      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-      toast({ title: "Success", description: "You've joined the game!" });
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+      toast({ title: "Success", description: "You've joined the event!" });
       setIsOpen(false);
     },
     onError: (error) => {
@@ -117,11 +116,11 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
   });
 
   const editResponse = useMutation({
-    mutationFn: async (values: { playerId: number; name: string; email: string; likelihood: number; comment: string }) => { // Added comment
-      const responseToken = user?.uid || localStorage.getItem(`response-token-${values.playerId}`);
+    mutationFn: async (values: { participantId: number; name: string; email: string; likelihood: number; comment: string }) => {
+      const responseToken = user?.uid || localStorage.getItem(`response-token-${values.participantId}`);
       if (!responseToken) throw new Error("Not authorized to edit");
 
-      const res = await fetch(`/api/games/${game.urlHash}/players/${values.playerId}`, {
+      const res = await fetch(`/api/events/${event.urlHash}/participants/${values.participantId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...values, responseToken }),
@@ -130,9 +129,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
       toast({ title: "Success", description: "Response updated!" });
-      setEditingPlayer(null);
+      setEditingParticipant(null);
       setIsResponseEditDialogOpen(false);
     },
   });
@@ -149,47 +148,47 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
     if (formState.isRecurring && !formState.recurrenceFrequency) {
       toast({
         title: "Error",
-        description: "Please select a recurrence frequency for recurring games",
+        description: "Please select a recurrence frequency for recurring events",
         variant: "destructive"
       });
       return;
     }
 
-    const updatedGame = {
-      ...game,
+    const updatedEvent = {
+      ...event,
       title: formState.title,
       location: formState.location,
-      date: toUTC(formState.date, game.timezone).toISOString(),
-      endTime: formState.endTime ? toUTC(formState.endTime, game.timezone).toISOString() : null,
+      date: toUTC(formState.date, event.timezone).toISOString(),
+      endTime: formState.endTime ? toUTC(formState.endTime, event.timezone).toISOString() : null,
       notes: formState.notes,
       webLink: formState.webLink,
-      playerThreshold: Number(formState.playerThreshold),
+      participantThreshold: Number(formState.participantThreshold),
       creatorId: user?.uid,
-      timezone: game.timezone,
+      timezone: event.timezone,
       isRecurring: formState.isRecurring,
       recurrenceFrequency: formState.isRecurring ? formState.recurrenceFrequency : null,
       isPrivate: formState.isPrivate,
     };
 
     try {
-      const res = await fetch(`/api/games/${game.urlHash}`, {
+      const res = await fetch(`/api/events/${event.urlHash}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
-        body: JSON.stringify(updatedGame),
+        body: JSON.stringify(updatedEvent),
       });
 
       if (!res.ok) {
         const error = await res.text();
-        throw new Error(error || "Failed to update game");
+        throw new Error(error || "Failed to update event");
       }
 
       await res.json();
-      queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-      toast({ title: "Success", description: "Game updated successfully" });
-      setIsGameEditDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+      toast({ title: "Success", description: "Event updated successfully" });
+      setIsEventEditDialogOpen(false);
     } catch (error) {
       console.error('Update error:', error);
       toast({
@@ -200,40 +199,40 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
     }
   };
 
-  const [comment, setComment] = useState(''); // Added comment state
+  const [comment, setComment] = useState('');
 
   return (
     <Card className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""}`}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <Link href={`/games/${game.urlHash}`}>
+            <Link href={`/events/${event.urlHash}`}>
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                  {game?.title || (game?.activity?.name || 'Game')}
+                  {event?.title || (event?.eventType?.name || 'Event')}
                 </h3>
                 <span 
                   className="text-sm px-2 py-0.5 rounded-full" 
                   style={{ 
-                    backgroundColor: game?.activity?.color ? `${activityColors[game.activity.color as keyof typeof activityColors]}20` : '#eee',
-                    color: game?.activity?.color ? activityColors[game.activity.color as keyof typeof activityColors] : '#666'
+                    backgroundColor: event?.eventType?.color ? `${activityColors[event.eventType.color as keyof typeof activityColors]}20` : '#eee',
+                    color: event?.eventType?.color ? activityColors[event.eventType.color as keyof typeof activityColors] : '#666'
                   }}
                 >
-                  {game?.activity?.name || 'Activity'}
+                  {event?.eventType?.name || 'Activity'}
                 </span>
               </div>
             </Link>
             <div className="text-sm text-muted-foreground flex items-center">
               <MapPin className="mr-2 h-4 w-4" />
               <button
-                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(game.location)}`, '_blank')}
+                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`, '_blank')}
                 className="text-primary hover:underline"
               >
-                {game.location}
+                {event.location}
               </button>
             </div>
           </div>
-          {game.isPrivate && (
+          {event.isPrivate && (
             <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full flex items-center gap-1">
               <EyeOff className="h-3 w-3" />
               Private
@@ -246,16 +245,16 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           <div className="space-y-2">
             <div className="flex items-center text-sm">
               <Calendar className="mr-2 h-4 w-4" />
-              {formatWithTimezone(game.date, "PPP p", game.timezone)}
-              {game.endTime && (
+              {formatWithTimezone(event.date, "PPP p", event.timezone)}
+              {event.endTime && (
                 <span className="text-muted-foreground ml-1">
-                  - {formatWithTimezone(game.endTime, "p", game.timezone)}
+                  - {formatWithTimezone(event.endTime, "p", event.timezone)}
                 </span>
               )}
               <a
                 href={(() => {
-                  const startDate = game?.date ? new Date(game.date) : null;
-                  const endDate = game?.endTime ? new Date(game.endTime) : (startDate ? new Date(startDate.getTime() + 3600000) : null);
+                  const startDate = event?.date ? new Date(event.date) : null;
+                  const endDate = event?.endTime ? new Date(event.endTime) : (startDate ? new Date(startDate.getTime() + 3600000) : null);
                   
                   if (!startDate || isNaN(startDate.getTime())) return '#';
                   
@@ -264,7 +263,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     endDate.toISOString().replace(/[-:]/g, '').split('.')[0] : 
                     new Date(startDate.getTime() + 3600000).toISOString().replace(/[-:]/g, '').split('.')[0];
                     
-                  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(game?.title || `${game?.activity?.name || ''} Game`)}&dates=${startStr}Z/${endStr}Z&details=${encodeURIComponent(`Join us for ${game?.activity?.name || 'the game'}! ${window.location.origin}/games/${game?.urlHash}`)}&location=${encodeURIComponent(game?.location || '')}`;
+                  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event?.title || `${event?.eventType?.name || ''} Event`)}&dates=${startStr}Z/${endStr}Z&details=${encodeURIComponent(`Join us for ${event?.eventType?.name || 'the event'}! ${window.location.origin}/events/${event?.urlHash}`)}&location=${encodeURIComponent(event?.location || '')}`;
                 })()}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -274,24 +273,24 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
               </a>
             </div>
 
-            {game.isRecurring && (
+            {event.isRecurring && (
               <div className="flex items-center text-sm text-muted-foreground mt-1">
                 <Calendar className="mr-2 h-4 w-4" />
-                Recurring {game.recurrenceFrequency} game
+                Recurring {event.recurrenceFrequency} event
               </div>
             )}
 
-            {game.notes && (
+            {event.notes && (
               <div className="flex items-center text-sm text-muted-foreground">
                 <MessageSquare className="mr-2 h-4 w-4" />
-                {game.notes}
+                {event.notes}
               </div>
             )}
 
-            {game.webLink && (
+            {event.webLink && (
               <div className="text-sm">
                 <a
-                  href={game.webLink}
+                  href={event.webLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline flex items-center"
@@ -304,10 +303,10 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           </div>
           <div className="space-y-2 text-sm">
 
-            {game.weather && (
+            {event.weather && (
               <div className="flex items-center ml-6">
                 <span className="text-muted-foreground">
-                  Expected: <WeatherDisplay weather={game.weather} />
+                  Expected: <WeatherDisplay weather={event.weather} />
                 </span>
               </div>
             )}
@@ -317,37 +316,37 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             <div className="flex items-center text-sm mb-2">
               <Users className="mr-2 h-4 w-4" />
               <span>
-                {game?.playerThreshold || 0} players needed / {game?.players?.length || 0} responded
+                {event?.participantThreshold || 0} participants needed / {event?.participants?.length || 0} responded
                 <span className="text-xs text-muted-foreground ml-1">
-                  (~{((game?.playerThreshold || 0) * (progressPercentage / 100)).toFixed(1)} expected)
+                  (~{((event?.participantThreshold || 0) * (progressPercentage / 100)).toFixed(1)} expected)
                 </span>
               </span>
             </div>
             <Progress value={progressPercentage} className="h-2 mt-2" />
             <div className="mt-2 space-y-1">
-              {game?.players?.map((player, index) => (
-                <div key={player.id} className="flex items-center justify-between">
+              {event?.participants?.map((participant, index) => (
+                <div key={participant.id} className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    {index + 1}. {player.name} {(!player.likelihood || player.likelihood === 1) ? (
+                    {index + 1}. {participant.name} {(!participant.likelihood || participant.likelihood === 1) ? (
                       <span className="ml-1 text-xs text-green-600">Yes!</span>
                     ) : (
                       <span className="ml-1 text-xs text-yellow-600">
-                        Maybe ({Math.round(Number(player.likelihood) * 100)}%)
+                        Maybe ({Math.round(Number(participant.likelihood) * 100)}%)
                       </span>
-                    )} {player.comment && <span className="ml-2 text-muted-foreground">({player.comment})</span>}
+                    )} {participant.comment && <span className="ml-2 text-muted-foreground">({participant.comment})</span>}
                   </div>
                   <div className="flex gap-1">
-                    {canEditResponse(player) && (
+                    {canEditResponse(participant) && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setEditingPlayer(player);
-                          setPlayerName(player.name);
-                          setPlayerEmail(player.email || '');
-                          setJoinType(!player.likelihood || player.likelihood === 1 ? "yes" : "maybe");
-                          setLikelihood(player.likelihood || 0.5);
-                          setComment(player.comment || ''); // Set comment state
+                          setEditingParticipant(participant);
+                          setParticipantName(participant.name);
+                          setParticipantEmail(participant.email || '');
+                          setJoinType(!participant.likelihood || participant.likelihood === 1 ? "yes" : "maybe");
+                          setLikelihood(participant.likelihood || 0.5);
+                          setComment(participant.comment || '');
                           setIsResponseEditDialogOpen(true);
                         }}
                       >
@@ -359,9 +358,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                         variant="ghost"
                         size="sm"
                         onClick={async () => {
-                          if (confirm(`Remove ${player.name}'s response?`)) {
+                          if (confirm(`Remove ${participant.name}'s response?`)) {
                             try {
-                              const response = await fetch(`/api/games/${game.urlHash}/players/${player.id}`, {
+                              const response = await fetch(`/api/events/${event.urlHash}/participants/${participant.id}`, {
                                 method: "DELETE",
                                 headers: { "Content-Type": "application/json" }
                               });
@@ -370,8 +369,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                                 throw new Error('Failed to delete response');
                               }
                               
-                              queryClient.invalidateQueries({ queryKey: queryKeys.games.single(game.urlHash) });
-                              queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                              queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
+                              queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
                               toast({ title: "Success", description: "Response removed successfully" });
                             } catch (error) {
                               toast({
@@ -393,15 +392,15 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           </div>
 
 
-        {/* Join Game Dialog */}
+        {/* Join Event Dialog */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Join Game</DialogTitle>
+              <DialogTitle>Join Event</DialogTitle>
             </DialogHeader>
             <form onSubmit={(e) => {
               e.preventDefault();
-              joinGame.mutate();
+              joinEvent.mutate();
             }} className="space-y-4">
               <div className="space-y-2">
                 <Label>Are you joining?</Label>
@@ -437,8 +436,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
-                  value={playerName}
-                  onChange={(e) => setPlayerName(e.target.value)}
+                  value={participantName}
+                  onChange={(e) => setParticipantName(e.target.value)}
                   required
                 />
               </div>
@@ -448,8 +447,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <Input
                   id="email"
                   type="email"
-                  value={playerEmail}
-                  onChange={(e) => setPlayerEmail(e.target.value)}
+                  value={participantEmail}
+                  onChange={(e) => setParticipantEmail(e.target.value)}
                   placeholder="your@email.com (optional)"
                 />
               </div>
@@ -464,7 +463,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 />
               </div>
 
-              <Button type="submit" className="w-full">Join Game</Button>
+              <Button type="submit" className="w-full">Join Event</Button>
             </form>
           </DialogContent>
         </Dialog>
@@ -480,20 +479,20 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DialogHeader>
             <form onSubmit={(e) => {
               e.preventDefault();
-              if (!editingPlayer) return;
+              if (!editingParticipant) return;
 
               if (joinType === "no") {
-                fetch(`/api/games/${game.urlHash}/players/${editingPlayer.id}`, {
+                fetch(`/api/events/${event.urlHash}/participants/${editingParticipant.id}`, {
                   method: "DELETE",
                   headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem(`response-token-${editingPlayer.id}`) || user?.uid}`
+                    "Authorization": `Bearer ${localStorage.getItem(`response-token-${editingParticipant.id}`) || user?.uid}`
                   }
                 })
                   .then(() => {
-                    queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
+                    queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
                     toast({ title: "Success", description: "Response removed successfully" });
-                    setEditingPlayer(null);
+                    setEditingParticipant(null);
                     setIsResponseEditDialogOpen(false);
                   })
                   .catch(() => {
@@ -505,11 +504,11 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   });
               } else {
                 editResponse.mutate({
-                  playerId: editingPlayer.id,
-                  name: playerName,
-                  email: playerEmail,
+                  participantId: editingParticipant.id,
+                  name: participantName,
+                  email: participantEmail,
                   likelihood: joinType === "yes" ? 1 : likelihood,
-                  comment: comment //Added comment
+                  comment: comment
                 });
               }
             }} className="space-y-4">
@@ -551,8 +550,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <Label htmlFor="edit-name">Name</Label>
                 <Input
                   id="edit-name"
-                  value={playerName}
-                  onChange={(e) => setPlayerName(e.target.value)}
+                  value={participantName}
+                  onChange={(e) => setParticipantName(e.target.value)}
                   required
                 />
               </div>
@@ -562,8 +561,8 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <Input
                   id="edit-email"
                   type="email"
-                  value={playerEmail}
-                  onChange={(e) => setPlayerEmail(e.target.value)}
+                  value={participantEmail}
+                  onChange={(e) => setParticipantEmail(e.target.value)}
                 />
               </div>
               <div>
@@ -591,9 +590,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
         <Button
           className="flex-1"
           onClick={() => setIsOpen(true)}
-          variant={hasMinimumPlayers ? "outline" : "default"}
+          variant={hasMinimumParticipants ? "outline" : "default"}
         >
-          {hasMinimumPlayers ? "Join Game (Has Enough Players)" : "Join Game"}
+          {hasMinimumParticipants ? "Join Event (Has Enough Participants)" : "Join Event"}
         </Button>
 
         {/* Share Button */}
@@ -605,15 +604,15 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/games/${game.urlHash}`);
-              toast({ title: "Link Copied", description: "Game link copied to clipboard!" });
+              navigator.clipboard.writeText(`${window.location.origin}/events/${event.urlHash}`);
+              toast({ title: "Link Copied", description: "Event link copied to clipboard!" });
             }}>
               <LinkIcon className="mr-2 h-4 w-4" />
               Copy Link
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               window.open(
-                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/games/${game.urlHash}`)}`,
+                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/events/${event.urlHash}`)}`,
                 '_blank'
               );
             }}>
@@ -622,7 +621,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               window.open(
-                `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${window.location.origin}/games/${game?.urlHash || ''}`)}&text=${encodeURIComponent(`Join our ${game?.activity?.name || 'upcoming'} game!`)}`,
+                `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${window.location.origin}/events/${event?.urlHash || ''}`)}&text=${encodeURIComponent(`Join our ${event?.eventType?.name || 'upcoming'} event!`)}`,
                 '_blank'
               );
             }}>
@@ -631,7 +630,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               window.open(
-                `sms:?body=${encodeURIComponent(`Join our ${game.activity.name} game: ${window.location.origin}/games/${game.urlHash}`)}`,
+                `sms:?body=${encodeURIComponent(`Join our ${event.eventType.name} event: ${window.location.origin}/events/${event.urlHash}`)}`,
                 '_blank'
               );
             }}>
@@ -643,23 +642,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
 
         {/* Edit Button */}
         {canDelete && (
-          <Dialog open={isGameEditDialogOpen} onOpenChange={(open) => {
-            setIsGameEditDialogOpen(open);
-            if (open) {
-              setFormState({
-                title: game.title,
-                location: game.location,
-                date: utcToLocalInput(game.date, game.timezone),
-                endTime: game.endTime ? utcToLocalInput(game.endTime, game.timezone) : '',
-                playerThreshold: game.playerThreshold,
-                notes: game.notes || '',
-                webLink: game.webLink || '',
-                isRecurring: game.isRecurring === true,
-                recurrenceFrequency: game.recurrenceFrequency,
-                isPrivate: game.isPrivate === true
-              });
-            }
-          }}>
+          <Dialog open={isEventEditDialogOpen} onOpenChange={setIsEventEditDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="icon">
                 <Edit className="h-4 w-4" />
@@ -667,17 +650,17 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DialogTrigger>
             <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Edit Game</DialogTitle>
+                <DialogTitle>Edit Event</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleEditSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Game Visibility</Label>
+                  <Label>Event Visibility</Label>
                   <Select
                     value={formState.isPrivate ? 'private' : 'public'}
                     onValueChange={(value) => setFormState(prev => ({ ...prev, isPrivate: value === 'private' }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select game visibility" />
+                      <SelectValue placeholder="Select event visibility" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="public">Public (Visible on homepage)</SelectItem>
@@ -700,7 +683,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Date & Time ({game.timezone})</Label>
+                  <Label>Date & Time ({event.timezone})</Label>
                   <Input
                     type="datetime-local"
                     value={formState.date}
@@ -708,7 +691,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>End Time ({game.timezone})</Label>
+                  <Label>End Time ({event.timezone})</Label>
                   <Input
                     type="datetime-local"
                     value={formState.endTime}
@@ -716,12 +699,12 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Player Threshold</Label>
+                  <Label>Participant Threshold</Label>
                   <Input
                     type="number"
                     min="2"
-                    value={formState.playerThreshold}
-                    onChange={(e) => setFormState(prev => ({ ...prev, playerThreshold: Number(e.target.value) }))}
+                    value={formState.participantThreshold}
+                    onChange={(e) => setFormState(prev => ({ ...prev, participantThreshold: Number(e.target.value) }))}
                   />
                 </div>
                 <div className="space-y-2">
@@ -729,7 +712,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   <Input
                     value={formState.notes}
                     onChange={(e) => setFormState(prev => ({ ...prev, notes: e.target.value }))}
-                    placeholder="Add any details about the game, like level of play, parking instructions, etc."
+                    placeholder="Add any details about the event, like level of play, parking instructions, etc."
                   />
                 </div>
                 <div className="space-y-2">
@@ -741,7 +724,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Recurring Game</Label>
+                  <Label>Recurring Event</Label>
                   <Select
                     value={String(formState.isRecurring)}
                     onValueChange={(value) => {
@@ -753,7 +736,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Is this a recurring game?" />
+                      <SelectValue placeholder="Is this a recurring event?" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="false">No</SelectItem>
@@ -775,7 +758,7 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="How often does this game repeat?" />
+                        <SelectValue placeholder="How often does this event repeat?" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="weekly">Weekly</SelectItem>
@@ -803,9 +786,9 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Delete Game</DialogTitle>
+                <DialogTitle>Delete Event</DialogTitle>
               </DialogHeader>
-              <p>Are you sure you want to delete this game? This action cannot be undone.</p>
+              <p>Are you sure you want to delete this event? This action cannot be undone.</p>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
                   Cancel
@@ -813,15 +796,15 @@ export default function GameCard({ game, fullscreen = false }: GameCardProps) {
                 <Button
                   variant="destructive"
                   onClick={() => {
-                    fetch(`/api/games/${game.urlHash}`, { method: "DELETE" })
+                    fetch(`/api/events/${event.urlHash}`, { method: "DELETE" })
                       .then(() => {
-                        queryClient.invalidateQueries({ queryKey: queryKeys.games.all });
-                        toast({ title: "Success", description: "Game deleted successfully" });
+                        queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+                        toast({ title: "Success", description: "Event deleted successfully" });
                       })
                       .catch(() => {
                         toast({
                           title: "Error",
-                          description: "Failed to delete game",
+                          description: "Failed to delete event",
                           variant: "destructive",
                         });
                       });

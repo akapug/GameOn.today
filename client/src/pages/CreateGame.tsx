@@ -8,10 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ActivitySelect from "@/components/ActivitySelect";
+import EventTypeSelect from "@/components/EventTypeSelect";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { type NewGame } from "@db/schema";
+import { type NewEvent } from "@db/schema";
 import { useAuth } from "@/components/AuthProvider";
 import { useState } from "react";
 import AuthDialog from "@/components/AuthDialog";
@@ -26,7 +26,7 @@ function isValidUrl(string: string) {
   }
 }
 
-export default function CreateGame() {
+export default function CreateEvent() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -34,15 +34,15 @@ export default function CreateGame() {
   const [showAuthDialog, setShowAuthDialog] = useState(!user);
   const userTimezone = getUserTimezone();
 
-  const form = useForm<NewGame>({
+  const form = useForm<NewEvent>({
     defaultValues: {
       title: "",
       location: "",
       date: "",
       endTime: "",
       timezone: userTimezone,
-      playerThreshold: 10,
-      activityId: null,
+      participantThreshold: 10,
+      eventTypeId: null,
       creatorId: user?.uid || undefined,
       creatorName: user?.displayName || "",
       notes: "",
@@ -57,15 +57,15 @@ export default function CreateGame() {
       if (!data.title?.trim()) errors.title = { message: "Title is required" };
       if (!data.location?.trim()) errors.location = { message: "Location is required" };
       if (!data.date?.trim()) errors.date = { message: "Start time is required" };
-      if (!data.activityId) errors.activityId = { message: "Activity is required" };
-      if (!data.playerThreshold || data.playerThreshold <= 1) {
-        errors.playerThreshold = { message: "Player threshold must be greater than 1" };
+      if (!data.eventTypeId) errors.eventTypeId = { message: "Event type is required" };
+      if (!data.participantThreshold || data.participantThreshold <= 1) {
+        errors.participantThreshold = { message: "Participant threshold must be greater than 1" };
       }
       if (data.webLink && !isValidUrl(data.webLink)) {
         errors.webLink = { message: "Please enter a valid URL" };
       }
       if (data.isRecurring && !data.recurrenceFrequency) {
-        errors.recurrenceFrequency = { message: "Recurrence frequency is required for recurring games" };
+        errors.recurrenceFrequency = { message: "Recurrence frequency is required for recurring events" };
       }
 
       return {
@@ -75,43 +75,31 @@ export default function CreateGame() {
     },
   });
 
-  const createGame = useMutation({
-    mutationFn: async (values: NewGame) => {
+  const createEvent = useMutation({
+    mutationFn: async (values: NewEvent) => {
       const requiredFields = {
-        activityId: values.activityId,
+        eventTypeId: values.eventTypeId,
         location: values.location?.trim(),
         date: values.date,
-        playerThreshold: values.playerThreshold,
+        participantThreshold: values.participantThreshold,
         creatorId: user?.uid,
         title: values.title?.trim()
       };
-
-      console.log('Form submission details:', {
-        values,
-        requiredFields,
-        user: user?.uid,
-        isAuthenticated: !!user,
-        activityIdType: typeof values.activityId,
-        dateType: typeof values.date,
-        playerThresholdType: typeof values.playerThreshold
-      });
 
       const missingFields = Object.entries(requiredFields)
         .filter(([_, value]) => !value)
         .map(([key]) => key);
 
       if (missingFields.length > 0) {
-        console.error('Missing fields:', missingFields);
         throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
       }
 
-      console.log('Activity ID:', values.activityId, typeof values.activityId);
-      const gameData = {
+      const eventData = {
         ...values,
         date: toUTC(values.date, values.timezone).toISOString(),
         endTime: values.endTime ? toUTC(values.endTime, values.timezone).toISOString() : null,
-        activityId: typeof values.activityId === 'string' ? parseInt(values.activityId, 10) : values.activityId,
-        playerThreshold: Number(values.playerThreshold),
+        eventTypeId: typeof values.eventTypeId === 'string' ? parseInt(values.eventTypeId, 10) : values.eventTypeId,
+        participantThreshold: Number(values.participantThreshold),
         isRecurring: values.isRecurring === true,
         recurrenceFrequency: values.isRecurring === true ? values.recurrenceFrequency : null,
         isPrivate: values.isPrivate === true,
@@ -120,39 +108,31 @@ export default function CreateGame() {
         creatorName: user?.displayName || '',
       };
 
-      console.log('Sending game creation request:', gameData);
-      const res = await fetch("/api/games", {
+      const res = await fetch("/api/events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
-        body: JSON.stringify(gameData),
+        body: JSON.stringify(eventData),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        console.error('Server response:', errorData);
-        throw new Error(errorData.message + (errorData.fields ? `: ${errorData.fields.join(', ')}` : ''));
-      }
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to create game");
+        throw new Error(errorData.message || "Failed to create event");
       }
 
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["games"] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
       toast({
         title: "Success",
-        description: "Game created successfully",
+        description: "Event created successfully",
       });
       navigate("/");
     },
     onError: (error) => {
-      console.error('Create error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -160,9 +140,6 @@ export default function CreateGame() {
       });
     },
   });
-
-
-              <p className="text-sm text-muted-foreground mb-4">Fields marked with * are required</p>
 
   if (!user) {
     return (
@@ -182,7 +159,7 @@ export default function CreateGame() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-          <h1 className="text-2xl font-bold ml-4">Create New Game</h1>
+          <h1 className="text-2xl font-bold ml-4">Create New Event</h1>
         </div>
       </header>
 
@@ -190,14 +167,14 @@ export default function CreateGame() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit((data) => createGame.mutate(data))} className="space-y-6">
+              <form onSubmit={form.handleSubmit((data) => createEvent.mutate(data))} className="space-y-6">
                 <FormField
                   control={form.control}
-                  name="activityId"
+                  name="eventTypeId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Activity</FormLabel>
-                      <ActivitySelect {...field} hideAllActivities={true} />
+                      <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Event Type</FormLabel>
+                      <EventTypeSelect {...field} hideAllEventTypes={true} />
                     </FormItem>
                   )}
                 />
@@ -207,13 +184,13 @@ export default function CreateGame() {
                   name="isPrivate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Game Visibility</FormLabel>
+                      <FormLabel>Event Visibility</FormLabel>
                       <Select
                         onValueChange={(value) => field.onChange(value === 'private')}
                         value={field.value ? 'private' : 'public'}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select game visibility" />
+                          <SelectValue placeholder="Select event visibility" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="public">Public (Visible on homepage)</SelectItem>
@@ -231,7 +208,7 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="Game title..." {...field} />
+                        <Input placeholder="Event title..." {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -244,7 +221,7 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Location</FormLabel>
                       <FormControl>
-                        <Input placeholder="Game location..." {...field} />
+                        <Input placeholder="Event location..." {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -313,10 +290,10 @@ export default function CreateGame() {
 
                 <FormField
                   control={form.control}
-                  name="playerThreshold"
+                  name="participantThreshold"
                   render={({ field: { onChange, ...field } }) => (
                     <FormItem>
-                      <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Player Threshold</FormLabel>
+                      <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Participant Threshold</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -336,7 +313,7 @@ export default function CreateGame() {
                     <FormItem>
                       <FormLabel>Notes</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Add any details about the game, like level of play, parking instructions, etc." className="min-h-[100px]" {...field} />
+                        <Textarea placeholder="Add any details about the event, like level of play, parking instructions, etc." className="min-h-[100px]" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -360,14 +337,14 @@ export default function CreateGame() {
                   name="isRecurring"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Recurring Game</FormLabel>
+                      <FormLabel>Recurring Event</FormLabel>
                       <FormControl>
                         <Select
                           onValueChange={(value) => field.onChange(value === 'true')}
                           value={String(field.value === true)}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Is this a recurring game?" />
+                            <SelectValue placeholder="Is this a recurring event?" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="false">No</SelectItem>
@@ -389,7 +366,7 @@ export default function CreateGame() {
                         <FormControl>
                           <Select onValueChange={field.onChange} value={field.value || ''}>
                             <SelectTrigger>
-                              <SelectValue placeholder="How often does this game repeat?" />
+                              <SelectValue placeholder="How often does this event repeat?" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="weekly">Weekly</SelectItem>
@@ -403,8 +380,8 @@ export default function CreateGame() {
                   />
                 )}
 
-                <Button type="submit" className="w-full" disabled={createGame.isPending}>
-                  Create Game
+                <Button type="submit" className="w-full" disabled={createEvent.isPending}>
+                  Create Event
                 </Button>
               </form>
             </Form>

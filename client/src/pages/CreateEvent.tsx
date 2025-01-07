@@ -296,11 +296,7 @@ export default function CreateEvent() {
                     <FormItem>
                       <FormLabel>Notes</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Add any details about the event..." 
-                          className="min-h-[100px]" 
-                          {...field} 
-                        />
+                        <Textarea placeholder="Add any details about the event..." className="min-h-[100px]" {...field} />
                       </FormControl>
                     </FormItem>
                   )}

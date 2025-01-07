@@ -1,38 +1,37 @@
-import GameCard from "./GameCard";
-import { type Game, type Player, type Activity } from "@db/schema";
+import EventCard from "./EventCard";
+import { type Event, type Participant, type EventType } from "@db/schema";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { WeatherInfo } from "../../server/services/weather";
-import { useQuery } from '@tanstack/react-query'; // Added import for useQuery
+import { useQuery } from '@tanstack/react-query';
 
-interface GameListProps {
-  games: Array<Game & { 
-    players: Array<Player>;
-    activity: Activity;
+interface EventListProps {
+  events: Array<Event & { 
+    participants: Array<Participant>;
+    event_type: EventType;
     weather: WeatherInfo | null;
   }>;
   emptyMessage?: string;
-  onCreateGame?: () => void;
+  onCreateEvent?: () => void;
 }
 
-export default function GameList({ games, emptyMessage = "No games found", onCreateGame }: GameListProps) {
-  //Added useQuery hook with caching parameters
-  const { data: fetchedGames, isLoading, error } = useQuery({
-    queryKey: ["/api/games"],
-    queryFn: () => fetch('/api/games').then(res => res.json()), //Added fetch function
+export default function EventList({ events, emptyMessage = "No events found", onCreateEvent }: EventListProps) {
+  const { data: fetchedEvents, isLoading, error } = useQuery({
+    queryKey: ["/api/events"],
+    queryFn: () => fetch('/api/events').then(res => res.json()),
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
   });
 
-  const gamesToDisplay = Array.isArray(fetchedGames) ? fetchedGames : (Array.isArray(games) ? games : []); // Use fetchedGames if available, otherwise fallback to props
+  const eventsToDisplay = Array.isArray(fetchedEvents) ? fetchedEvents : (Array.isArray(events) ? events : []);
 
-  if (gamesToDisplay.length === 0 && onCreateGame) {
+  if (eventsToDisplay.length === 0 && onCreateEvent) {
     return (
       <div className="text-center py-12 space-y-4">
         <p className="text-muted-foreground">{emptyMessage}</p>
-        <Button variant="outline" size="sm" onClick={onCreateGame}>
+        <Button variant="outline" size="sm" onClick={onCreateEvent}>
           <Plus className="mr-2 h-4 w-4" />
-          Create Game
+          Create Event
         </Button>
       </div>
     );
@@ -40,8 +39,8 @@ export default function GameList({ games, emptyMessage = "No games found", onCre
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {gamesToDisplay.map((game) => (
-        <GameCard key={game.id} game={game} />
+      {eventsToDisplay.map((event) => (
+        <EventCard key={event.id} event={event} />
       ))}
     </div>
   );
