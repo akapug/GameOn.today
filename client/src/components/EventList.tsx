@@ -17,7 +17,14 @@ interface EventListProps {
 }
 
 export default function EventList({ events, emptyMessage = "No events found", onCreateEvent }: EventListProps) {
-  const eventsToDisplay = Array.isArray(events) ? events : [];
+  const { data: fetchedEvents, isLoading } = useQuery({
+    queryKey: ["/api/events"],
+    queryFn: () => fetch('/api/events').then(res => res.json()),
+    staleTime: 0, // Always check for fresh data
+    refetchInterval: 3000, // Refetch every 3 seconds
+  });
+
+  const eventsToDisplay = Array.isArray(fetchedEvents) ? fetchedEvents : [];
 
   if (eventsToDisplay.length === 0 && onCreateEvent) {
     return (
