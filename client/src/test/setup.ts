@@ -43,9 +43,12 @@ vi.mock('@tanstack/react-query', () => ({
 // Mock AuthProvider context
 vi.mock('../components/AuthProvider', () => ({
   useAuth: () => ({
-    user: { id: 'test-user' },
-    isAuthenticated: true
-  })
+    user: { uid: 'test-user', displayName: 'Test User' },
+    loading: false,
+    signInWithGoogle: vi.fn(),
+    logout: vi.fn()
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
 }));
 
 afterEach(() => {
