@@ -167,7 +167,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <div className="flex items-center text-sm mb-2">
               <Users className="mr-2 h-4 w-4" />
               <span>
-                {event.participantThreshold} participants needed / {event.participants?.length || 0} responded
+                {event.participantThreshold} participants needed / {event.participants.length || 0} responded
               </span>
             </div>
             <Progress value={progressPercentage} className="h-2 mt-2" />
