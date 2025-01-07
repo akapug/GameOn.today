@@ -98,9 +98,8 @@ describe('Event System', () => {
       await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
       
       const eventTypeSelect = screen.getByLabelText(/Event Type/i);
-      await userEvent.click(eventTypeSelect);
       await userEvent.click(screen.getByRole('combobox', { name: /Event Type/i }));
-      await userEvent.click(screen.getByRole('option', { name: /Test Type/i }));
+      await userEvent.type(screen.getByRole('combobox', { name: /Event Type/i }), 'Test Type');
       
       await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
       

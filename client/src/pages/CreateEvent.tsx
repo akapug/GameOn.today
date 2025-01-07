@@ -120,7 +120,7 @@ export default function CreateEvent() {
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: "API Error",
         description: error.message,
         variant: "destructive",
       });
