@@ -1,9 +1,9 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
 import { apiRequest } from "@/lib/api";
 import { type Event as EventType, type Participant, type EventType as EventTypeModel } from "@db/schema";
 import { Spinner } from "@/components/ui/spinner";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Calendar,
@@ -36,6 +36,7 @@ import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "@/components/WeatherDisplay";
 import type { WeatherInfo } from "../../../server/services/weather";
 import EventCard from "@/components/EventCard";
+import { formatWithTimezone } from "@/lib/dates";
 
 interface EventWithDetails extends EventType {
   participants: Array<Participant>;
@@ -55,7 +56,7 @@ export default function Event() {
   const { user } = useAuth();
   const [joinType, setJoinType] = useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = useState(0.5);
-  const [isEventEditDialogOpen, setIsEventEditDialogOpen] = useState(false); // Added state for edit dialog
+  const [isEventEditDialogOpen, setIsEventEditDialogOpen] = useState(false);
 
   const { data: event, isLoading, error } = useQuery<EventWithDetails>({
     queryKey: params?.hash ? ['/api/events', params.hash] : undefined,
@@ -235,20 +236,21 @@ export default function Event() {
           </DropdownMenu>
 
           {canDelete && (
-          <>
-            <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
-              <Edit2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="text-destructive"
-              onClick={() => setShowDeleteConfirm(true)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </>
-        )}
+            <>
+              <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
+                <Edit2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="text-destructive"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+        </div>
 
         {/* Join Event Dialog */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
