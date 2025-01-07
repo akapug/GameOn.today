@@ -23,12 +23,10 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    strictPort: true,
     hmr: {
-      port: 443,
-      protocol: 'wss',
       clientPort: 443,
-      timeout: 10000
+      host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
+      protocol: 'wss'
     }
   },
 });
