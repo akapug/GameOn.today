@@ -14,8 +14,7 @@
     "check": "tsc",
     "db:push": "drizzle-kit push:pg",
     "migrate": "tsx",
-    "precommit": "vitest run",
-    "test:watch": "vitest"
+    "precommit": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
