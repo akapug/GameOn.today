@@ -1,0 +1,67 @@
+8:57:24 AM [vite] Internal server error: /home/runner/GameOntoday/client/src/pages/Event.tsx: Expected corresponding JSX closing tag for <div>. (340:6)
+
+  338 |           </DialogContent>
+  339 |         </Dialog>
+> 340 |       </main>
+      |       ^
+  341 |     </div>
+  342 |   );
+  343 | }
+  Plugin: vite:react-babel
+  File: /home/runner/GameOntoday/client/src/pages/Event.tsx:340:6
+  338|            </DialogContent>
+  339|          </Dialog>
+  340|        </main>
+     |        ^
+  341|      </div>
+  342|    );
+      at toParseError (/home/runner/GameOntoday/node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at raise (/home/runner/GameOntoday/node_modules/@babel/parser/src/tokenizer/index.ts:1496:19)
+      at jsxParseElementAt (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/jsx/index.ts:520:18)
+      at jsxParseElementAt (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/jsx/index.ts:476:34)
+      at jsxParseElementAt (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/jsx/index.ts:476:34)
+      at jsxParseElement (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/jsx/index.ts:552:19)
+      at parseExprAtom (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/jsx/index.ts:566:21)
+      at parseExprSubscripts (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:709:23)
+      at parseUpdate (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:688:21)
+      at parseMaybeUnary (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:650:23)
+      at parseMaybeUnary (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/typescript/index.ts:3584:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:389:14)
+      at parseExprOps (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:401:23)
+      at parseMaybeConditional (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:356:23)
+      at parseMaybeAssign (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:298:21)
+      at fn (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/typescript/index.ts:3437:23)
+      at tryParse (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/util.ts:174:20)
+      at parseMaybeAssign (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/typescript/index.ts:3436:20)
+      at callback (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:252:12)
+      at allowInAnd (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:3116:12)
+      at parseMaybeAssignAllowIn (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:251:17)
+      at parseParenAndDistinguishExpression (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:1779:16)
+      at parseExprAtom (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:1126:21)
+      at parseExprAtom (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/jsx/index.ts:576:22)
+      at parseExprSubscripts (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:709:23)
+      at parseUpdate (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:688:21)
+      at parseMaybeUnary (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:650:23)
+      at parseMaybeUnary (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/typescript/index.ts:3584:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:389:14)
+      at parseExprOps (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:401:23)
+      at parseMaybeConditional (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:356:23)
+      at parseMaybeAssign (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:298:21)
+      at parseMaybeAssign (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/typescript/index.ts:3456:22)
+      at parseExpressionBase (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:221:23)
+      at callback (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:212:39)
+      at allowInAnd (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:3111:16)
+      at parseExpression (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:212:17)
+      at parseReturnStatement (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/statement.ts:1078:28)
+      at parseStatementContent (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/statement.ts:498:21)
+      at parseStatementContent (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/typescript/index.ts:2906:20)
+      at parseStatementLike (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/statement.ts:437:17)
+      at parseStatementListItem (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/statement.ts:386:17)
+      at parseBlockOrModuleBlockBody (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/statement.ts:1407:16)
+      at parseBlockBody (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/statement.ts:1380:10)
+      at parseBlock (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/statement.ts:1348:10)
+      at parseFunctionBody (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:2565:24)
+      at parseFunctionBodyAndFinish (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:2534:10)
+      at parseFunctionBodyAndFinish (/home/runner/GameOntoday/node_modules/@babel/parser/src/plugins/typescript/index.ts:2414:20)
+      at callback (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/statement.ts:1654:12)
+      at withSmartMixTopicForbiddingContext (/home/runner/GameOntoday/node_modules/@babel/parser/src/parser/expression.ts:3090:14) (x2)
