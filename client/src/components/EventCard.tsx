@@ -63,7 +63,6 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
     e.preventDefault();
 
     const updatedEvent = {
-      ...event,
       title: formState.title,
       location: formState.location,
       date: formState.date,
@@ -75,7 +74,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       webLink: formState.webLink,
       isRecurring: formState.isRecurring,
       recurrenceFrequency: formState.recurrenceFrequency,
-      creatorId: event.creatorId
+      creatorId: event.creatorId,
+      timezone: event.timezone || 'UTC'
     };
 
     try {
@@ -90,10 +90,10 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       }
 
       const data = await res.json();
-      
+
       // Update all event properties including event type
       Object.assign(event, data);
-      
+
       // Update form state with new data
       setFormState(prev => ({
         ...prev,
@@ -104,7 +104,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
       await queryClient.invalidateQueries({ queryKey: ['/api/event-types'] });
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
-      
+
       toast({ title: "Success", description: "Event updated successfully" });
       setIsEventEditDialogOpen(false);
     } catch (error) {
