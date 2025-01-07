@@ -78,18 +78,24 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       timezone: event.timezone || 'UTC'
     };
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     try {
       const res = await fetch(`/api/events/${event.urlHash}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedEvent),
+        signal: controller.signal
       });
 
       if (!res.ok) {
-        throw new Error(await res.text());
+        const errorText = await res.text();
+        throw new Error(errorText || 'Failed to update event');
       }
 
       const data = await res.json();
+      clearTimeout(timeout);
 
       // Update all event properties including event type
       Object.assign(event, data);
@@ -108,9 +114,14 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       toast({ title: "Success", description: "Event updated successfully" });
       setIsEventEditDialogOpen(false);
     } catch (error) {
+      clearTimeout(timeout);
+      const errorMessage = error instanceof Error 
+        ? (error.name === 'AbortError' ? 'Request timed out' : error.message)
+        : "Failed to update event";
+      
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update event",
+        description: errorMessage,
         variant: "destructive",
       });
     }
