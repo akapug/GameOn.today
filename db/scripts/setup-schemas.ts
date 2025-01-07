@@ -14,9 +14,10 @@ async function main() {
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS production.activities (
         id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
         color TEXT NOT NULL,
-        icon TEXT NOT NULL
+        icon TEXT NOT NULL,
+        CONSTRAINT activities_name_key UNIQUE (name)
       )`);
 
     await db.execute(sql`
@@ -58,9 +59,10 @@ async function main() {
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS development.activities (
         id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
         color TEXT NOT NULL,
-        icon TEXT NOT NULL
+        icon TEXT NOT NULL,
+        CONSTRAINT activities_name_key UNIQUE (name)
       )`);
 
     await db.execute(sql`
@@ -110,12 +112,12 @@ async function main() {
       await db.execute(sql`
         INSERT INTO production.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT (name) DO NOTHING`);
+        ON CONFLICT ON CONSTRAINT activities_name_key DO NOTHING`);
       
       await db.execute(sql`
         INSERT INTO development.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT (name) DO NOTHING`);
+        ON CONFLICT ON CONSTRAINT activities_name_key DO NOTHING`);
     }
 
     console.log('Schema setup completed successfully');
