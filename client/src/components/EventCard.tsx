@@ -566,10 +566,10 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             handleEditSubmit(e);
           }} className="space-y-4">
             <div className="space-y-2">
-              <Label>Event Type</Label>
+              <Label>Event Type <span className="text-red-500">*</span></Label>
               <EventTypeSelect 
                 value={formState.eventTypeId}
-                onChange={(value) => setFormState(prev => ({ ...prev, eventTypeId: value ? parseInt(value) : 0 }))}
+                onChange={(value) => setFormState(prev => ({ ...prev, eventTypeId: Number(value) }))}
               />
             </div>
             <div className="space-y-2">
@@ -588,23 +588,25 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
               <Input
                 id="title"
                 value={formState.title}
                 onChange={(e) => setFormState(prev => ({ ...prev, title: e.target.value }))}
+                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">Location <span className="text-red-500">*</span></Label>
               <Input
                 id="location"
                 value={formState.location}
                 onChange={(e) => setFormState(prev => ({ ...prev, location: e.target.value }))}
+                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="date">Date & Time</Label>
+              <Label htmlFor="date">Date & Time ({event.timezone}) <span className="text-red-500">*</span></Label>
               <Input
                 id="date"
                 type="datetime-local"
@@ -613,6 +615,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                   ...prev, 
                   date: localToUTCInput(e.target.value, event.timezone || 'UTC')
                 }))}
+                required
               />
             </div>
             <div className="space-y-2">
@@ -625,13 +628,14 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="participantThreshold">Participant Threshold</Label>
+              <Label htmlFor="participantThreshold">Participant Threshold <span className="text-red-500">*</span></Label>
               <Input
                 id="participantThreshold"
                 type="number"
                 min="2"
                 value={formState.participantThreshold}
                 onChange={(e) => setFormState(prev => ({ ...prev, participantThreshold: parseInt(e.target.value) }))}
+                required
               />
             </div>
             <div className="space-y-2">
