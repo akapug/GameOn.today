@@ -55,6 +55,7 @@ export default function Event() {
   const { user } = useAuth();
   const [joinType, setJoinType] = useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = useState(0.5);
+  const [isEventEditDialogOpen, setIsEventEditDialogOpen] = useState(false); // Added state for edit dialog
 
   const { data: event, isLoading, error } = useQuery<EventWithDetails>({
     queryKey: params?.hash ? ['/api/events', params.hash] : undefined,
@@ -110,12 +111,12 @@ export default function Event() {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
-      
+
       if (!response.ok) {
         const error = await response.text();
         throw new Error(error || "Failed to delete event");
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
@@ -162,6 +163,21 @@ export default function Event() {
       </header>
       <main className="container py-6 px-4">
         <EventCard event={event} extended={true} />
+        {canDelete && (
+          <>
+            <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="text-destructive"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </>
+        )}
 
         {/* Join Event Dialog */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
