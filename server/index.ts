@@ -51,9 +51,15 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
   });
 
+  const startupTimeout = setTimeout(() => {
+    console.error('Server startup timeout exceeded');
+    process.exit(1);
+  }, 30000);
+
   if (process.env.NODE_ENV !== "production") {
     log("Starting development server with Vite...");
     await setupVite(app, server);
+    clearTimeout(startupTimeout);
   } else {
     // Production: Serve static files with enhanced error handling
     log("Starting production server...");
