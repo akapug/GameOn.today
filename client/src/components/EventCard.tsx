@@ -249,7 +249,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 <span>{formatWithTimezone(event.date, "PPP p", event.timezone || 'UTC')}</span>
                 {event.endTime && (
                   <span className="text-muted-foreground ml-1">
-                    - {formatWithTimezone(event.endTime, "p", event.timezone || 'UTC')}
+                    - {formatWithTimezone(event.endTime, "p", event.timezone || 'UTC').split(' ')[0]}
                   </span>
                 )}
               </div>
@@ -605,7 +605,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="date">Date & Time</Label>
+              <Label htmlFor="date">Date & Time ({event.timezone})</Label>
               <Input
                 id="date"
                 type="datetime-local"
