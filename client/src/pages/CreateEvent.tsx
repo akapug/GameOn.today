@@ -51,6 +51,7 @@ export default function CreateEvent() {
       recurrenceFrequency: null,
       isPrivate: false,
     },
+    mode: "onChange",
     resolver: async (data) => {
       const errors: Record<string, { message: string }> = {};
 
