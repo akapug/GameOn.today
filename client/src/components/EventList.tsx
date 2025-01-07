@@ -20,8 +20,10 @@ export default function EventList({ events, emptyMessage = "No events found", on
   const { data: fetchedEvents, isLoading } = useQuery({
     queryKey: ["/api/events"],
     queryFn: () => fetch('/api/events').then(res => res.json()),
-    staleTime: 0, // Always check for fresh data
-    refetchInterval: 3000, // Refetch every 3 seconds
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: false,
+    retry: 2,
+    retryDelay: 1000
   });
 
   const eventsToDisplay = Array.isArray(events) ? events : [];
