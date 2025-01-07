@@ -1,4 +1,3 @@
-
 import { Fragment } from "react"
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -15,20 +14,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useActivities } from "@/lib/activities"
+import { useQuery } from "@tanstack/react-query";
 import { forwardRef } from "react"
+import { type EventType } from "@db/schema";
 
-interface ActivitySelectProps {
-  value: number;
-  onChange: (value: number) => void;
-  hideAllActivities?: boolean;
+interface EventTypeSelectProps {
+  value: number | null;
+  onChange: (value: number | null) => void;
+  hideAllTypes?: boolean;
 }
 
-const EventTypeSelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props, ref) => {
-  const { value, onChange, hideAllActivities } = props;
-  const { data: activities, error, isLoading } = useActivities();
+const EventTypeSelect = forwardRef<HTMLButtonElement, EventTypeSelectProps>((props, ref) => {
+  const { value, onChange, hideAllTypes } = props;
 
-  const selectedActivity = activities?.find(a => a.id === value);
+  const { data: eventTypes, error, isLoading } = useQuery<EventType[]>({
+    queryKey: ['/api/event-types'],
+  });
+
+  const selectedType = eventTypes?.find(t => t.id === value);
 
   return (
     <Popover>
@@ -42,47 +45,47 @@ const EventTypeSelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((prop
             !value && "text-muted-foreground"
           )}
         >
-          {selectedActivity ? selectedActivity.name : "Select activity..."}
+          {selectedType ? selectedType.name : "Select event type..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search activities..." />
+          <CommandInput placeholder="Search event types..." />
           <CommandEmpty>
-            {error ? "Error loading activities" : 
-             isLoading ? "Loading activities..." : 
-             activities ? "No activity found." : "No activities available"}
+            {error ? "Error loading event types" : 
+             isLoading ? "Loading event types..." : 
+             eventTypes ? "No event type found." : "No event types available"}
           </CommandEmpty>
           <CommandGroup>
-            {!hideAllActivities && activities && (
+            {!hideAllTypes && eventTypes && (
               <CommandItem
                 onSelect={() => {
-                  onChange(0);
+                  onChange(null);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === 0 ? "opacity-100" : "opacity-0"
+                    value === null ? "opacity-100" : "opacity-0"
                   )}
                 />
-                All activities
+                All event types
               </CommandItem>
             )}
-            {activities?.map((activity) => (
+            {eventTypes?.map((eventType) => (
               <CommandItem
-                key={activity.id}
+                key={eventType.id}
                 onSelect={() => {
-                  onChange(activity.id);
+                  onChange(eventType.id);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === activity.id ? "opacity-100" : "opacity-0"
+                    value === eventType.id ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {activity.name}
+                {eventType.name}
               </CommandItem>
             ))}
           </CommandGroup>

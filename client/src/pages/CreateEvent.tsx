@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import EventTypeSelect from "@/components/EventTypeSelect";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type NewEvent } from "@db/schema";
@@ -156,17 +157,7 @@ export default function CreateEvent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Event Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value?.toString() || ''}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select event type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {/* Event types will be populated from the API */}
-                        </SelectContent>
-                      </Select>
+                      <EventTypeSelect {...field} />
                     </FormItem>
                   )}
                 />
@@ -233,6 +224,33 @@ export default function CreateEvent() {
                           {...field}
                         />
                       </FormControl>
+                      <Collapsible>
+                        <CollapsibleTrigger className="text-xs text-muted-foreground hover:underline">
+                          Need to override detected timezone?
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="mt-2">
+                          <FormField
+                            control={form.control}
+                            name="timezone"
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select timezone" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Intl.supportedValuesOf('timeZone').map((tz) => (
+                                      <SelectItem key={tz} value={tz}>
+                                        {tz}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormItem>
+                            )}
+                          />
+                        </CollapsibleContent>
+                      </Collapsible>
                     </FormItem>
                   )}
                 />
