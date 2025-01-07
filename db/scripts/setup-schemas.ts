@@ -4,18 +4,8 @@ import { sql } from "drizzle-orm";
 async function main() {
   console.log('Setting up database schemas...');
   const schema = process.env.NODE_ENV === 'production' ? 'production' : 'development';
-  try {
-    await Promise.race([
-      db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database connection timeout')), 5000)
-      )
-    ]);
-    console.log(`Set search path to ${schema} schema`);
-  } catch (error) {
-    console.error('Failed to set schema:', error);
-    process.exit(1);
-  }
+  await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+  console.log(`Set database search_path to schema: ${schema}`);
 
   console.log(`${schema.toUpperCase()} MODE: Using ${schema} schema`);
 

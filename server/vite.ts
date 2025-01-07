@@ -29,7 +29,7 @@ export async function setupVite(app: Express, server: Server) {
     server: {
       middlewareMode: true,
       hmr: { 
-        protocol: 'wss',
+        protocol: 'ws',
         host: '0.0.0.0',
         port: 5000,
         server //This line is added to use the existing http server for HMR
