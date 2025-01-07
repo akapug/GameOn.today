@@ -32,11 +32,12 @@ export async function setupVite(app: Express, server: Server) {
         protocol: 'wss',
         host: '0.0.0.0',
         port: 5000,
-        server //This line is added to use the existing http server for HMR
+        server, //This line is added to use the existing http server for HMR
+        timeout: 30000
       },
       watch: {
         usePolling: true,
-        interval: 100
+        interval: 3000
       },
       host: '0.0.0.0'
     },
