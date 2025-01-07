@@ -6,11 +6,10 @@ export function formatWithTimezone(date: string | Date, formatStr: string, timez
 }
 
 export function toUTC(dateStr: string, timezone: string): Date {
-  // Convert local time to UTC
   const date = new Date(dateStr);
-  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
-  const offset = new Date().getTimezoneOffset();
-  return new Date(utcDate.getTime() + (offset * 60000));
+  const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+  const tzOffset = tzDate.getTime() - date.getTime();
+  return new Date(date.getTime() - tzOffset);
 }
 
 export function utcToLocalInput(dateStr: string, timezone: string = 'UTC'): string {
