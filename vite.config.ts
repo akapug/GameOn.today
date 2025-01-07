@@ -31,13 +31,15 @@ export default defineConfig({
         clientPort: 443,
         protocol: 'wss',
         host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
-        timeout: 10000,
+        timeout: 15000,
         overlay: false,
-        reconnect: true
+        reconnect: true,
+        maxRetries: 5
       },
       watch: {
         usePolling: true,
-        interval: 1000
+        interval: 2000,
+        followSymlinks: false
       }
     },
 });
