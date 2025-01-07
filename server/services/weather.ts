@@ -1,5 +1,5 @@
 
-const OpenWeatherMap = require('openweathermap-ts');
+import OpenWeatherMap from 'openweathermap-ts';
 import fetch from 'node-fetch';
 
 if (!process.env.OPENWEATHER_API_KEY) {
