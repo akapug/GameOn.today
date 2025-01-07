@@ -89,7 +89,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       }
 
       const data = await res.json();
-      
+
       // Update the local event data first
       event.eventTypeId = formState.eventTypeId;
       event.eventType = data.eventType;
@@ -602,7 +602,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <Input
                 id="date"
                 type="datetime-local"
-                value={utcToLocalInput(formState.date, getUserTimezone())}
+                value={utcToLocalInput(formState.date, event.timezone)}
                 onChange={(e) => setFormState(prev => ({ ...prev, date: e.target.value }))}
               />
             </div>
@@ -611,7 +611,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <Input
                 id="endTime"
                 type="datetime-local"
-                value={formState.endTime?.slice(0, 16) || ''}
+                value={utcToLocalInput(formState.endTime, event.timezone)}
                 onChange={(e) => setFormState(prev => ({ ...prev, endTime: e.target.value }))}
               />
             </div>
