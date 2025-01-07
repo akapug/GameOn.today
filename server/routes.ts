@@ -348,8 +348,21 @@ export function registerRoutes(app: Express): Server {
       const eventWithWeather = await getEventWithWeather(updatedEventWithRels);
       res.json(eventWithWeather);
     } catch (error) {
-      console.error("Failed to update event:", error);
-      res.status(500).json({ message: "Failed to update event" });
+      console.error("Failed to update event:", {
+        error,
+        requestBody: req.body,
+        hash,
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
+      const errorMessage = error instanceof Error 
+        ? `Failed to update event: ${error.message}`
+        : "Failed to update event";
+        
+      res.status(500).json({ 
+        message: errorMessage,
+        details: process.env.NODE_ENV !== 'production' ? error : undefined
+      });
     }
   });
 
