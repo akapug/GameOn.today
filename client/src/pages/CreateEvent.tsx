@@ -59,6 +59,12 @@ export default function CreateEvent() {
       if (!data.location?.trim()) errors.location = { message: "Location is required" };
       if (!data.date?.trim()) errors.date = { message: "Start time is required" };
       if (!data.eventTypeId) errors.eventTypeId = { message: "Event type is required" };
+      
+      // Return validation result in format expected by react-hook-form
+      return {
+        values: Object.keys(errors).length === 0 ? data : undefined,
+        errors: errors
+      };
       if (!data.participantThreshold || data.participantThreshold <= 1) {
         errors.participantThreshold = { message: "Participant threshold must be greater than 1" };
       }
