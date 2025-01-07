@@ -29,7 +29,7 @@ localPort = 3000
 externalPort = 80
 
 [[ports]]
-localPort = 5000
+localPort = 443
 externalPort = 443
 
 [workflows]
