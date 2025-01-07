@@ -318,7 +318,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Only the creator can edit this event" });
       }
 
-      await db
+      const [updatedEvent] = await db
         .update(events)
         .set({
           title,
@@ -334,17 +334,19 @@ export function registerRoutes(app: Express): Server {
           recurrenceFrequency: isRecurring === true ? recurrenceFrequency : null,
           isPrivate: isPrivate === true
         })
-        .where(eq(events.urlHash, hash));
+        .where(eq(events.urlHash, hash))
+        .returning();
 
-      const updatedEvent = await db.query.events.findFirst({
-        where: eq(events.urlHash, hash),
+      const updatedEventWithRels = await db.query.events.findFirst({
+        where: eq(events.id, updatedEvent.id),
         with: {
           eventType: true,
           participants: true,
         }
       });
 
-      res.json(updatedEvent);
+      const eventWithWeather = await getEventWithWeather(updatedEventWithRels);
+      res.json(eventWithWeather);
     } catch (error) {
       console.error("Failed to update event:", error);
       res.status(500).json({ message: "Failed to update event" });
