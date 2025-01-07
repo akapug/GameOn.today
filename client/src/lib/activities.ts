@@ -53,6 +53,12 @@ export const activityColors = {
 export function useActivities() {
   return useQuery<Activity[]>({
     queryKey: queryKeys.activities,
-    queryFn: () => fetch("/api/activities").then(res => res.json()),
+    queryFn: async () => {
+      const res = await fetch("/api/activities");
+      if (!res.ok) {
+        throw new Error(`Failed to fetch activities: ${res.status}`);
+      }
+      return res.json();
+    },
   });
 }

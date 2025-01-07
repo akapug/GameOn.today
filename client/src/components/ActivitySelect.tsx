@@ -26,7 +26,7 @@ interface ActivitySelectProps {
 
 const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props, ref) => {
   const { value, onChange, hideAllActivities } = props;
-  const { data: activities } = useActivities();
+  const { data: activities, error, isLoading } = useActivities();
 
   const selectedActivity = activities?.find(a => a.id === value);
 
@@ -49,7 +49,9 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
         <Command>
           <CommandInput placeholder="Search activities..." />
           <CommandEmpty>
-            {activities ? "No activity found." : "Loading activities..."}
+            {error ? "Error loading activities" : 
+             isLoading ? "Loading activities..." : 
+             activities ? "No activity found." : "No activities available"}
           </CommandEmpty>
           <CommandGroup>
             {!hideAllActivities && activities && (
