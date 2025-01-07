@@ -17,6 +17,7 @@ import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "./WeatherDisplay";
 import type { Event, Participant, EventType } from "@db/schema";
 import type { WeatherInfo } from "../../server/services/weather";
+import { utcToLocalInput } from "@/lib/dates";
 
 interface EventCardProps {
   event: Event & {
@@ -252,14 +253,14 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 href={(() => {
                   const startDate = event?.date ? new Date(event.date) : null;
                   const endDate = event?.endTime ? new Date(event.endTime) : (startDate ? new Date(startDate.getTime() + 3600000) : null);
-                  
+
                   if (!startDate || isNaN(startDate.getTime())) return '#';
-                  
+
                   const startStr = startDate.toISOString().replace(/[-:]/g, '').split('.')[0];
                   const endStr = (endDate && !isNaN(endDate.getTime())) ? 
                     endDate.toISOString().replace(/[-:]/g, '').split('.')[0] : 
                     new Date(startDate.getTime() + 3600000).toISOString().replace(/[-:]/g, '').split('.')[0];
-                    
+
                   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event?.title || `${event?.eventType?.name || ''} Event`)}&dates=${startStr}Z/${endStr}Z&details=${encodeURIComponent(`Join us for ${event?.eventType?.name || 'the event'}! ${window.location.origin}/events/${event?.urlHash}`)}&location=${encodeURIComponent(event?.location || '')}`;
                 })()}
                 target="_blank"
@@ -361,11 +362,11 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                                 method: "DELETE",
                                 headers: { "Content-Type": "application/json" }
                               });
-                              
+
                               if (!response.ok) {
                                 throw new Error('Failed to delete response');
                               }
-                              
+
                               queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
                               queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
                               toast({ title: "Success", description: "Response removed successfully" });
@@ -683,16 +684,16 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                   <Label>Date & Time ({event.timezone})</Label>
                   <Input
                     type="datetime-local"
-                    value={formState.date}
-                    onChange={(e) => setFormState(prev => ({ ...prev, date: e.target.value }))}
+                    value={utcToLocalInput(formState.date, event.timezone)}
+                    onChange={(e) => setFormState(prev => ({ ...prev, date: localToUTCInput(e.target.value, event.timezone) }))}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>End Time ({event.timezone})</Label>
                   <Input
                     type="datetime-local"
-                    value={formState.endTime}
-                    onChange={(e) => setFormState(prev => ({ ...prev, endTime: e.target.value }))}
+                    value={utcToLocalInput(formState.endTime, event.timezone)}
+                    onChange={(e) => setFormState(prev => ({ ...prev, endTime: localToUTCInput(e.target.value, event.timezone) }))}
                   />
                 </div>
                 <div className="space-y-2">
@@ -817,4 +818,10 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       </CardFooter>
     </Card>
   );
+}
+
+function localToUTCInput(localDateTimeString: string, timezone: string): string {
+  const localDate = new Date(localDateTimeString);
+  const utcDate = new Date(localDate.toLocaleString('en-US', { timeZone: timezone }));
+  return utcDate.toISOString();
 }
