@@ -3,7 +3,7 @@ import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
 import React from 'react';
-import { useAuth } from '../components/AuthProvider';
+import { useAuth, AuthProvider } from '../components/AuthProvider';
 
 expect.extend(matchers);
 
@@ -48,11 +48,17 @@ const queryClient = new QueryClient({
   }
 });
 
-export const wrapper = ({ children }) => (
-  React.createElement(AuthProvider, null,
+const TestWrapper = ({ children }) => {
+  return React.createElement(
+    AuthProvider,
+    null,
     React.createElement(QueryClientProvider, { client: queryClient }, children)
-  )
-);
+  );
+};
+
+export const wrapper = ({ children }) => {
+  return React.createElement(TestWrapper, null, children);
+};
 
 beforeEach(() => {
   vi.mocked(useAuth).mockReturnValue({
