@@ -1,59 +1,31 @@
-import { format, formatInTimeZone } from 'date-fns-tz';
+import { format } from 'date-fns';
 
+// Display UTC time from DB in local timezone
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
   if (!date) return '';
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '';
-  return formatInTimeZone(d, 'UTC', formatStr);
+  return format(d, formatStr);
 }
 
-export function toUTC(dateStr: string, timezone: string = 'UTC'): Date {
-  if (!dateStr) return new Date();
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return new Date();
-
-  try {
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: timezone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    });
-
-    const parts = formatter.formatToParts(date);
-    const dateParts: any = {};
-    parts.forEach(part => {
-      if (part.type !== 'literal') {
-        dateParts[part.type] = parseInt(part.value, 10);
-      }
-    });
-
-    return new Date(Date.UTC(
-      dateParts.year,
-      dateParts.month - 1,
-      dateParts.day,
-      dateParts.hour,
-      dateParts.minute,
-      dateParts.second
-    ));
-  } catch (e) {
-    console.error('Error converting to UTC:', e);
-    return new Date(dateStr);
-  }
-}
-
-export function utcToLocalInput(dateStr: string, timezone: string = 'UTC'): string {
+// Convert local time to UTC for DB storage
+export function toUTC(dateStr: string): string {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return '';
-  return formatInTimeZone(date, timezone, "yyyy-MM-dd'T'HH:mm");
+  return date.toISOString();
 }
 
-export function localToUTCInput(dateStr: string, timezone: string = 'UTC'): string {
+// Convert UTC time from DB to local time for form inputs
+export function utcToLocalInput(dateStr: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '';
+  return new Date(date).toLocaleString('sv-SE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(' ', 'T');
+}
+
+// Convert local form input to UTC for DB storage
+export function localToUTCInput(dateStr: string): string {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return '';
