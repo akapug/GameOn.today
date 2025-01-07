@@ -116,9 +116,13 @@ describe('Event System', () => {
       await userEvent.type(screen.getByLabelText(/Participant Threshold/i), '10');
       
       // Select event type (required field)
-      const eventTypeButton = screen.getByRole('combobox', { name: /Event Type/i });
+      // Open the combobox
+      const eventTypeButton = screen.getByLabelText(/Event Type/i);
       await userEvent.click(eventTypeButton);
-      await userEvent.click(screen.getByRole('option', { name: /Test Type/i }));
+      
+      // Wait for and click the option
+      const option = await screen.findByText('Test Type');
+      await userEvent.click(option);
       
       // Get the submit button
       const submitButton = screen.getByRole('button', { name: /Create Event/i });

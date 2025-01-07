@@ -81,6 +81,8 @@ const EventTypeSelect = forwardRef<HTMLButtonElement, EventTypeSelectProps>((pro
                 }}
                 role="option"
                 aria-selected={value === eventType.id}
+                data-testid={`event-type-${eventType.id}`}
+                className="cursor-pointer"
               >
                 <Check
                   className={cn(
