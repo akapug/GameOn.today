@@ -5,7 +5,7 @@ import { sql } from "drizzle-orm";
 const sampleGames = [
   {
     title: "Weekly Basketball Pickup Game",
-    activityId: 1,
+    activityId: 2,
     location: "Downtown Recreation Center",
     date: new Date("2025-01-14T18:00:00Z"),
     endTime: new Date("2025-01-14T20:00:00Z"),
