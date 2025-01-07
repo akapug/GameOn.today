@@ -423,6 +423,38 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             >
               <Trash2 className="h-4 w-4" />
             </Button>
+            <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Delete Event</DialogTitle>
+                </DialogHeader>
+                <p>Are you sure you want to delete this event? This action cannot be undone.</p>
+                <div className="flex gap-2 mt-4">
+                  <Button variant="default" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
+                  <Button
+                    variant="destructive"
+                    onClick={async () => {
+                      try {
+                        await fetch(`/api/events/${event.urlHash}`, { 
+                          method: "DELETE" 
+                        });
+                        queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+                        toast({ title: "Success", description: "Event deleted successfully" });
+                        setShowDeleteConfirm(false);
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to delete event",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </>
         )}
       </CardFooter>
