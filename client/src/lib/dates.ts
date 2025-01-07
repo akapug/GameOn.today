@@ -22,7 +22,7 @@ export function formatWithTimezone(
       timeZoneName: 'short'
     }).split(' ')[2];
 
-    return `${formattedDate} ${tzAbbr}`;
+    return `${formattedDate} (${tzAbbr})`;
   } catch (e) {
     console.warn('Invalid date or timezone:', date, timezone);
     return '';
