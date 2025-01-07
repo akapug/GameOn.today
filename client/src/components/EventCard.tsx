@@ -110,7 +110,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       queryClient.setQueriesData(
         { queryKey: queryKeys.events.all },
         (old: any) => {
-          if (!old) return old;
+          if (!old || !Array.isArray(old)) return old;
           return old.map((e: any) => 
             e.urlHash === event.urlHash ? { ...e, ...data } : e
           );
