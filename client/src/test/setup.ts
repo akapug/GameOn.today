@@ -67,7 +67,9 @@ vi.mock('../components/AuthProvider', () => ({
     loading: false,
     error: null
   }),
-  AuthProvider: ({ children }) => <div>{children}</div>,
+  AuthProvider: ({ children }) => {
+    return React.createElement('div', null, children);
+  }
 }));
 
 afterEach(() => {
