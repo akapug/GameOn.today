@@ -38,6 +38,11 @@ const mockEvent = {
 
 const wrapper = ({ children }: { children: React.ReactNode }) => {
   const queryClient = createTestQueryClient();
+  
+  // Set up mock data for event types
+  queryClient.setQueryData(['/api/event-types'], [
+    { id: 1, name: 'Test Type', color: '#000000' }
+  ]);
 
   return (
     <QueryClientProvider client={queryClient}>

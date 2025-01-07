@@ -79,6 +79,8 @@ const EventTypeSelect = forwardRef<HTMLButtonElement, EventTypeSelectProps>((pro
                 onSelect={() => {
                   onChange(eventType.id);
                 }}
+                role="option"
+                aria-selected={value === eventType.id}
               >
                 <Check
                   className={cn(
