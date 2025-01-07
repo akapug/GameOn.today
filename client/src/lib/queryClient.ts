@@ -33,8 +33,8 @@ export const queryClient = new QueryClient({
 export const queryKeys = {
   events: {
     all: ['/api/events'],
-    single: (id: string) => ['/api/events', id],
     user: (uid: string) => ['/api/events/user', { uid }],
+    detail: (hash: string) => ['/api/events', hash],
   },
   eventTypes: ['/api/event-types'],
 };

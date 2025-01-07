@@ -58,8 +58,8 @@ export default function Event() {
   const [isEventEditDialogOpen, setIsEventEditDialogOpen] = useState(false);
 
   const { data: event, isLoading, error } = useQuery<EventWithDetails>({
-    queryKey: params?.hash ? ['/api/events', params.hash] : undefined,
-    queryFn: () => fetch(`/api/events/${params.hash}`).then(res => res.json()),
+    queryKey: params?.hash ? [queryKeys.events.detail(params.hash)] : undefined,
+    queryFn: () => apiRequest(`/api/events/${params.hash}`),
     enabled: !!params?.hash,
     retry: 1,
   });
