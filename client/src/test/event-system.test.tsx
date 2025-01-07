@@ -120,9 +120,11 @@ describe('Event System', () => {
       const eventTypeButton = screen.getByLabelText(/Event Type/i);
       await userEvent.click(eventTypeButton);
       
-      // Wait for and click the option
-      const option = await screen.findByText('Test Type');
-      await userEvent.click(option);
+      // Wait for options to be visible
+      await screen.findByTestId('event-type-options');
+      const options = screen.getAllByRole('option');
+      const testType = options.find(option => option.textContent.includes('Test Type'));
+      await userEvent.click(testType);
       
       // Get the submit button
       const submitButton = screen.getByRole('button', { name: /Create Event/i });

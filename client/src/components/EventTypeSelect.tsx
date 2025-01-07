@@ -49,7 +49,7 @@ const EventTypeSelect = forwardRef<HTMLButtonElement, EventTypeSelectProps>((pro
           {selectedType ? selectedType.name : "Select event type..."}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+      <PopoverContent className="w-full p-0" side="bottom" sideOffset={4}>
         <Command>
           <CommandInput placeholder="Search event types..." />
           <CommandEmpty>
@@ -57,7 +57,7 @@ const EventTypeSelect = forwardRef<HTMLButtonElement, EventTypeSelectProps>((pro
              isLoading ? "Loading event types..." : 
              eventTypes ? "No event type found." : "No event types available"}
           </CommandEmpty>
-          <CommandGroup>
+          <CommandGroup data-testid="event-type-options">
             {!hideAllTypes && eventTypes && (
               <CommandItem
                 onSelect={() => {
