@@ -131,7 +131,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       const errorMessage = error instanceof Error 
         ? (error.name === 'AbortError' ? 'Request timed out' : error.message)
         : "Failed to update event";
-      
+
       toast({
         title: "Error",
         description: errorMessage,
@@ -390,6 +390,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 setIsResponseEditDialogOpen(true);
               }
             }}
+            aria-label="Edit Response"
           >
             <Edit className="h-4 w-4 mr-2" />
             Edit Response

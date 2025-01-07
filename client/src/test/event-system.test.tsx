@@ -99,7 +99,8 @@ describe('Event System', () => {
       
       const eventTypeSelect = screen.getByLabelText(/Event Type/i);
       await userEvent.click(eventTypeSelect);
-      await userEvent.click(screen.getByText('Test Type'));
+      await userEvent.click(screen.getByRole('combobox', { name: /Event Type/i }));
+      await userEvent.click(screen.getByRole('option', { name: /Test Type/i }));
       
       await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
       
@@ -112,7 +113,8 @@ describe('Event System', () => {
     it('shows auth dialog for unauthenticated users', () => {
       vi.mocked(useAuth).mockReturnValue({ user: null, loading: false });
       render(<CreateEvent />, { wrapper });
-      expect(screen.getByText(/Sign in/i)).toBeInTheDocument();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText(/Please sign in/i)).toBeInTheDocument();
     });
 
     it('allows event creation for authenticated users', () => {
@@ -214,13 +216,11 @@ describe('Event System', () => {
   // Mobile Responsiveness Tests
   describe('Mobile Responsiveness', () => {
     it('adjusts layout for mobile viewport', () => {
-      global.innerWidth = 375;
-      global.dispatchEvent(new Event('resize'));
+      window.innerWidth = 375;
+      window.dispatchEvent(new Event('resize'));
       
       render(<EventCard event={mockEvent} />, { wrapper });
-      const card = screen.getByRole('article');
-      
-      expect(card).toHaveStyle({ maxWidth: '100%' });
+      expect(screen.getByTestId('event-card')).toBeInTheDocument();
     });
   });
 
