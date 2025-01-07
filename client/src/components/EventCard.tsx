@@ -97,6 +97,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       // Then invalidate queries
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(event.urlHash) });
+      await queryClient.refetchQueries({ queryKey: queryKeys.events.detail(event.urlHash) });
 
       toast({ title: "Success", description: "Event updated successfully" });
       setIsEventEditDialogOpen(false);
