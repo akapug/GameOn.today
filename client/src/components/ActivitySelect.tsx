@@ -48,9 +48,11 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search activities..." />
-          <CommandEmpty>No activity found.</CommandEmpty>
+          <CommandEmpty>
+            {activities ? "No activity found." : "Loading activities..."}
+          </CommandEmpty>
           <CommandGroup>
-            {!hideAllActivities && (
+            {!hideAllActivities && activities && (
               <CommandItem
                 onSelect={() => {
                   onChange(0);
