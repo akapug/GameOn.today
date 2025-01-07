@@ -3,9 +3,6 @@ import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, MessageSquare, Trash2, Edit, EyeOff } from "lucide-react";
-import { activityColors } from "@/lib/activities";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { formatWithTimezone, utcToLocalInput } from "@/lib/dates";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Progress } from "./ui/progress";
@@ -23,7 +20,7 @@ import type { WeatherInfo } from "../../server/services/weather";
 
 interface EventCardProps {
   event: Event & {
-    participants: Array<Participant>;
+    participants: Participant[];
     eventType: EventType;
     weather: WeatherInfo | null;
   };
@@ -45,8 +42,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
   const [formState, setFormState] = useState({
     title: event.title,
     location: event.location,
-    date: utcToLocalInput(event.date, event.timezone),
-    endTime: event.endTime ? utcToLocalInput(event.endTime, event.timezone) : '',
+    date: event.date,
+    endTime: event.endTime,
     participantThreshold: event.participantThreshold,
     notes: event.notes || '',
     webLink: event.webLink || '',
@@ -214,11 +211,11 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 <span 
                   className="text-sm px-2 py-0.5 rounded-full" 
                   style={{ 
-                    backgroundColor: event?.eventType?.color ? `${activityColors[event.eventType.color as keyof typeof activityColors]}20` : '#eee',
-                    color: event?.eventType?.color ? activityColors[event.eventType.color as keyof typeof activityColors] : '#666'
+                    backgroundColor: event?.eventType?.color ? `${event?.eventType?.color}20` : '#eee',
+                    color: event?.eventType?.color ? event?.eventType?.color : '#666'
                   }}
                 >
-                  {event?.eventType?.name || 'Activity'}
+                  {event?.eventType?.name || 'Event'}
                 </span>
               </div>
             </Link>

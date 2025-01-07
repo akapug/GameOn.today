@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "./AuthProvider";
-import { LogOut, GamepadIcon } from "lucide-react";
-import UserGames from "./UserGames";
+import { LogOut, Calendar } from "lucide-react";
+import UserEvents from "./UserEvents";
 
 export default function UserMenu() {
   const { user, signInWithGoogle, logout } = useAuth();
@@ -45,10 +45,10 @@ export default function UserMenu() {
         <DropdownMenuSeparator />
         <div className="py-2">
           <DropdownMenuLabel className="flex items-center">
-            <GamepadIcon className="mr-2 h-4 w-4" />
-            Your Games
+            <Calendar className="mr-2 h-4 w-4" />
+            Your Events
           </DropdownMenuLabel>
-          <UserGames />
+          <UserEvents />
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="flex items-center" onClick={logout}>

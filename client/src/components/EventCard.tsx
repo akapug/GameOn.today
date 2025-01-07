@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, MessageSquare, Trash2, Edit, EyeOff } from "lucide-react";
+import { Calendar, MapPin, Users, Share2, LinkIcon, MessageSquare, Trash2, Edit, EyeOff } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Progress } from "./ui/progress";
@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "./WeatherDisplay";
@@ -29,15 +29,11 @@ interface EventCardProps {
 
 export default function EventCard({ event, fullscreen = false }: EventCardProps) {
   const { user } = useAuth();
-  const [, setLocation] = useLocation();
   const [participantName, setParticipantName] = React.useState(user?.displayName || "");
   const [participantEmail, setParticipantEmail] = React.useState(user?.email || "");
   const [joinType, setJoinType] = React.useState<"yes" | "maybe">("yes");
   const [likelihood, setLikelihood] = React.useState(0.5);
   const [isOpen, setIsOpen] = React.useState(false);
-  const [editingParticipant, setEditingParticipant] = React.useState<Participant | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isResponseEditDialogOpen, setIsResponseEditDialogOpen] = useState(false);
   const [comment, setComment] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -176,6 +172,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             </div>
             <Progress value={progressPercentage} className="h-2 mt-2" />
           </div>
+
+          {event.weather && <WeatherDisplay weather={event.weather} />}
         </div>
       </CardContent>
       <CardFooter className="flex gap-2">
@@ -205,9 +203,15 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <Input id="email" type="email" value={participantEmail} onChange={(e) => setParticipantEmail(e.target.value)} />
 
             <Label htmlFor="joinType">Join Type</Label>
-            <RadioGroup value={joinType} onChange={setJoinType}>
-              <RadioGroupItem value="yes">Yes</RadioGroupItem>
-              <RadioGroupItem value="maybe">Maybe</RadioGroupItem>
+            <RadioGroup value={joinType} onValueChange={(value: "yes" | "maybe") => setJoinType(value)}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="yes" id="yes" />
+                <Label htmlFor="yes">Yes</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="maybe" id="maybe" />
+                <Label htmlFor="maybe">Maybe</Label>
+              </div>
             </RadioGroup>
 
             {joinType === "maybe" && (
@@ -215,11 +219,12 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 <Label htmlFor="likelihood">Likelihood</Label>
                 <Slider
                   id="likelihood"
-                  step={0.1}
                   min={0}
                   max={1}
-                  value={likelihood}
-                  onChange={(e) => setLikelihood(e.target.value)}
+                  step={0.1}
+                  value={[likelihood]}
+                  onValueChange={([value]) => setLikelihood(value)}
+                  className="w-full"
                 />
               </>
             )}
@@ -227,7 +232,9 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <Label htmlFor="comment">Comment</Label>
             <Input id="comment" type="text" value={comment} onChange={(e) => setComment(e.target.value)} />
 
-            <Button type="submit">Join</Button>
+            <Button type="submit" disabled={joinEvent.isPending}>
+              {joinEvent.isPending ? "Joining..." : "Join Event"}
+            </Button>
           </form>
         </DialogContent>
       </Dialog>
