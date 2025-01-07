@@ -369,9 +369,11 @@ export default function CreateEvent() {
 
                 <div className="space-y-2" role="alert" aria-label="Form Errors">
                   {Object.entries(form.formState.errors).map(([field, error]) => (
-                    <p key={field} className="text-destructive text-sm">
-                      {error?.message}
-                    </p>
+                    error?.message && (
+                      <p key={field} className="text-destructive text-sm">
+                        {error.message}
+                      </p>
+                    )
                   ))}
                 </div>
                 <Button 
