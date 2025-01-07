@@ -35,7 +35,7 @@ export default defineConfig({
       path: '/ws',
       timeout: 5000,
       secure: true,
-      host: process.env.REPL_SLUG ? `${process.env.REPL_ID}-00-${process.env.REPL_OWNER}.${process.env.REPL_SLUG}.repl.co` : '0.0.0.0'
+      host: process.env.REPL_ID ? `${process.env.REPL_ID}-00-3rcdlm792p3bi.picard.replit.dev` : '0.0.0.0'
     }
   },
 });

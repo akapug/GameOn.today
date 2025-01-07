@@ -30,7 +30,7 @@ export async function setupVite(app: Express, server: Server) {
       middlewareMode: true,
       hmr: {
         protocol: 'wss',
-        host: process.env.REPL_SLUG ? `${process.env.REPL_ID}-00-${process.env.REPL_OWNER}.${process.env.REPL_SLUG}.repl.co` : '0.0.0.0',
+        host: process.env.REPL_ID ? `${process.env.REPL_ID}-00-3rcdlm792p3bi.picard.replit.dev` : '0.0.0.0',
         clientPort: 443,
         port: 5000,
         server //This line is added to use the existing http server for HMR
