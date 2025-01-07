@@ -318,7 +318,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Only the creator can edit this event" });
       }
 
-      const [updatedEvent] = await db
+      await db
         .update(events)
         .set({
           title,
@@ -334,11 +334,10 @@ export function registerRoutes(app: Express): Server {
           recurrenceFrequency: isRecurring === true ? recurrenceFrequency : null,
           isPrivate: isPrivate === true
         })
-        .where(eq(events.urlHash, hash))
-        .returning();
+        .where(eq(events.urlHash, hash));
 
       const updatedEventWithRels = await db.query.events.findFirst({
-        where: eq(events.id, updatedEvent.id),
+        where: eq(events.urlHash, hash),
         with: {
           eventType: true,
           participants: true,
