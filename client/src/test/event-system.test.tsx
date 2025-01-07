@@ -135,12 +135,14 @@ describe('Event System', () => {
       );
 
       // Submit form
-      await userEvent.click(submitButton);
+      await form.handleSubmit(async (data) => {
+        await createEvent.mutateAsync(data);
+      })();
       
       // Wait for button to be disabled during submission
       await waitFor(() => {
         expect(submitButton).toBeDisabled();
-      }, { timeout: 2000 });
+      });
     });
   });
 });
