@@ -277,13 +277,40 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
         </div>
       </CardContent>
       <CardFooter className="flex gap-2">
-        <Button
-          className="flex-1"
-          onClick={() => setIsOpen(true)}
-          variant={hasMinimumParticipants ? "outline" : "default"}
-        >
-          {hasMinimumParticipants ? "Join Event (Has Enough Participants)" : "Join Event"}
-        </Button>
+        {event.participants.some(p => {
+          const responseToken = user?.uid || localStorage.getItem(`response-token-${p.id}`);
+          return p.responseToken === responseToken;
+        }) ? (
+          <Button
+            className="flex-1"
+            onClick={() => {
+              const participant = event.participants.find(p => {
+                const responseToken = user?.uid || localStorage.getItem(`response-token-${p.id}`);
+                return p.responseToken === responseToken;
+              });
+              if (participant) {
+                setEditingParticipant(participant);
+                setParticipantName(participant.name);
+                setParticipantEmail(participant.email || '');
+                setJoinType(!participant.likelihood || participant.likelihood === 1 ? "yes" : "maybe");
+                setLikelihood(participant.likelihood || 0.5);
+                setComment(participant.comment || '');
+                setIsResponseEditDialogOpen(true);
+              }
+            }}
+          >
+            <Edit className="h-4 w-4 mr-2" />
+            Edit Response
+          </Button>
+        ) : (
+          <Button
+            className="flex-1"
+            onClick={() => setIsOpen(true)}
+            variant={hasMinimumParticipants ? "outline" : "default"}
+          >
+            {hasMinimumParticipants ? "Join Event (Has Enough Participants)" : "Join Event"}
+          </Button>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
