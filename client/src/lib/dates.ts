@@ -1,16 +1,14 @@
-import { format } from 'date-fns';
 
+import { format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 
-// Display UTC time from DB in specified timezone
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
   if (!date) return '';
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '';
-  return formatInTimeZone(d, timezone, formatStr);
+  return formatInTimeZone(d, timezone || 'UTC', formatStr);
 }
 
-// Convert local time to UTC for DB storage
 export function toUTC(dateStr: string, timezone: string): Date {
   if (!dateStr) return new Date();
   const date = new Date(dateStr);
@@ -18,7 +16,6 @@ export function toUTC(dateStr: string, timezone: string): Date {
   return date;
 }
 
-// Convert UTC time from DB to specified timezone for form inputs
 export function utcToLocalInput(dateStr: string, timezone: string): string {
   if (!dateStr) return '';
   const date = new Date(dateStr);
@@ -26,7 +23,6 @@ export function utcToLocalInput(dateStr: string, timezone: string): string {
   return formatInTimeZone(date, timezone, "yyyy-MM-dd'T'HH:mm");
 }
 
-// Convert timezone form input to UTC for DB storage
 export function localToUTCInput(dateStr: string, timezone: string): string {
   if (!dateStr) return '';
   const date = new Date(dateStr);
