@@ -1,4 +1,3 @@
-
 import { db } from "@db";
 import { sql } from "drizzle-orm";
 
@@ -110,7 +109,7 @@ async function main() {
         comment TEXT
       )`);
 
-    // Insert default activities
+    // Insert default activities only if none exist
     const defaultActivities = [
       { name: 'Basketball', color: '#FF6B6B', icon: '🏀' },
       { name: 'Soccer', color: '#4ECDC4', icon: '⚽' },
@@ -123,7 +122,7 @@ async function main() {
         INSERT INTO production.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
         ON CONFLICT (name) DO NOTHING`);
-      
+
       await db.execute(sql`
         INSERT INTO development.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
