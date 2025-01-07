@@ -128,5 +128,6 @@ app.use((req, res, next) => {
   const PORT = process.env.PORT || 5000;
   server.listen(PORT, "0.0.0.0", () => {
     log(`Server running on port ${PORT}`);
+    log(`Environment: ${process.env.NODE_ENV}`);
   });
 })();
