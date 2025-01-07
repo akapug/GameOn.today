@@ -1,9 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { games, players, activities } from "@db/schema";
+import { events, participants, eventTypes } from "@db/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
-import { defaultActivities } from "../client/src/lib/activities";
+import { defaultEventTypes } from "../client/src/lib/activities";
 import nodemailer from "nodemailer";
 import { getWeatherForecast } from "./services/weather";
 import { formatWithTimezone, toUTC } from "../client/src/lib/dates";
@@ -15,7 +15,7 @@ async function setSchemaMiddleware(req: any, res: any, next: any) {
 
   try {
     await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
-    console.log(`Set search path to ${schema} schema`); // Added logging
+    console.log(`Set search path to ${schema} schema`);
     next();
   } catch (error) {
     console.error(`Failed to set schema to ${schema}:`, error);
@@ -23,8 +23,8 @@ async function setSchemaMiddleware(req: any, res: any, next: any) {
   }
 }
 
-// Helper function to generate 6-char game hash
-function generateGameHash() {
+// Helper function to generate 6-char event hash
+function generateEventHash() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
   for (let i = 0; i < 6; i++) {
@@ -50,8 +50,8 @@ async function generateUniqueUrlHash() {
 
   while (attempts < maxAttempts) {
     const hash = generateUrlHash();
-    const existing = await db.query.games.findFirst({
-      where: eq(games.urlHash, hash),
+    const existing = await db.query.events.findFirst({
+      where: eq(events.urlHash, hash),
     });
 
     if (!existing) {
@@ -74,12 +74,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendGameOnNotification(gameId: number) {
-  const game = await db.query.games.findFirst({
-    where: eq(games.id, gameId),
+async function sendEventNotification(eventId: number) {
+  const event = await db.query.events.findFirst({
+    where: eq(events.id, eventId),
     with: {
-      activity: true,
-      players: {
+      eventType: true,
+      participants: {
         columns: {
           email: true,
           name: true,
@@ -88,27 +88,27 @@ async function sendGameOnNotification(gameId: number) {
     },
   });
 
-  if (!game) return;
+  if (!event) return;
 
-  const playersWithEmail = game.players.filter(player => player.email);
-  const formattedGameDate = formatWithTimezone(game.date, 'PPP p', game.timezone || 'UTC');
+  const participantsWithEmail = event.participants.filter(participant => participant.email);
+  const formattedEventDate = formatWithTimezone(event.date, 'PPP p', event.timezone || 'UTC');
 
-  const emailPromises = playersWithEmail.map(player =>
+  const emailPromises = participantsWithEmail.map(participant =>
     transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: player.email,
-      subject: `Game On! ${game.title} has enough players!`,
+      to: participant.email,
+      subject: `Event On! ${event.title} has enough participants!`,
       html: `
-        <h2>Great news, ${player.name}!</h2>
-        <p>The game you joined has reached its minimum player threshold and is now confirmed to happen!</p>
-        <p>Game Details:</p>
+        <h2>Great news, ${participant.name}!</h2>
+        <p>The event you joined has reached its minimum participant threshold and is now confirmed to happen!</p>
+        <p>Event Details:</p>
         <ul>
-          <li><strong>Activity:</strong> ${game.activity.name}</li>
-          <li><strong>Title:</strong> ${game.title}</li>
-          <li><strong>Location:</strong> ${game.location}</li>
-          <li><strong>Date:</strong> ${formattedGameDate}</li>
+          <li><strong>Type:</strong> ${event.eventType.name}</li>
+          <li><strong>Title:</strong> ${event.title}</li>
+          <li><strong>Location:</strong> ${event.location}</li>
+          <li><strong>Date:</strong> ${formattedEventDate}</li>
         </ul>
-        <p>See you at the game!</p>
+        <p>See you at the event!</p>
       `,
     })
   );
@@ -116,12 +116,12 @@ async function sendGameOnNotification(gameId: number) {
   await Promise.all(emailPromises).catch(console.error);
 }
 
-async function getGameWithWeather(game: any) {
+async function getEventWithWeather(event: any) {
   return {
-    ...game,
-    isRecurring: game.isRecurring === true || game.isRecurring === 't',
-    isPrivate: game.isPrivate === true || game.isPrivate === 't',
-    weather: await getWeatherForecast(game.location, new Date(game.date))
+    ...event,
+    isRecurring: event.isRecurring === true || event.isRecurring === 't',
+    isPrivate: event.isPrivate === true || event.isPrivate === 't',
+    weather: await getWeatherForecast(event.location, new Date(event.date))
   };
 }
 
@@ -140,9 +140,9 @@ export function registerRoutes(app: Express): Server {
   // Init endpoint for app initialization data
   app.get("/api/init", async (_req, res) => {
     try {
-      const allActivities = await db.query.activities.findMany();
+      const allEventTypes = await db.query.eventTypes.findMany();
       res.json({
-        activities: allActivities,
+        eventTypes: allEventTypes,
         serverTime: new Date().toISOString()
       });
     } catch (error) {
@@ -151,8 +151,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Get user's games (both private and public)
-  app.get("/api/games/user", async (req, res) => {
+  // Get user's events (both private and public)
+  app.get("/api/events/user", async (req, res) => {
     try {
       const { uid } = req.query;
 
@@ -160,110 +160,110 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "User ID is required" });
       }
 
-      const userGames = await db.query.games.findMany({
-        where: eq(games.creatorId, String(uid)),
+      const userEvents = await db.query.events.findMany({
+        where: eq(events.creatorId, String(uid)),
         with: {
-          activity: true,
-          players: true,
+          eventType: true,
+          participants: true,
         },
-        orderBy: [desc(games.date)],
+        orderBy: [desc(events.date)],
       });
 
-      const gamesWithWeather = await Promise.all(
-        userGames.map(async game => ({
-          ...game,
-          isRecurring: game.isRecurring === true || game.isRecurring === 't',
-          isPrivate: game.isPrivate === true || game.isPrivate === 't',
-          weather: await getWeatherForecast(game.location, new Date(game.date))
+      const eventsWithWeather = await Promise.all(
+        userEvents.map(async event => ({
+          ...event,
+          isRecurring: event.isRecurring === true || event.isRecurring === 't',
+          isPrivate: event.isPrivate === true || event.isPrivate === 't',
+          weather: await getWeatherForecast(event.location, new Date(event.date))
         }))
       );
 
-      res.json(gamesWithWeather);
+      res.json(eventsWithWeather);
     } catch (error) {
-      console.error("Failed to fetch user's games:", error);
-      res.status(500).json({ message: "Failed to fetch user's games" });
+      console.error("Failed to fetch user's events:", error);
+      res.status(500).json({ message: "Failed to fetch user's events" });
     }
   });
 
-  // Get all public games
-  app.get("/api/games", async (_req, res) => {
+  // Get all public events
+  app.get("/api/events", async (_req, res) => {
     try {
-      const allGames = await db.query.games.findMany({
-        where: eq(games.isPrivate, false),
+      const allEvents = await db.query.events.findMany({
+        where: eq(events.isPrivate, false),
         with: {
-          activity: true,
-          players: true,
+          eventType: true,
+          participants: true,
         },
       });
 
-      const gamesWithWeather = await Promise.all(
-        allGames.map(async game => ({
-          ...game,
-          isRecurring: game.isRecurring === true || game.isRecurring === 't',
-          isPrivate: game.isPrivate === true || game.isPrivate === 't',
-          weather: await getWeatherForecast(game.location, new Date(game.date))
+      const eventsWithWeather = await Promise.all(
+        allEvents.map(async event => ({
+          ...event,
+          isRecurring: event.isRecurring === true || event.isRecurring === 't',
+          isPrivate: event.isPrivate === true || event.isPrivate === 't',
+          weather: await getWeatherForecast(event.location, new Date(event.date))
         }))
       );
 
-      res.json(gamesWithWeather);
+      res.json(eventsWithWeather);
     } catch (error) {
-      console.error("Failed to fetch games:", error);
-      res.status(500).json({ message: "Failed to fetch games" });
+      console.error("Failed to fetch events:", error);
+      res.status(500).json({ message: "Failed to fetch events" });
     }
   });
 
-  // Get single game by URL hash
-  app.get("/api/games/:hash", async (req, res) => {
+  // Get single event by URL hash
+  app.get("/api/events/:hash", async (req, res) => {
     try {
       const { hash } = req.params;
-      const game = await db.query.games.findFirst({
-        where: eq(games.urlHash, hash),
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
         with: {
-          activity: true,
-          players: true,
+          eventType: true,
+          participants: true,
         },
       });
 
-      if (!game) {
-        return res.status(404).json({ message: "Game not found" });
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
       }
 
-      const gameWithWeather = {
-        ...game,
-        isRecurring: game.isRecurring === true || game.isRecurring === 't',
-        isPrivate: game.isPrivate === true || game.isPrivate === 't',
-        weather: await getWeatherForecast(game.location, new Date(game.date))
+      const eventWithWeather = {
+        ...event,
+        isRecurring: event.isRecurring === true || event.isRecurring === 't',
+        isPrivate: event.isPrivate === true || event.isPrivate === 't',
+        weather: await getWeatherForecast(event.location, new Date(event.date))
       };
 
-      res.json(gameWithWeather);
+      res.json(eventWithWeather);
     } catch (error) {
-      console.error("Failed to fetch game:", error);
-      res.status(500).json({ message: "Failed to fetch game" });
+      console.error("Failed to fetch event:", error);
+      res.status(500).json({ message: "Failed to fetch event" });
     }
   });
 
-  // Create new game
-  app.post("/api/games", async (req, res) => {
+  // Create new event
+  app.post("/api/events", async (req, res) => {
     try {
-      const { activityId, title, location, date, timezone, playerThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
+      const { eventTypeId, title, location, date, timezone, participantThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
 
-      // Verify activity exists first
-      const activity = await db.query.activities.findFirst({
-        where: eq(activities.id, Number(activityId))
+      // Verify event type exists first
+      const eventType = await db.query.eventTypes.findFirst({
+        where: eq(eventTypes.id, Number(eventTypeId))
       });
 
-      if (!activity) {
+      if (!eventType) {
         return res.status(400).json({
-          message: `Activity with ID ${activityId} does not exist`,
-          details: { field: 'activityId' }
+          message: `Event type with ID ${eventTypeId} does not exist`,
+          details: { field: 'eventTypeId' }
         });
       }
 
       const missingFields = [];
-      if (!activityId) missingFields.push('activityId');
+      if (!eventTypeId) missingFields.push('eventTypeId');
       if (!location) missingFields.push('location');
       if (!date) missingFields.push('date');
-      if (!playerThreshold) missingFields.push('playerThreshold');
+      if (!participantThreshold) missingFields.push('participantThreshold');
       if (!creatorId) missingFields.push('creatorId');
 
       if (missingFields.length > 0) {
@@ -278,14 +278,14 @@ export function registerRoutes(app: Express): Server {
       // Generate a unique URL hash
       const urlHash = await generateUniqueUrlHash();
 
-      const [newGame] = await db.insert(games).values({
+      const [newEvent] = await db.insert(events).values({
         urlHash,
-        activityId: Number(activityId),
+        eventTypeId: Number(eventTypeId),
         title: String(title || ''),
         location: String(location),
         date: toUTC(date, timezone || 'UTC'),
         timezone: timezone || 'UTC',
-        playerThreshold: Number(playerThreshold),
+        participantThreshold: Number(participantThreshold),
         creatorId: String(creatorId),
         creatorName: String(creatorName || ''),
         endTime: endTime ? toUTC(endTime, timezone || 'UTC') : null,
@@ -296,85 +296,85 @@ export function registerRoutes(app: Express): Server {
         isPrivate: isPrivate === true,
       }).returning();
 
-      const gameWithWeather = await getGameWithWeather(newGame);
-      res.json(gameWithWeather);
+      const eventWithWeather = await getEventWithWeather(newEvent);
+      res.json(eventWithWeather);
     } catch (error) {
-      console.error("Failed to create game:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to create game";
+      console.error("Failed to create event:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create event";
       res.status(500).json({ message: errorMessage, details: error });
     }
   });
 
-  // Update game
-  app.put("/api/games/:hash", async (req, res) => {
+  // Update event
+  app.put("/api/events/:hash", async (req, res) => {
     try {
       const { hash } = req.params;
-      const { title, location, date, timezone, playerThreshold, creatorId, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
+      const { title, location, date, timezone, participantThreshold, creatorId, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
 
-      const game = await db.query.games.findFirst({
-        where: eq(games.urlHash, hash),
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
       });
 
-      if (!game) {
-        return res.status(404).json({ message: "Game not found" });
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
       }
 
-      if (game.creatorId !== creatorId) {
-        return res.status(403).json({ message: "Only the creator can edit this game" });
+      if (event.creatorId !== creatorId) {
+        return res.status(403).json({ message: "Only the creator can edit this event" });
       }
 
-      const [updatedGame] = await db
-        .update(games)
+      const [updatedEvent] = await db
+        .update(events)
         .set({
           title,
           location,
-          date: toUTC(date, timezone || game.timezone),
-          timezone: timezone || game.timezone,
-          playerThreshold,
-          endTime: endTime ? toUTC(endTime, timezone || game.timezone) : null,
+          date: toUTC(date, timezone || event.timezone),
+          timezone: timezone || event.timezone,
+          participantThreshold,
+          endTime: endTime ? toUTC(endTime, timezone || event.timezone) : null,
           notes: notes || null,
           webLink: webLink || null,
           isRecurring: isRecurring === true,
           recurrenceFrequency: isRecurring === true ? recurrenceFrequency : null,
           isPrivate: isPrivate === true
         })
-        .where(eq(games.urlHash, hash))
+        .where(eq(events.urlHash, hash))
         .returning();
 
-      const gameWithWeather = await getGameWithWeather(updatedGame);
-      res.json(gameWithWeather);
+      const eventWithWeather = await getEventWithWeather(updatedEvent);
+      res.json(eventWithWeather);
     } catch (error) {
-      console.error("Failed to update game:", error);
-      res.status(500).json({ message: "Failed to update game" });
+      console.error("Failed to update event:", error);
+      res.status(500).json({ message: "Failed to update event" });
     }
   });
 
-  // Delete game
-  app.delete("/api/games/:hash", async (req, res) => {
+  // Delete event
+  app.delete("/api/events/:hash", async (req, res) => {
     try {
       const { hash } = req.params;
 
-      const game = await db.query.games.findFirst({
-        where: eq(games.urlHash, hash),
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
       });
 
-      if (!game) {
-        return res.status(404).json({ message: "Game not found" });
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
       }
 
-      // Delete players first due to foreign key constraint
-      await db.delete(players).where(eq(players.gameId, game.id));
-      await db.delete(games).where(eq(games.urlHash, hash));
+      // Delete participants first due to foreign key constraint
+      await db.delete(participants).where(eq(participants.eventId, event.id));
+      await db.delete(events).where(eq(events.urlHash, hash));
 
       res.json({ success: true });
     } catch (error) {
-      console.error("Failed to delete game:", error);
-      res.status(500).json({ message: "Failed to delete game" });
+      console.error("Failed to delete event:", error);
+      res.status(500).json({ message: "Failed to delete event" });
     }
   });
 
-  // Join game
-  app.post("/api/games/:hash/join", async (req, res) => {
+  // Join event
+  app.post("/api/events/:hash/join", async (req, res) => {
     try {
       const { hash } = req.params;
       const { name, email, likelihood, uid, comment } = req.body;
@@ -383,32 +383,32 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Name is required" });
       }
 
-      const game = await db.query.games.findFirst({
-        where: eq(games.urlHash, hash),
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
         with: {
-          players: true,
+          participants: true,
         },
       });
 
-      if (!game) {
-        return res.status(404).json({ message: "Game not found" });
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
       }
 
       // Generate a simple random string for response token
-      const responseToken = uid || generateGameHash();
+      const responseToken = uid || generateEventHash();
 
-      // Check for existing player by email or response token
-      const existingPlayer = game.players.find(p =>
+      // Check for existing participant by email or response token
+      const existingParticipant = event.participants.find(p =>
         (email && p.email === email) ||
         (uid && p.responseToken === uid)
       );
 
-      if (existingPlayer) {
-        return res.status(400).json({ message: "You have already joined this game" });
+      if (existingParticipant) {
+        return res.status(400).json({ message: "You have already joined this event" });
       }
 
-      const [newPlayer] = await db.insert(players).values({
-        gameId: game.id,
+      const [newParticipant] = await db.insert(participants).values({
+        eventId: event.id,
         name: name.trim(),
         email: email?.trim(),
         likelihood: likelihood || 1,
@@ -416,82 +416,82 @@ export function registerRoutes(app: Express): Server {
         comment: comment?.trim(),
       }).returning();
 
-      const expectedPlayers = game.players.reduce((sum, player) => {
-        return sum + (Number(player.likelihood) || 1);
+      const expectedParticipants = event.participants.reduce((sum, participant) => {
+        return sum + (Number(participant.likelihood) || 1);
       }, likelihood || 1);
 
-      if (expectedPlayers >= game.playerThreshold) {
-        sendGameOnNotification(game.id).catch(console.error);
+      if (expectedParticipants >= event.participantThreshold) {
+        sendEventNotification(event.id).catch(console.error);
       }
 
-      res.json({ ...newPlayer, responseToken });
+      res.json({ ...newParticipant, responseToken });
     } catch (error) {
-      console.error("Failed to join game:", error);
-      res.status(500).json({ message: "Failed to join game" });
+      console.error("Failed to join event:", error);
+      res.status(500).json({ message: "Failed to join event" });
     }
   });
 
-  // Update player response
-  app.put("/api/games/:hash/players/:playerId", async (req, res) => {
+  // Update participant response
+  app.put("/api/events/:hash/participants/:participantId", async (req, res) => {
     try {
-      const { hash, playerId } = req.params;
+      const { hash, participantId } = req.params;
       const { name, email, likelihood, responseToken, comment } = req.body;
 
-      const game = await db.query.games.findFirst({
-        where: eq(games.urlHash, hash),
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
         with: {
-          players: {
-            where: eq(players.id, parseInt(playerId))
+          participants: {
+            where: eq(participants.id, parseInt(participantId))
           }
         }
       });
 
-      if (!game || !game.players.length) {
-        return res.status(404).json({ message: "Player not found" });
+      if (!event || !event.participants.length) {
+        return res.status(404).json({ message: "Participant not found" });
       }
 
-      const player = game.players[0];
-      if (player.responseToken !== responseToken) {
+      const participant = event.participants[0];
+      if (participant.responseToken !== responseToken) {
         return res.status(403).json({ message: "Not authorized to edit response" });
       }
 
-      const [updatedPlayer] = await db
-        .update(players)
+      const [updatedParticipant] = await db
+        .update(participants)
         .set({
           name,
           email,
           likelihood,
           comment
         })
-        .where(eq(players.id, parseInt(playerId)))
+        .where(eq(participants.id, parseInt(participantId)))
         .returning();
 
-      res.json(updatedPlayer);
+      res.json(updatedParticipant);
     } catch (error) {
-      console.error("Failed to update player:", error);
-      res.status(500).json({ message: "Failed to update player" });
+      console.error("Failed to update participant:", error);
+      res.status(500).json({ message: "Failed to update participant" });
     }
   });
 
-  // Delete player response
-  app.delete("/api/games/:hash/players/:playerId", async (req, res) => {
+  // Delete participant response
+  app.delete("/api/events/:hash/participants/:participantId", async (req, res) => {
     try {
-      const { hash, playerId } = req.params;
+      const { hash, participantId } = req.params;
 
-      const game = await db.query.games.findFirst({
-        where: eq(games.urlHash, hash),
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
       });
 
-      if (!game) {
-        return res.status(404).json({ message: "Game not found" });
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
       }
 
-      await db.delete(players).where(eq(players.id, parseInt(playerId)));
+      await db.delete(participants).where(eq(participants.id, parseInt(participantId)));
 
       res.json({ success: true });
     } catch (error) {
-      console.error("Failed to delete player:", error);
-      res.status(500).json({ message: "Failed to delete player" });
+      console.error("Failed to delete participant:", error);
+      res.status(500).json({ message: "Failed to delete participant" });
     }
   });
 

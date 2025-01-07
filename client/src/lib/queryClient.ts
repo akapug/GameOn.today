@@ -1,4 +1,3 @@
-
 import { QueryClient } from "@tanstack/react-query";
 
 export const queryClient = new QueryClient({
@@ -14,10 +13,10 @@ export const queryClient = new QueryClient({
 
 // Helper function to generate query keys
 export const queryKeys = {
-  games: {
-    all: ['/api/games'],
-    single: (id: string) => ['/api/games', id],
-    user: (uid: string) => ['/api/games/user', { uid }],
+  events: {
+    all: ['/api/events'],
+    single: (id: string) => ['/api/events', id],
+    user: (uid: string) => ['/api/events/user', { uid }],
   },
-  activities: ['/api/activities'],
+  eventTypes: ['/api/init'],
 };
