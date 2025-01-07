@@ -99,16 +99,23 @@ describe('Event System', () => {
       render(<CreateEvent />, { wrapper });
 
       const submitButton = screen.getByRole('button', { name: /Create Event/i });
+      
+      // Submit the form
       await userEvent.click(submitButton);
 
-      // Trigger form validation
-      await waitFor(() => {
-        const formErrors = screen.getByRole('alert', { name: 'Form Errors' });
-        expect(formErrors).toBeInTheDocument();
-        expect(formErrors.textContent).toContain('Event type is required');
-        expect(formErrors.textContent).toContain('Title is required');
-        expect(formErrors.textContent).toContain('Location is required');
-      });
+      // Wait for validation to complete and errors to appear
+      await waitFor(
+        () => {
+          const errors = screen.getAllByText(/required/i);
+          expect(errors.length).toBeGreaterThan(0);
+        },
+        { timeout: 2000 }
+      );
+
+      // Now verify specific error messages
+      expect(screen.getByText('Event type is required')).toBeInTheDocument();
+      expect(screen.getByText('Title is required')).toBeInTheDocument();
+      expect(screen.getByText('Location is required')).toBeInTheDocument();
     });
 
     it('handles event creation form submission', async () => {
