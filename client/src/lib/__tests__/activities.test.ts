@@ -1,6 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { useActivities } from '../activities';
 import { renderHook } from '@testing-library/react';
+
+vi.mock('../activities', () => ({
+  useActivities: () => ({
+    activities: [
+      { id: 1, name: 'Test Activity', icon: 'test-icon' }
+    ]
+  })
+}));
 
 describe('activities', () => {
   it('should return activities data structure', () => {

@@ -1,8 +1,16 @@
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import GameCard from '../GameCard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+vi.mock('@tanstack/react-query', async () => {
+  const actual = await vi.importActual('@tanstack/react-query');
+  return {
+    ...actual,
+    useQueryClient: () => new QueryClient()
+  };
+});
 
 const queryClient = new QueryClient();
 

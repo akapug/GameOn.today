@@ -1,4 +1,3 @@
-
 import { parseISO, format } from 'date-fns';
 import { formatInTimeZone, toDate } from 'date-fns-tz';
 
@@ -18,12 +17,12 @@ export function formatWithTimezone(
 
     if (!includeZone) return formattedDate;
 
-  const tzAbbr = new Date().toLocaleTimeString('en-US', {
-    timeZone: timezone,
-    timeZoneName: 'short'
-  }).split(' ')[2];
+    const tzAbbr = new Date().toLocaleTimeString('en-US', {
+      timeZone: timezone,
+      timeZoneName: 'short'
+    }).split(' ')[2];
 
-  return `${formattedDate} (${tzAbbr})`;
+    return `${formattedDate} (${tzAbbr})`;
   } catch (e) {
     console.warn('Invalid date or timezone:', date, timezone);
     return '';
