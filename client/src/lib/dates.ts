@@ -18,6 +18,13 @@ export function formatWithTimezone(date: string | Date, formatStr: string, timez
   return formatInTimeZone(new Date(date), timezone, formatStr);
 }
 
-export function utcToLocalInput(date: string | Date, timezone: string = 'UTC'): string {
-  return formatInTimeZone(new Date(date), timezone, "yyyy-MM-dd'T'HH:mm");
+export function utcToLocalInput(date: string | Date | null | undefined, timezone: string = 'UTC'): string {
+  if (!date) return '';
+  try {
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) return '';
+    return formatInTimeZone(parsedDate, timezone, "yyyy-MM-dd'T'HH:mm");
+  } catch {
+    return '';
+  }
 }
