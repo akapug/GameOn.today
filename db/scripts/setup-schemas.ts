@@ -1,3 +1,4 @@
+
 import { db } from "@db";
 import { sql } from "drizzle-orm";
 
@@ -11,34 +12,111 @@ async function main() {
       CREATE SCHEMA IF NOT EXISTS development;
     `);
 
-    // Move existing tables to production schema if they're in public
+    // Create tables in production schema
     await db.execute(sql`
-      DO $$
-      BEGIN
-        IF EXISTS (
-          SELECT FROM information_schema.tables 
-          WHERE table_schema = 'public' 
-          AND table_name IN ('activities', 'games', 'players')
-        ) THEN
-          ALTER TABLE IF EXISTS public.activities SET SCHEMA production;
-          ALTER TABLE IF EXISTS public.games SET SCHEMA production;
-          ALTER TABLE IF EXISTS public.players SET SCHEMA production;
-        END IF;
-      END $$;
+      CREATE TABLE IF NOT EXISTS production.activities (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        color TEXT NOT NULL,
+        icon TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS production.games (
+        id SERIAL PRIMARY KEY,
+        url_hash TEXT NOT NULL UNIQUE,
+        is_private BOOLEAN NOT NULL DEFAULT false,
+        activity_id INTEGER REFERENCES production.activities(id),
+        title TEXT NOT NULL,
+        location TEXT NOT NULL,
+        date TIMESTAMP WITH TIME ZONE NOT NULL,
+        player_threshold INTEGER NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        creator_id TEXT NOT NULL,
+        creator_name TEXT NOT NULL,
+        timezone TEXT NOT NULL,
+        end_time TIMESTAMP WITH TIME ZONE,
+        notes TEXT,
+        web_link TEXT,
+        is_recurring BOOLEAN NOT NULL DEFAULT false,
+        recurrence_frequency TEXT,
+        parent_game_id INTEGER REFERENCES production.games(id)
+      );
+
+      CREATE TABLE IF NOT EXISTS production.players (
+        id SERIAL PRIMARY KEY,
+        game_id INTEGER REFERENCES production.games(id),
+        name TEXT NOT NULL,
+        email TEXT,
+        phone TEXT,
+        joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        likelihood DECIMAL NOT NULL DEFAULT 1,
+        response_token TEXT NOT NULL,
+        comment TEXT
+      );
     `);
 
-    // Initial sync of development schema
+    // Create tables in development schema
     await db.execute(sql`
-      -- Create tables in development schema
-      CREATE TABLE IF NOT EXISTS development.activities (LIKE production.activities INCLUDING ALL);
-      CREATE TABLE IF NOT EXISTS development.games (LIKE production.games INCLUDING ALL);
-      CREATE TABLE IF NOT EXISTS development.players (LIKE production.players INCLUDING ALL);
+      CREATE TABLE IF NOT EXISTS development.activities (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        color TEXT NOT NULL,
+        icon TEXT NOT NULL
+      );
 
-      -- Copy initial data
-      INSERT INTO development.activities 
-      SELECT * FROM production.activities 
-      ON CONFLICT DO NOTHING;
+      CREATE TABLE IF NOT EXISTS development.games (
+        id SERIAL PRIMARY KEY,
+        url_hash TEXT NOT NULL UNIQUE,
+        is_private BOOLEAN NOT NULL DEFAULT false,
+        activity_id INTEGER REFERENCES development.activities(id),
+        title TEXT NOT NULL,
+        location TEXT NOT NULL,
+        date TIMESTAMP WITH TIME ZONE NOT NULL,
+        player_threshold INTEGER NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        creator_id TEXT NOT NULL,
+        creator_name TEXT NOT NULL,
+        timezone TEXT NOT NULL,
+        end_time TIMESTAMP WITH TIME ZONE,
+        notes TEXT,
+        web_link TEXT,
+        is_recurring BOOLEAN NOT NULL DEFAULT false,
+        recurrence_frequency TEXT,
+        parent_game_id INTEGER REFERENCES development.games(id)
+      );
+
+      CREATE TABLE IF NOT EXISTS development.players (
+        id SERIAL PRIMARY KEY,
+        game_id INTEGER REFERENCES development.games(id),
+        name TEXT NOT NULL,
+        email TEXT,
+        phone TEXT,
+        joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        likelihood DECIMAL NOT NULL DEFAULT 1,
+        response_token TEXT NOT NULL,
+        comment TEXT
+      );
     `);
+
+    // Insert default activities in both schemas
+    const defaultActivities = [
+      { name: 'Basketball', color: '#FF6B6B', icon: '🏀' },
+      { name: 'Soccer', color: '#4ECDC4', icon: '⚽' },
+      { name: 'Tennis', color: '#45B7D1', icon: '🎾' },
+      { name: 'Volleyball', color: '#96CEB4', icon: '🏐' }
+    ];
+
+    for (const activity of defaultActivities) {
+      await db.execute(sql`
+        INSERT INTO production.activities (name, color, icon)
+        VALUES (${activity.name}, ${activity.color}, ${activity.icon})
+        ON CONFLICT (name) DO NOTHING;
+        
+        INSERT INTO development.activities (name, color, icon)
+        VALUES (${activity.name}, ${activity.color}, ${activity.icon})
+        ON CONFLICT (name) DO NOTHING;
+      `);
+    }
 
     console.log('Schema setup completed successfully');
     process.exit(0);
