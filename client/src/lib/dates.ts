@@ -12,8 +12,7 @@ export function getUserTimezone(): string {
 
 export function toUTC(dateStr: string, timezone: string): Date {
   const date = new Date(dateStr);
-  const localDate = new Date(formatInTimeZone(date, timezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-  return localDate;
+  return date;
 }
 
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
