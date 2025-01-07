@@ -59,6 +59,13 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  const toUTC = (dateString: string, timezone: string) => {
+    const localDate = new Date(dateString);
+    const utcDate = new Date(localDate.toLocaleString('en-US', { timeZone: 'UTC' }));
+    return utcDate;
+  };
+
+
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -66,8 +73,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       ...event,
       title: formState.title,
       location: formState.location,
-      date: formState.date,
-      endTime: formState.endTime,
+      date: toUTC(formState.date, event.timezone).toISOString(),
+      endTime: formState.endTime ? toUTC(formState.endTime, event.timezone).toISOString() : null,
       participantThreshold: formState.participantThreshold,
       notes: formState.notes,
       isPrivate: formState.isPrivate,
