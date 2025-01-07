@@ -24,7 +24,7 @@ export default function EventList({ events, emptyMessage = "No events found", on
     refetchInterval: 3000, // Refetch every 3 seconds
   });
 
-  const eventsToDisplay = Array.isArray(fetchedEvents) ? fetchedEvents : [];
+  const eventsToDisplay = Array.isArray(events) ? events : [];
 
   if (eventsToDisplay.length === 0 && onCreateEvent) {
     return (
