@@ -6,11 +6,11 @@ async function main() {
   console.log('Setting up database schemas...');
 
   try {
-    // Create schemas
+    // Create schemas first
     await db.execute(sql`CREATE SCHEMA IF NOT EXISTS production`);
     await db.execute(sql`CREATE SCHEMA IF NOT EXISTS development`);
 
-    // Create production tables
+    // Create production tables with constraints
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS production.activities (
         id SERIAL PRIMARY KEY,
@@ -55,7 +55,7 @@ async function main() {
         comment TEXT
       )`);
 
-    // Create development tables
+    // Create development tables with constraints
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS development.activities (
         id SERIAL PRIMARY KEY,
@@ -112,12 +112,12 @@ async function main() {
       await db.execute(sql`
         INSERT INTO production.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT (name) DO NOTHING`);
+        ON CONFLICT ON CONSTRAINT activities_name_key DO NOTHING`);
       
       await db.execute(sql`
         INSERT INTO development.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT (name) DO NOTHING`);
+        ON CONFLICT ON CONSTRAINT activities_name_key DO NOTHING`);
     }
 
     console.log('Schema setup completed successfully');
