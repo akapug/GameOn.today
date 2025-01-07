@@ -14,10 +14,9 @@ async function main() {
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS production.activities (
         id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
+        name TEXT NOT NULL UNIQUE,
         color TEXT NOT NULL,
-        icon TEXT NOT NULL,
-        CONSTRAINT activities_name_key UNIQUE (name)
+        icon TEXT NOT NULL
       )`);
 
     await db.execute(sql`
@@ -59,10 +58,9 @@ async function main() {
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS development.activities (
         id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
+        name TEXT NOT NULL UNIQUE,
         color TEXT NOT NULL,
-        icon TEXT NOT NULL,
-        CONSTRAINT activities_name_key UNIQUE (name)
+        icon TEXT NOT NULL
       )`);
 
     await db.execute(sql`
