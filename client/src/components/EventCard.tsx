@@ -189,27 +189,74 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <div className="mt-4 space-y-2">
               {event.participants.map((participant) => (
                 <div key={participant.id} className="flex items-center justify-between text-sm">
-                  <span>{participant.name}</span>
-                  <span className="text-muted-foreground">
-                    {participant.likelihood === 1 ? 'Yes' : `Maybe (${Math.round(participant.likelihood * 100)}%)`}
-                  </span>
-                  {participant.comment && (
-                    <span className="text-muted-foreground ml-2">
-                      - "{participant.comment}"
+                  <div className="flex items-center gap-2">
+                    <span>{participant.name}</span>
+                    <span 
+                      className={`px-2 py-0.5 rounded-full ${
+                        participant.likelihood === 1 
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}
+                    >
+                      {participant.likelihood === 1 ? 'Yes' : `Maybe (${Math.round(participant.likelihood * 100)}%)`}
                     </span>
-                  )}
-                  {canEditResponse(participant) && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
+                    {participant.comment && (
+                      <span className="text-muted-foreground">
+                        ({participant.comment})
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    {canEditResponse(participant) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingParticipant(participant);
+                          setParticipantName(participant.name);
+                          setParticipantEmail(participant.email || '');
+                          setJoinType(!participant.likelihood || participant.likelihood === 1 ? "yes" : "maybe");
+                          setLikelihood(participant.likelihood || 0.5);
+                          setComment(participant.comment || '');
+                          setIsResponseEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {canDelete && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={async () => {
+                          if (confirm(`Remove ${participant.name}'s response?`)) {
+                            try {
+                              const response = await fetch(`/api/events/${event.urlHash}/participants/${participant.id}`, {
+                                method: "DELETE",
+                                headers: { "Content-Type": "application/json" }
+                              });
+                              
+                              if (!response.ok) {
+                                throw new Error('Failed to delete response');
+                              }
+                              
+                              queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
+                              queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+                              toast({ title: "Success", description: "Response removed successfully" });
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to remove response",
+                                variant: "destructive"
+                              });
+                            }
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -238,27 +285,49 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             e.preventDefault();
             joinEvent.mutate();
           }} className="space-y-4">
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" type="text" value={participantName} onChange={(e) => setParticipantName(e.target.value)} />
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                value={participantName}
+                onChange={(e) => setParticipantName(e.target.value)}
+                required
+              />
+            </div>
 
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={participantEmail} onChange={(e) => setParticipantEmail(e.target.value)} />
+            <div className="space-y-2">
+              <Label htmlFor="email">Email (optional)</Label>
+              <Input
+                id="email"
+                type="email"
+                value={participantEmail}
+                onChange={(e) => setParticipantEmail(e.target.value)}
+                placeholder="your@email.com"
+              />
+            </div>
 
-            <Label htmlFor="joinType">Join Type</Label>
-            <RadioGroup value={joinType} onValueChange={(value: "yes" | "maybe") => setJoinType(value)}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="yes" id="yes" />
-                <Label htmlFor="yes">Yes</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="maybe" id="maybe" />
-                <Label htmlFor="maybe">Maybe</Label>
-              </div>
-            </RadioGroup>
+            <div className="space-y-2">
+              <Label>Are you joining?</Label>
+              <RadioGroup 
+                value={joinType} 
+                onValueChange={(value: "yes" | "maybe") => setJoinType(value)}
+                className="flex flex-col space-y-1"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="yes" />
+                  <Label htmlFor="yes">Yes, I'll be there!</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="maybe" id="maybe" />
+                  <Label htmlFor="maybe">Maybe (set likelihood below)</Label>
+                </div>
+              </RadioGroup>
+            </div>
 
             {joinType === "maybe" && (
-              <>
-                <Label htmlFor="likelihood">Likelihood</Label>
+              <div className="space-y-2">
+                <Label htmlFor="likelihood">How likely are you to join? ({Math.round(likelihood * 100)}%)</Label>
                 <Slider
                   id="likelihood"
                   min={0}
@@ -266,15 +335,22 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                   step={0.1}
                   value={[likelihood]}
                   onValueChange={([value]) => setLikelihood(value)}
-                  className="w-full"
                 />
-              </>
+              </div>
             )}
 
-            <Label htmlFor="comment">Comment</Label>
-            <Input id="comment" type="text" value={comment} onChange={(e) => setComment(e.target.value)} />
+            <div>
+              <Label htmlFor="comment">Comment (optional)</Label>
+              <Input
+                id="comment"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Any notes about your attendance?"
+                maxLength={100}
+              />
+            </div>
 
-            <Button type="submit" disabled={joinEvent.isPending}>
+            <Button type="submit" className="w-full" disabled={!participantName.trim() || joinEvent.isPending}>
               {joinEvent.isPending ? "Joining..." : "Join Event"}
             </Button>
           </form>
