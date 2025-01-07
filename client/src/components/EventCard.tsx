@@ -63,20 +63,30 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
     e.preventDefault();
 
     const updatedEvent = {
-      title: formState.title,
-      location: formState.location,
+      title: formState.title.trim(),
+      location: formState.location.trim(),
       date: formState.date,
       endTime: formState.endTime,
-      participantThreshold: formState.participantThreshold,
-      notes: formState.notes,
+      participantThreshold: Number(formState.participantThreshold),
+      notes: formState.notes?.trim(),
       isPrivate: formState.isPrivate,
       eventTypeId: Number(formState.eventTypeId),
-      webLink: formState.webLink,
+      webLink: formState.webLink?.trim(),
       isRecurring: formState.isRecurring,
       recurrenceFrequency: formState.recurrenceFrequency,
       creatorId: event.creatorId,
       timezone: event.timezone || 'UTC'
     };
+
+    // Validate required fields
+    if (!updatedEvent.title || !updatedEvent.location || !updatedEvent.date || !updatedEvent.participantThreshold || !updatedEvent.eventTypeId) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
