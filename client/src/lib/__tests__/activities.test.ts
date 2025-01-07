@@ -1,27 +1,28 @@
+
 import { describe, it, expect, vi } from 'vitest';
-import { useActivities } from '../activities';
+import { useEventTypes } from '../eventTypes';
 import { renderHook } from '@testing-library/react';
 
-vi.mock('../activities', () => ({
-  useActivities: () => ({
-    activities: [
-      { id: 1, name: 'Test Activity', icon: 'test-icon' }
+vi.mock('../eventTypes', () => ({
+  useEventTypes: () => ({
+    eventTypes: [
+      { id: 1, name: 'Test Type', color: '#000000' }
     ]
   })
 }));
 
-describe('activities', () => {
-  it('should return activities data structure', () => {
-    const { result } = renderHook(() => useActivities());
-    expect(result.current.activities).toBeDefined();
-    expect(Array.isArray(result.current.activities)).toBe(true);
+describe('eventTypes', () => {
+  it('should return event types data structure', () => {
+    const { result } = renderHook(() => useEventTypes());
+    expect(result.current.eventTypes).toBeDefined();
+    expect(Array.isArray(result.current.eventTypes)).toBe(true);
   });
 
-  it('should have required activity properties', () => {
-    const { result } = renderHook(() => useActivities());
-    const activity = result.current.activities[0];
-    expect(activity).toHaveProperty('id');
-    expect(activity).toHaveProperty('name');
-    expect(activity).toHaveProperty('icon');
+  it('should have required event type properties', () => {
+    const { result } = renderHook(() => useEventTypes());
+    const eventType = result.current.eventTypes[0];
+    expect(eventType).toHaveProperty('id');
+    expect(eventType).toHaveProperty('name');
+    expect(eventType).toHaveProperty('color');
   });
 });
