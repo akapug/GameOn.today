@@ -25,7 +25,11 @@ const getDb = () => {
 
       console.log(`Attempting database connection for ${env} environment using ${schemaName} schema...`);
 
-      // Set the search path before creating the client
+      // Create initial raw SQL client to set search path
+      const sqlClient = neon(databaseUrl);
+      await sqlClient`SET search_path TO ${sqlClient.raw(schemaName)}, public`;
+
+      // Create the Drizzle client with schema-aware configuration
       const client = drizzle({
         connection: databaseUrl,
         schema,
@@ -37,16 +41,25 @@ const getDb = () => {
         },
       });
 
-      // Set schema search path
-      await client.execute(sql`SET search_path TO ${sql.raw(schemaName)}, public`);
+      // Verify schema exists and is accessible
+      const schemaTest = await client.execute(sql`
+        SELECT EXISTS (
+          SELECT FROM information_schema.schemata 
+          WHERE schema_name = ${schemaName}
+        );
+      `);
 
-      // Test the connection
-      const testQuery = await client.execute(sql`SELECT NOW()`);
-      console.log(`${env} database connection (${schemaName} schema) test successful:`, testQuery.rows[0]);
+      if (!schemaTest.rows[0].exists) {
+        throw new Error(`Schema '${schemaName}' does not exist`);
+      }
+
+      // Verify search path is set correctly
+      const searchPath = await client.execute(sql`SHOW search_path`);
+      console.log(`Current search path: ${searchPath.rows[0].search_path}`);
 
       // Add environment-specific logging
       if (env === 'development') {
-        console.log('DEVELOPMENT MODE: Using development schema with nightly production data sync');
+        console.log('DEVELOPMENT MODE: Using development schema with sample data');
       } else {
         console.log('PRODUCTION MODE: Using production schema');
       }
@@ -62,7 +75,7 @@ const getDb = () => {
         await new Promise(resolve => setTimeout(resolve, delay));
         return await connect();
       }
-      throw new Error(`Failed to connect to database: ${error.message}`);
+      throw new Error(`Failed to connect to database after ${maxRetries} attempts: ${error.message}`);
     }
   };
 
@@ -83,7 +96,7 @@ export const syncDevelopmentSchema = async () => {
   ensureDevEnvironment();
 
   try {
-    console.log('Starting development schema sync from production...');
+    console.log('Starting development schema sync...');
 
     // Copy schema structure and data from production to development
     await db.execute(sql`
@@ -93,15 +106,16 @@ export const syncDevelopmentSchema = async () => {
       -- Create fresh development schema
       CREATE SCHEMA development;
 
-      -- Copy schema structure and data from production
+      -- Copy schema structure from production
       CREATE TABLE development.activities (LIKE production.activities INCLUDING ALL);
       CREATE TABLE development.games (LIKE production.games INCLUDING ALL);
       CREATE TABLE development.players (LIKE production.players INCLUDING ALL);
 
-      -- Copy data
+      -- Copy initial data for development
       INSERT INTO development.activities SELECT * FROM production.activities;
       INSERT INTO development.games SELECT * FROM production.games;
       INSERT INTO development.players SELECT * FROM production.players;
+
     `);
 
     console.log('Development schema sync completed successfully');

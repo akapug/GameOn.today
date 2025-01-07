@@ -10,7 +10,6 @@ const sampleGames = [
     date: new Date("2025-01-14T18:00:00Z"),
     endTime: new Date("2025-01-14T20:00:00Z"),
     playerThreshold: 6,
-    description: "Regular pickup basketball game. All skill levels welcome!",
     isRecurring: true,
     recurrenceFrequency: "weekly",
     webLink: "https://meetup.com/sample-basketball",
@@ -28,7 +27,6 @@ const sampleGames = [
     date: new Date("2025-01-20T14:00:00Z"),
     endTime: new Date("2025-01-20T18:00:00Z"),
     playerThreshold: 12,
-    description: "Monthly doubles tournament with rotating partners",
     isRecurring: false,
     webLink: "https://citytennisclub.com/tournament",
     notes: "Tournament brackets will be posted 1 hour before start",
@@ -37,22 +35,6 @@ const sampleGames = [
     creatorId: "sample-creator-2",
     creatorName: "Jane Smith",
     timezone: "America/New_York"
-  },
-  {
-    title: "Private Soccer Scrimmage",
-    activityId: 2,
-    location: "Community Park Field #3",
-    date: new Date("2025-01-12T09:00:00Z"),
-    endTime: new Date("2025-01-12T11:00:00Z"),
-    playerThreshold: 10,
-    description: "Friendly soccer match on the turf field",
-    isRecurring: false,
-    notes: "Field has lights if we want to play longer",
-    urlHash: "private-soccer",
-    isPrivate: true,
-    creatorId: "sample-creator-3",
-    creatorName: "Mark Wilson",
-    timezone: "America/Chicago"
   }
 ];
 
@@ -78,16 +60,15 @@ async function main() {
       await db.execute(sql`
         INSERT INTO games (
           title, activity_id, location, date, end_time,
-          player_threshold, description, is_recurring,
-          recurrence_frequency, web_link, notes,
-          url_hash, is_private, creator_id, creator_name,
-          timezone
+          player_threshold, is_recurring, recurrence_frequency,
+          web_link, notes, url_hash, is_private,
+          creator_id, creator_name, timezone
         ) VALUES (
           ${game.title}, ${game.activityId}, ${game.location},
           ${game.date}, ${game.endTime}, ${game.playerThreshold},
-          ${game.description}, ${game.isRecurring},
-          ${game.recurrenceFrequency || null}, ${game.webLink || null},
-          ${game.notes || null}, ${game.urlHash}, ${game.isPrivate},
+          ${game.isRecurring}, ${game.recurrenceFrequency || null},
+          ${game.webLink || null}, ${game.notes || null},
+          ${game.urlHash}, ${game.isPrivate},
           ${game.creatorId}, ${game.creatorName}, ${game.timezone}
         )
         ON CONFLICT (url_hash) DO NOTHING;
