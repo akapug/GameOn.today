@@ -27,12 +27,11 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 3000,
     hmr: {
       clientPort: 443,
       protocol: 'wss',
       host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
-      timeout: 10000,
+      timeout: 5000,
       overlay: false
     }
   },

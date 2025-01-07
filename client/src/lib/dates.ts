@@ -1,37 +1,68 @@
-import { format } from 'date-fns';
+import { format, formatInTimeZone } from 'date-fns-tz';
 
-import { formatInTimeZone } from 'date-fns-tz';
-
-// Display UTC time from DB in specified timezone
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
   if (!date) return '';
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '';
-  return formatInTimeZone(d, timezone, formatStr);
+  // Add timezone abbreviation to the format string if it doesn't end with 'z' or 'Z'
+  const formatWithTz = formatStr.endsWith('z') || formatStr.endsWith('Z') 
+    ? formatStr 
+    : `${formatStr} (z)`;
+  return formatInTimeZone(d, timezone || 'UTC', formatWithTz);
 }
 
-// Convert local time to UTC for DB storage
-export function toUTC(dateStr: string, timezone: string): Date {
+export function toUTC(dateStr: string, timezone: string = 'UTC'): Date {
   if (!dateStr) return new Date();
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return new Date();
-  return date;
+  
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+    
+    const parts = formatter.formatToParts(date);
+    const dateParts: any = {};
+    parts.forEach(part => {
+      if (part.type !== 'literal') {
+        dateParts[part.type] = parseInt(part.value, 10);
+      }
+    });
+    
+    return new Date(Date.UTC(
+      dateParts.year,
+      dateParts.month - 1,
+      dateParts.day,
+      dateParts.hour,
+      dateParts.minute,
+      dateParts.second
+    ));
+  } catch (e) {
+    console.error('Error converting to UTC:', e);
+    return new Date(dateStr);
+  }
 }
 
-// Convert UTC time from DB to specified timezone for form inputs
-export function utcToLocalInput(dateStr: string, timezone: string): string {
+export function utcToLocalInput(dateStr: string, timezone: string = 'UTC'): string {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return '';
   return formatInTimeZone(date, timezone, "yyyy-MM-dd'T'HH:mm");
 }
 
-// Convert timezone form input to UTC for DB storage
-export function localToUTCInput(dateStr: string, timezone: string): string {
+export function localToUTCInput(dateStr: string, timezone: string = 'UTC'): string {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return '';
-  return date.toISOString();
+  const tzDate = formatInTimeZone(date, timezone, "yyyy-MM-dd'T'HH:mm");
+  return new Date(tzDate).toISOString();
 }
 
 export function getUserTimezone(): string {
