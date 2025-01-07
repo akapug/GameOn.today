@@ -601,7 +601,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <Input
                 id="date"
                 type="datetime-local"
-                value={utcToLocalInput(formState.date, event.timezone)}
+                value={utcToLocalInput(formState.date, getUserTimezone())}
                 onChange={(e) => setFormState(prev => ({ ...prev, date: e.target.value }))}
               />
             </div>

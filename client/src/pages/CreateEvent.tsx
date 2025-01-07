@@ -82,8 +82,8 @@ export default function CreateEvent() {
     mutationFn: async (values: NewEvent) => {
       const eventData = {
         ...values,
-        date: toUTC(values.date, values.timezone).toISOString(),
-        endTime: values.endTime ? toUTC(values.endTime, values.timezone).toISOString() : null,
+        date: toUTC(values.date, userTimezone).toISOString(),
+        endTime: values.endTime ? toUTC(values.endTime, userTimezone).toISOString() : null,
         eventTypeId: typeof values.eventTypeId === 'string' ? parseInt(values.eventTypeId, 10) : values.eventTypeId,
         participantThreshold: Number(values.participantThreshold),
         isRecurring: values.isRecurring === true,
