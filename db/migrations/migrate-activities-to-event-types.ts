@@ -1,3 +1,4 @@
+
 import { db } from "@db";
 import { sql } from "drizzle-orm";
 
@@ -5,7 +6,17 @@ async function main() {
   console.log('Starting migration from activities to event_types...');
 
   try {
-    // First check if we need to migrate
+    // First ensure the activities table exists
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS activities (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        color TEXT NOT NULL,
+        icon TEXT NOT NULL
+      );
+    `);
+
+    // Check if we need to migrate
     const hasEventTypes = await db.execute(
       sql`SELECT EXISTS (SELECT 1 FROM event_types LIMIT 1);`
     );
