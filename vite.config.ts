@@ -26,13 +26,18 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    host: '0.0.0.0',
-    hmr: {
-      clientPort: 443,
-      protocol: 'wss',
-      host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
-      timeout: 5000,
-      overlay: false
-    }
-  },
+      host: '0.0.0.0',
+      hmr: {
+        clientPort: 443,
+        protocol: 'wss',
+        host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
+        timeout: 10000,
+        overlay: false,
+        reconnect: true
+      },
+      watch: {
+        usePolling: true,
+        interval: 1000
+      }
+    },
 });
