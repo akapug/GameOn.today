@@ -1,3 +1,4 @@
+
 import express, { type Express } from "express";
 import fs from "fs";
 import path, { dirname } from "path";
@@ -43,11 +44,6 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   const distPath = path.resolve(__dirname, "..", "dist", "public");
-
-  if (!fs.existsSync(distPath)) {
-    throw new Error("Could not find the build directory");
-  }
-
   app.use(express.static(distPath));
   app.get("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
