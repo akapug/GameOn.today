@@ -31,6 +31,17 @@ vi.mock('@tanstack/react-query', () => ({
     isLoading: false,
     error: null
   }),
+  useMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+    isError: false,
+    error: null
+  }),
+  useQueryClient: () => ({
+    invalidateQueries: vi.fn(),
+    setQueryData: vi.fn(),
+    getQueryData: vi.fn()
+  }),
   QueryClient: function() {
     return {
       setQueryData: vi.fn(),
