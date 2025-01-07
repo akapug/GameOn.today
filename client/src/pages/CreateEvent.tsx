@@ -155,7 +155,7 @@ export default function CreateEvent() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit((data) => {
                 createEvent.mutate(data);
-              }} className="space-y-6">
+              })} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="eventTypeId"
