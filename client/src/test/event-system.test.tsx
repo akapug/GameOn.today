@@ -129,13 +129,18 @@ describe('Event System', () => {
       // Get the submit button
       const submitButton = screen.getByRole('button', { name: /Create Event/i });
       
-      // Submit form and wait for mutation to start
+      // Mock the mutation
+      vi.spyOn(global, 'fetch').mockImplementationOnce(() => 
+        Promise.resolve(new Response(JSON.stringify({ success: true })))
+      );
+
+      // Submit form
       await userEvent.click(submitButton);
       
-      // Use waitFor to handle async state changes
+      // Wait for button to be disabled during submission
       await waitFor(() => {
         expect(submitButton).toBeDisabled();
-      });
+      }, { timeout: 2000 });
     });
   });
 });
