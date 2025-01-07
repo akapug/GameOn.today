@@ -206,53 +206,6 @@ export default function Event() {
       <main className="container py-6 px-4">
         <EventCard event={event} extended={true} />
 
-        {event.weather && <WeatherDisplay weather={event.weather} />}
-
-        <div className="flex gap-2 mt-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => shareEvent('copy')}>
-                <LinkIcon className="h-4 w-4 mr-2" />
-                Copy Link
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => shareEvent('facebook')}>
-                <Facebook className="h-4 w-4 mr-2" />
-                Share on Facebook
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => shareEvent('twitter')}>
-                <Twitter className="h-4 w-4 mr-2" />
-                Share on Twitter
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {canDelete && (
-            <>
-              <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
-                <Edit2 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="text-destructive"
-                onClick={() => {
-                  if (canDelete) {
-                    setShowDeleteConfirm(true);
-                  }
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-        </div>
-
         {/* Join Event Dialog */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent>
