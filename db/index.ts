@@ -32,7 +32,8 @@ const getDb = () => {
       });
 
       // Set schema explicitly before any operations
-      await client.execute(sql`SET search_path TO ${sql.identifier(schemaName)}, public`);
+      await client.execute(sql`SET search_path TO ${sql.identifier(schemaName)}`);
+      console.log(`Set database search_path to schema: ${schemaName}`);
 
       // Verify schema exists and is accessible
       const schemaTest = await client.execute(sql`
