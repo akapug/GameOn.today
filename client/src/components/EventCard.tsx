@@ -341,10 +341,15 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
         {canDelete && (
           <>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" className="text-destructive">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="text-destructive"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
               <Trash2 className="h-4 w-4" />
             </Button>
           </>
