@@ -58,8 +58,7 @@ export function localToUTCInput(dateStr: string, timezone: string = 'UTC'): stri
   if (!dateStr) return '';
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return '';
-  const tzDate = formatInTimeZone(date, timezone, "yyyy-MM-dd'T'HH:mm");
-  return new Date(tzDate).toISOString();
+  return date.toISOString();
 }
 
 export function getUserTimezone(): string {
