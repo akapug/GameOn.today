@@ -40,6 +40,7 @@ const EventTypeSelect = forwardRef<HTMLButtonElement, EventTypeSelectProps>((pro
           ref={ref}
           variant="outline"
           role="combobox"
+          aria-label="Event Type"
           className={cn(
             "w-full justify-between",
             !value && "text-muted-foreground"
