@@ -75,6 +75,8 @@ export default function CreateEvent() {
     },
   });
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
   const createEvent = useMutation({
     mutationFn: async (values: NewEvent) => {
       const eventData = {
@@ -150,7 +152,20 @@ export default function CreateEvent() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit((data) => createEvent.mutate(data))} className="space-y-6">
+              <form onSubmit={form.handleSubmit(
+                (data) => {
+                  const validation = form.trigger();
+                  if (!validation) {
+                    const errors = form.formState.errors;
+                    setFormErrors(Object.keys(errors).reduce((acc, key) => {
+                      acc[key] = errors[key]?.message || '';
+                      return acc;
+                    }, {} as Record<string, string>));
+                    return;
+                  }
+                  createEvent.mutate(data);
+                }
+              )} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="eventTypeId"
@@ -362,6 +377,9 @@ export default function CreateEvent() {
                   />
                 )}
 
+                {Object.entries(formErrors).map(([field, message]) => (
+                  <p key={field} className="text-destructive text-sm">{message}</p>
+                ))}
                 <Button type="submit" className="w-full" disabled={createEvent.isPending}>
                   Create Event
                 </Button>
