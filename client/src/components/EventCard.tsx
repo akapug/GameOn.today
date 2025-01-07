@@ -171,7 +171,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex flex-col gap-1">
-            {new Date(event.date) < new Date() && (
+            {new Date(event.date).setHours(23,59,59) < new Date().getTime() && (
               <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full w-fit">
                 Event Concluded
               </span>
@@ -502,8 +502,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
           </DialogHeader>
           <form onSubmit={(e) => {
             e.preventDefault();
-            // Event edit logic will be implemented here
-            setIsEventEditDialogOpen(false);
+            handleEditSubmit(e);
           }} className="space-y-4">
             <div className="space-y-2">
               <Label>Event Type</Label>
