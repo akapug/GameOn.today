@@ -1,4 +1,5 @@
-import OpenWeatherMap from 'openweathermap-ts';
+
+import { OpenWeatherMap } from 'openweathermap-ts';
 import fetch from 'node-fetch';
 
 if (!process.env.OPENWEATHER_API_KEY) {
@@ -6,7 +7,7 @@ if (!process.env.OPENWEATHER_API_KEY) {
 }
 
 const openWeather = new OpenWeatherMap({
-  apiKey: process.env.OPENWEATHER_API_KEY || ''
+  apiKey: process.env.OPENWEATHER_API_KEY
 });
 
 export interface WeatherInfo {
