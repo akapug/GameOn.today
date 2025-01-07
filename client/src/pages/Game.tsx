@@ -314,7 +314,7 @@ export default function Event() {
 
                 <div className="flex items-center text-sm">
                   <Calendar className="mr-2 h-4 w-4" />
-                  <span>{new Date(event.date).toLocaleDateString()} {new Date(event.date).toLocaleTimeString()}</span>
+                  <span>{formatWithTimezone(event.date, 'PPp', event.timezone)}</span>
                 </div>
 
                 {event.endTime && (
