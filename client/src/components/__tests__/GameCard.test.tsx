@@ -1,7 +1,6 @@
-
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import GameCard from '../GameCard';
+import EventCard from '../EventCard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 vi.mock('@tanstack/react-query', async () => {
@@ -14,16 +13,17 @@ vi.mock('@tanstack/react-query', async () => {
 
 const queryClient = new QueryClient();
 
-describe('GameCard', () => {
-  const mockGame = {
+describe('EventCard', () => {
+  const mockEvent = {
     id: 1,
-    title: 'Test Game',
-    date: new Date().toISOString(),
+    urlHash: 'test-event',
+    title: 'Test Event',
     location: 'Test Location',
-    playerThreshold: 10,
-    players: [],
+    date: new Date().toISOString(),
+    participantThreshold: 10,
+    participants: [],
     timezone: 'America/Los_Angeles',
-    activityId: 1
+    eventTypeId: 1
   };
 
   const wrapper = ({ children }) => (
@@ -32,13 +32,13 @@ describe('GameCard', () => {
     </QueryClientProvider>
   );
 
-  it('should render game title', () => {
-    render(<GameCard game={mockGame} />, { wrapper });
-    expect(screen.getByText('Test Game')).toBeInTheDocument();
+  it('should render event title', () => {
+    render(<EventCard event={mockEvent} />, { wrapper });
+    expect(screen.getByText('Test Event')).toBeInTheDocument();
   });
 
   it('should render location', () => {
-    render(<GameCard game={mockGame} />, { wrapper });
+    render(<EventCard event={mockEvent} />, { wrapper });
     expect(screen.getByText('Test Location')).toBeInTheDocument();
   });
 });

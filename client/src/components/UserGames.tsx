@@ -5,33 +5,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Game, Activity } from "@db/schema";
+import type { Event, EventType } from "@db/schema";
 import { queryKeys } from "@/lib/queryClient";
 
-interface GameWithActivity extends Game {
-  activity: Activity;
+interface EventWithType extends Event {
+  eventType: EventType;
 }
 
-export default function UserGames() {
+export default function UserEvents() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  const { data: games, isLoading } = useQuery<GameWithActivity[]>({
-    queryKey: ["/api/games/user", { uid: user?.uid }],
-    queryFn: () => fetch(`/api/games/user?uid=${user?.uid}`).then(res => res.json()),
+  const { data: events, isLoading } = useQuery<EventWithType[]>({
+    queryKey: ["/api/events/user", { uid: user?.uid }],
+    queryFn: () => fetch(`/api/events/user?uid=${user?.uid}`).then(res => res.json()),
     enabled: !!user,
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
   });
 
-  if (isLoading || !games) {
-    return <div className="p-4 text-center text-sm text-muted-foreground">Loading your games...</div>;
+  if (isLoading || !events) {
+    return <div className="p-4 text-center text-sm text-muted-foreground">Loading your events...</div>;
   }
 
-  if (games.length === 0) {
+  if (events.length === 0) {
     return (
       <div className="p-4 text-center text-sm text-muted-foreground">
-        You haven't created any games yet
+        You haven't created any events yet
       </div>
     );
   }
@@ -39,21 +39,21 @@ export default function UserGames() {
   return (
     <ScrollArea className="h-[300px]">
       <div className="space-y-2 p-2">
-        {games.map((game) => (
+        {events.map((event) => (
           <Card 
-            key={game.urlHash} 
+            key={event.urlHash} 
             className="cursor-pointer hover:bg-accent transition-colors"
-            onClick={() => setLocation(`/games/${game.urlHash}`)}
+            onClick={() => setLocation(`/events/${event.urlHash}`)}
           >
             <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-medium text-sm">{game.title || game.activity?.name}</h3>
+                  <h3 className="font-medium text-sm">{event.title || event.eventType?.name}</h3>
                   <p className="text-xs text-muted-foreground">
-                    {format(new Date(game.date), "PPP")}
+                    {format(new Date(event.date), "PPP")}
                   </p>
                 </div>
-                {game.isPrivate ? (
+                {event.isPrivate ? (
                   <EyeOff className="h-4 w-4 text-muted-foreground" />
                 ) : (
                   <Eye className="h-4 w-4 text-muted-foreground" />
