@@ -163,6 +163,7 @@ export default function CreateEvent() {
                     <FormItem>
                       <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">Event Type</FormLabel>
                       <EventTypeSelect {...field} />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -198,6 +199,7 @@ export default function CreateEvent() {
                       <FormControl>
                         <Input placeholder="Event title..." {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -211,6 +213,7 @@ export default function CreateEvent() {
                       <FormControl>
                         <Input placeholder="Event location..." {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
