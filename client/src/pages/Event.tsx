@@ -195,63 +195,18 @@ export default function Event() {
   return (
     <div className="min-h-screen bg-background">
       <header className="p-4 border-b">
-        <div className="container flex items-center">
-          <Button variant="ghost" onClick={() => setLocation("/")}>
+        <div className="container flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Button variant="ghost" onClick={() => setLocation("/")} className="w-full sm:w-auto">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-          <h1 className="text-2xl font-bold ml-4">{event.title}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">{event.title}</h1>
         </div>
       </header>
       <main className="container py-6 px-4">
         <EventCard event={event} extended={true} />
 
         {event.weather && <WeatherDisplay weather={event.weather} />}
-
-        <div className="flex gap-2 mt-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => shareEvent('copy')}>
-                <LinkIcon className="h-4 w-4 mr-2" />
-                Copy Link
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => shareEvent('facebook')}>
-                <Facebook className="h-4 w-4 mr-2" />
-                Share on Facebook
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => shareEvent('twitter')}>
-                <Twitter className="h-4 w-4 mr-2" />
-                Share on Twitter
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {canDelete && (
-            <>
-              <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
-                <Edit2 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="text-destructive"
-                onClick={() => {
-                  if (canDelete) {
-                    setShowDeleteConfirm(true);
-                  }
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-        </div>
 
         {/* Join Event Dialog */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>

@@ -118,10 +118,10 @@ export default function CreateEvent() {
       });
       navigate("/");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to create event",
         variant: "destructive",
       });
     },
