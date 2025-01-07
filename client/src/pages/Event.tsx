@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
+import { apiRequest } from "@/lib/api";
 import { type Event as EventType, type Participant, type EventType as EventTypeModel } from "@db/schema";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent } from "@/components/ui/card";
@@ -105,10 +106,17 @@ export default function Event() {
 
   const deleteEvent = useMutation({
     mutationFn: async () => {
-      return apiRequest(`/api/events/${params?.hash}`, {
+      const response = await fetch(`/api/events/${params?.hash}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
+      
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || "Failed to delete event");
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
@@ -121,7 +129,7 @@ export default function Event() {
     onError: (error) => {
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Failed to delete event",
         variant: "destructive",
       });
     },
