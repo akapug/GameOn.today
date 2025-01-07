@@ -1,4 +1,3 @@
-
 import '@testing-library/jest-dom';
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
@@ -62,18 +61,14 @@ vi.mock('@tanstack/react-query', () => ({
 }));
 
 // Mock AuthProvider context
-vi.mock('../components/AuthProvider', () => {
-  const AuthProviderMock = ({ children }) => React.createElement(React.Fragment, null, children);
-  return {
-    useAuth: () => ({
-      user: { uid: 'test-user', displayName: 'Test User' },
-      loading: false,
-      signInWithGoogle: vi.fn(),
-      logout: vi.fn()
-    }),
-    AuthProvider: AuthProviderMock
-  };
-});
+vi.mock('../components/AuthProvider', () => ({
+  useAuth: vi.fn().mockReturnValue({
+    user: null,
+    loading: false,
+    error: null
+  }),
+  AuthProvider: ({ children }) => <div>{children}</div>,
+}));
 
 afterEach(() => {
   cleanup();

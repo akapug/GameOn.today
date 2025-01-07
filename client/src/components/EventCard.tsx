@@ -301,7 +301,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <Progress value={progressPercentage} className="h-2 mt-2" />
 
             <div className="mt-4 space-y-2">
-              {event.participants.map((participant) => (
+              {event.participants?.map((participant) => (
                 <div key={participant.id} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <span>{participant.name}</span>
