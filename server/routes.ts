@@ -8,6 +8,20 @@ import nodemailer from "nodemailer";
 import { getWeatherForecast } from "./services/weather";
 import { formatWithTimezone, toUTC } from "../client/src/lib/dates";
 
+// Schema middleware to ensure correct schema is set for each request
+async function setSchemaMiddleware(req: any, res: any, next: any) {
+  const env = process.env.NODE_ENV || 'development';
+  const schema = env === 'production' ? 'production' : 'development';
+
+  try {
+    await db.execute(sql`SET search_path TO ${sql.raw(schema)}, public`);
+    next();
+  } catch (error) {
+    console.error(`Failed to set schema to ${schema}:`, error);
+    res.status(500).json({ message: "Database configuration error" });
+  }
+}
+
 // Helper function to generate 6-char game hash
 function generateGameHash() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -118,6 +132,9 @@ export function registerRoutes(app: Express): Server {
     res.setHeader('Content-Type', 'application/json');
     next();
   });
+
+  // Add schema middleware to all API routes
+  app.use('/api', setSchemaMiddleware);
 
   // Init endpoint for app initialization data
   app.get("/api/init", async (_req, res) => {
@@ -235,7 +252,7 @@ export function registerRoutes(app: Express): Server {
       });
 
       if (!activity) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: `Activity with ID ${activityId} does not exist`,
           details: { field: 'activityId' }
         });
@@ -251,9 +268,9 @@ export function registerRoutes(app: Express): Server {
       if (missingFields.length > 0) {
         console.error('Missing fields in request:', missingFields);
         console.error('Request body:', req.body);
-        return res.status(400).json({ 
-          message: "Missing required fields", 
-          fields: missingFields 
+        return res.status(400).json({
+          message: "Missing required fields",
+          fields: missingFields
         });
       }
 
@@ -378,13 +395,13 @@ export function registerRoutes(app: Express): Server {
 
       // Generate a simple random string for response token
       const responseToken = uid || generateGameHash();
-      
+
       // Check for existing player by email or response token
-      const existingPlayer = game.players.find(p => 
-        (email && p.email === email) || 
+      const existingPlayer = game.players.find(p =>
+        (email && p.email === email) ||
         (uid && p.responseToken === uid)
       );
-      
+
       if (existingPlayer) {
         return res.status(400).json({ message: "You have already joined this game" });
       }

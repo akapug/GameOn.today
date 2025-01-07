@@ -27,7 +27,9 @@ const getDb = () => {
 
       // Create initial raw SQL client to set search path
       const sqlClient = neon(databaseUrl);
-      await sqlClient`SET search_path TO ${sqlClient.raw(schemaName)}, public`;
+
+      // Set search path explicitly to include both schema and public
+      await sqlClient`SET search_path TO ${sql.raw(schemaName)}, public`;
 
       // Create the Drizzle client with schema-aware configuration
       const client = drizzle({
@@ -59,7 +61,7 @@ const getDb = () => {
 
       // Add environment-specific logging
       if (env === 'development') {
-        console.log('DEVELOPMENT MODE: Using development schema with sample data');
+        console.log('DEVELOPMENT MODE: Using development schema');
       } else {
         console.log('PRODUCTION MODE: Using production schema');
       }
@@ -91,14 +93,14 @@ export const ensureDevEnvironment = () => {
   }
 };
 
-// Function to sync development schema with production data
+// Function to sync development schema with production structure (without data)
 export const syncDevelopmentSchema = async () => {
   ensureDevEnvironment();
 
   try {
     console.log('Starting development schema sync...');
 
-    // Copy schema structure and data from production to development
+    // Create fresh development schema
     await db.execute(sql`
       -- Drop existing development schema
       DROP SCHEMA IF EXISTS development CASCADE;
@@ -110,12 +112,6 @@ export const syncDevelopmentSchema = async () => {
       CREATE TABLE development.activities (LIKE production.activities INCLUDING ALL);
       CREATE TABLE development.games (LIKE production.games INCLUDING ALL);
       CREATE TABLE development.players (LIKE production.players INCLUDING ALL);
-
-      -- Copy initial data for development
-      INSERT INTO development.activities SELECT * FROM production.activities;
-      INSERT INTO development.games SELECT * FROM production.games;
-      INSERT INTO development.players SELECT * FROM production.players;
-
     `);
 
     console.log('Development schema sync completed successfully');
