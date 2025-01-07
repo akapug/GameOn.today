@@ -216,10 +216,10 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <div className="flex flex-wrap items-center text-sm gap-x-4">
               <div className="flex items-center">
                 <Calendar className="mr-2 h-4 w-4" />
-                <span>{new Date(event.date).toLocaleDateString()}</span>
+                <span>{formatWithTimezone(event.date, "PPP p", event.timezone || 'UTC')}</span>
                 {event.endTime && (
                   <span className="text-muted-foreground ml-1">
-                    - {new Date(event.endTime).toLocaleTimeString()}
+                    - {formatWithTimezone(event.endTime, "p", event.timezone || 'UTC')}
                   </span>
                 )}
               </div>
@@ -312,7 +312,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             </div>
           </div>
 
-          
+
         </div>
       </CardContent>
       <CardFooter className="flex gap-2">
