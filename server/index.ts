@@ -123,9 +123,21 @@ app.use((req, res, next) => {
   }
 
   const PORT = process.env.PORT || 5000;
+  // Add health check before starting server
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for services to initialize
+  
   server.listen(PORT, "0.0.0.0", () => {
     log(`Server running on port ${PORT}`);
     log(`Environment: ${process.env.NODE_ENV}`);
     log(`Server URL: https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);
   });
+
+  // Add periodic health check
+  setInterval(async () => {
+    try {
+      await db.execute(sql`SELECT 1`);
+    } catch (error) {
+      console.error('Health check failed:', error);
+    }
+  }, 30000);
 })();
