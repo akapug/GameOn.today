@@ -440,6 +440,30 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
         </DialogContent>
       </Dialog>
 
+      {/* Event Edit Dialog */}
+      <Dialog open={isEventEditDialogOpen} onOpenChange={setIsEventEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Event</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            // Event edit logic will be implemented here
+            setIsEventEditDialogOpen(false);
+          }} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={event.title}
+                onChange={(e) => {/* Event edit logic */}}
+              />
+            </div>
+            <Button type="submit">Save Changes</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Response Dialog */}
       <Dialog open={isResponseEditDialogOpen} onOpenChange={setIsResponseEditDialogOpen}>
         <DialogContent>
