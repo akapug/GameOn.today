@@ -41,20 +41,21 @@ const queryClient = new QueryClient({
   }
 });
 
-export const wrapper = ({ children }) => 
-  React.createElement(QueryClientProvider, { client: queryClient }, children);
+export const wrapper = ({ children }) => (
+  React.createElement(AuthProvider, null,
+    React.createElement(QueryClientProvider, { client: queryClient }, children)
+  )
+);
 
-// Mock auth functionality
-vi.mock('../components/AuthProvider', () => ({
-  useAuth: vi.fn().mockReturnValue({
+beforeEach(() => {
+  vi.mocked(useAuth).mockReturnValue({
     user: { uid: 'test-user', displayName: 'Test User' },
     loading: false,
     error: null,
     signInWithGoogle: vi.fn(),
     signOut: vi.fn()
-  }),
-  AuthProvider: ({ children }) => children
-}));
+  });
+});
 
 afterEach(() => {
   cleanup();

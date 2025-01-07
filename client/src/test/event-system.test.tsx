@@ -100,7 +100,7 @@ describe('Event System', () => {
     it('shows auth dialog for unauthenticated users', () => {
       vi.mocked(useAuth).mockReturnValue({ user: null, loading: false });
       render(<CreateEvent />, { wrapper });
-      expect(screen.getByText(/Sign in/i)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Sign in Required/i })).toBeInTheDocument();
     });
 
     it('allows event creation for authenticated users', () => {
