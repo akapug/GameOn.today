@@ -153,13 +153,8 @@ export default function CreateEvent() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={async (e) => {
-                e.preventDefault();
-                const isValid = await form.trigger();
-                if (!isValid) {
-                  return;
-                }
-                createEvent.mutate(form.getValues());
+              <form onSubmit={form.handleSubmit((data) => {
+                createEvent.mutate(data);
               }} className="space-y-6">
                 <FormField
                   control={form.control}
