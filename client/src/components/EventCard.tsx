@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, Edit, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, Edit, Trash2, MessageSquare } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Progress } from "./ui/progress";
