@@ -118,10 +118,10 @@ export default function CreateEvent() {
       });
       navigate("/");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
-        title: "API Error",
-        description: error.message,
+        title: "Error",
+        description: error.message || "Failed to create event",
         variant: "destructive",
       });
     },

@@ -500,7 +500,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
       {/* Join Event Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent>
+        <DialogContent aria-describedby="join-event-description">
           <DialogHeader>
             <DialogTitle>Join Event</DialogTitle>
           </DialogHeader>
