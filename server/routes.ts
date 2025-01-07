@@ -135,7 +135,7 @@ export function registerRoutes(app: Express): Server {
     try {
       const schema = process.env.NODE_ENV === 'production' ? 'production' : 'development';
       await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
-      
+
       // Verify schema exists and is ready
       const schemaCheck = await db.execute(sql`
         SELECT EXISTS (
@@ -144,7 +144,7 @@ export function registerRoutes(app: Express): Server {
           AND table_name = 'event_types'
         );
       `);
-      
+
       if (!schemaCheck.rows[0].exists) {
         throw new Error('Schema not ready');
       }
@@ -485,6 +485,17 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ message: "Failed to delete participant" });
     }
   });
+
+  app.get("/api/event-types", async (_req, res) => {
+    try {
+      const types = await db.query.eventTypes.findMany();
+      res.json(types);
+    } catch (error) {
+      console.error("Error fetching event types:", error);
+      res.status(500).json({ message: "Error fetching event types" });
+    }
+  });
+
 
   return httpServer;
 }
