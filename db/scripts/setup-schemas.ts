@@ -123,6 +123,28 @@ async function main() {
     ];
 
     for (const eventType of defaultEventTypes) {
+      // First ensure schemas exist
+      await db.execute(sql`CREATE SCHEMA IF NOT EXISTS production`);
+      await db.execute(sql`CREATE SCHEMA IF NOT EXISTS development`);
+      
+      // Then create event_types tables if they don't exist
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS production.event_types (
+          id SERIAL PRIMARY KEY,
+          name TEXT NOT NULL UNIQUE,
+          color TEXT NOT NULL,
+          icon TEXT NOT NULL
+        )`);
+        
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS development.event_types (
+          id SERIAL PRIMARY KEY,
+          name TEXT NOT NULL UNIQUE,
+          color TEXT NOT NULL,
+          icon TEXT NOT NULL
+        )`);
+
+      // Insert the data
       await db.execute(sql`
         INSERT INTO production.event_types (name, color, icon)
         VALUES (${eventType.name}, ${eventType.color}, ${eventType.icon})
