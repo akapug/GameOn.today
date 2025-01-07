@@ -48,16 +48,19 @@ const queryClient = new QueryClient({
   }
 });
 
-const TestWrapper = ({ children }) => {
-  return React.createElement(
-    AuthProvider,
-    null,
-    React.createElement(QueryClientProvider, { client: queryClient }, children)
-  );
-};
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false }
+  }
+});
 
 export const wrapper = ({ children }) => {
-  return React.createElement(TestWrapper, null, children);
+  return React.createElement(
+    QueryClientProvider,
+    { client: queryClient },
+    React.createElement(AuthProvider, null, children)
+  );
 };
 
 beforeEach(() => {

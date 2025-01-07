@@ -192,13 +192,17 @@ describe('Event System', () => {
   // Mobile Responsiveness Tests
   describe('Mobile Responsiveness', () => {
     it('adjusts layout for mobile viewport', () => {
-      global.innerWidth = 375;
-      global.dispatchEvent(new Event('resize'));
+      Object.defineProperty(window, 'innerWidth', {
+        writable: true,
+        configurable: true,
+        value: 375
+      });
+      window.dispatchEvent(new Event('resize'));
       
       render(<EventCard event={mockEvent} />, { wrapper });
-      const card = screen.getByRole('article');
+      const card = screen.getByTestId('event-card');
       
-      expect(card).toHaveStyle({ maxWidth: '100%' });
+      expect(window.getComputedStyle(card).maxWidth).toBe('100%');
     });
   });
 
