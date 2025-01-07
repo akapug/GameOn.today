@@ -1,19 +1,14 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
 import path, { dirname } from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
 export default defineConfig({
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './client/src/test/setup.ts',
-  },
-  plugins: [react(), runtimeErrorOverlay(), themePlugin()],
+  plugins: [react()],
   resolve: {
     alias: {
       "@db": path.resolve(__dirname, "db"),
@@ -29,11 +24,8 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000,
     hmr: {
-      clientPort: 443,
-      protocol: 'wss',
-      host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
-      timeout: 10000,
-      overlay: false
+      host: '0.0.0.0',
+      port: 3000
     }
   },
 });
