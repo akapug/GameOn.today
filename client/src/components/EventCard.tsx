@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
@@ -99,6 +100,27 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
     },
   });
 
+  const editResponse = useMutation({
+    mutationFn: async (values: { participantId: number; name: string; email: string; likelihood: number; comment: string }) => {
+      const responseToken = user?.uid || localStorage.getItem(`response-token-${values.participantId}`);
+      if (!responseToken) throw new Error("Not authorized to edit");
+
+      const res = await fetch(`/api/events/${event.urlHash}/participants/${values.participantId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, responseToken }),
+      });
+      if (!res.ok) throw new Error("Failed to update response");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+      toast({ title: "Success", description: "Response updated!" });
+      setEditingParticipant(null);
+      setIsResponseEditDialogOpen(false);
+    },
+  });
+
   return (
     <Card className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""}`}>
       <CardHeader>
@@ -135,18 +157,6 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <EyeOff className="h-3 w-3" />
               Private
             </span>
-          )}
-          {canDelete && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           )}
         </div>
       </CardHeader>
@@ -187,7 +197,6 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             </div>
             <Progress value={progressPercentage} className="h-2 mt-2" />
 
-            {/* Participant Responses */}
             <div className="mt-4 space-y-2">
               {event.participants.map((participant) => (
                 <div key={participant.id} className="flex items-center justify-between text-sm">
@@ -268,7 +277,6 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
         </div>
       </CardContent>
       <CardFooter className="flex gap-2">
-        {/*  Add sharing, edit, and delete button functionality here.  */}
         <Button
           className="flex-1"
           onClick={() => setIsOpen(true)}
@@ -276,6 +284,61 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
         >
           {hasMinimumParticipants ? "Join Event (Has Enough Participants)" : "Join Event"}
         </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/events/${event.urlHash}`);
+              toast({ title: "Link Copied", description: "Event link copied to clipboard!" });
+            }}>
+              <LinkIcon className="mr-2 h-4 w-4" />
+              Copy Link
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              window.open(
+                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/events/${event.urlHash}`)}`,
+                '_blank'
+              );
+            }}>
+              <Facebook className="mr-2 h-4 w-4" />
+              Share on Facebook
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              window.open(
+                `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${window.location.origin}/events/${event.urlHash}`)}&text=${encodeURIComponent(`Join our event!`)}`,
+                '_blank'
+              );
+            }}>
+              <Twitter className="mr-2 h-4 w-4" />
+              Share on Twitter
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              window.open(
+                `sms:?body=${encodeURIComponent(`Join our event: ${window.location.origin}/events/${event.urlHash}`)}`,
+                '_blank'
+              );
+            }}>
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Share via SMS
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {canDelete && (
+          <>
+            <Button variant="outline" size="icon">
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" className="text-destructive">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </>
+        )}
       </CardFooter>
 
       {/* Join Event Dialog */}
@@ -355,6 +418,91 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
             <Button type="submit" className="w-full" disabled={!participantName.trim() || joinEvent.isPending}>
               {joinEvent.isPending ? "Joining..." : "Join Event"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Response Dialog */}
+      <Dialog open={isResponseEditDialogOpen} onOpenChange={setIsResponseEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Response</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (!editingParticipant) return;
+            editResponse.mutate({
+              participantId: editingParticipant.id,
+              name: participantName,
+              email: participantEmail,
+              likelihood: joinType === "yes" ? 1 : likelihood,
+              comment: comment
+            });
+          }} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Are you joining?</Label>
+              <RadioGroup value={joinType} onValueChange={(v: "yes" | "maybe") => setJoinType(v)}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="edit-yes" />
+                  <Label htmlFor="edit-yes">Yes, I'm in!</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="maybe" id="edit-maybe" />
+                  <Label htmlFor="edit-maybe">Maybe, depends...</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {joinType === "maybe" && (
+              <div className="space-y-2">
+                <Label>How likely are you to attend?</Label>
+                <div className="flex items-center space-x-2">
+                  <Slider
+                    min={10}
+                    max={90}
+                    step={10}
+                    value={[likelihood * 100]}
+                    onValueChange={([value]) => setLikelihood(value / 100)}
+                  />
+                  <span className="w-12 text-right">{Math.round(likelihood * 100)}%</span>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                value={participantName}
+                onChange={(e) => setParticipantName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email (optional)</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={participantEmail}
+                onChange={(e) => setParticipantEmail(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-comment">Comment (optional)</Label>
+              <Input
+                id="edit-comment"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Any notes about your attendance?"
+                maxLength={100}
+              />
+            </div>
+
+            <Button type="submit" className="w-full">
+              Save Changes
             </Button>
           </form>
         </DialogContent>
