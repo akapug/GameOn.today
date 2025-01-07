@@ -1,5 +1,6 @@
+
 import { parseISO, format } from 'date-fns';
-import { formatInTimeZone, toDate } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 
 const DEFAULT_TIMEZONE = 'UTC';
 
@@ -13,18 +14,17 @@ export function formatWithTimezone(
   try {
     const parsedDate = typeof date === 'string' ? parseISO(date) : date;
     if (isNaN(parsedDate.getTime())) return '';
-    const formattedDate = formatInTimeZone(parsedDate, timezone, formatStr);
     
-    if (!includeZone) return formattedDate;
-
-    // Format a time that will definitely include timezone abbreviation
-    const tzAbbr = new Date().toLocaleTimeString('en-US', {
-      timeZone: timezone,
-      hour: 'numeric',
-      timeZoneName: 'short'
-    }).split(' ').pop();
-
-    return `${formattedDate} ${tzAbbr}`;
+    const formattedTime = formatInTimeZone(parsedDate, timezone, formatStr);
+    
+    // For US Pacific timezone, just append PST/PDT as appropriate
+    if (timezone === 'America/Los_Angeles') {
+      // Determine if date is in PDT (Mar-Nov) or PST (Nov-Mar)
+      const isPDT = parsedDate.getMonth() > 2 && parsedDate.getMonth() < 11;
+      return `${formattedTime} ${isPDT ? 'PDT' : 'PST'}`;
+    }
+    
+    return formattedTime;
   } catch (e) {
     console.warn('Invalid date or timezone:', date, timezone);
     return '';
