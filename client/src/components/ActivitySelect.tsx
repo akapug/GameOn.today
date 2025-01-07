@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { defaultActivities } from "@/lib/activities"
+import { useActivities } from "@/lib/activities"
 import { forwardRef } from "react"
 
 interface ActivitySelectProps {
@@ -26,6 +26,9 @@ interface ActivitySelectProps {
 
 const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props, ref) => {
   const { value, onChange, hideAllActivities } = props;
+  const { data: activities } = useActivities();
+
+  const selectedActivity = activities?.find(a => a.id === value);
 
   return (
     <Popover>
@@ -39,7 +42,7 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
             !value && "text-muted-foreground"
           )}
         >
-          {value ? defaultActivities.find((_, index) => index + 1 === Number(value))?.name : "Select activity..."}
+          {selectedActivity ? selectedActivity.name : "Select activity..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
@@ -62,17 +65,17 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
                 All activities
               </CommandItem>
             )}
-            {defaultActivities.map((activity, index) => (
+            {activities?.map((activity) => (
               <CommandItem
-                key={index + 1}
+                key={activity.id}
                 onSelect={() => {
-                  onChange(index + 1);
+                  onChange(activity.id);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    Number(value) === index + 1 ? "opacity-100" : "opacity-0"
+                    value === activity.id ? "opacity-100" : "opacity-0"
                   )}
                 />
                 {activity.name}
@@ -84,6 +87,10 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
     </Popover>
   );
 });
+
+ActivitySelect.displayName = "ActivitySelect";
+
+export default ActivitySelect;
 
 ActivitySelect.displayName = "ActivitySelect";
 
