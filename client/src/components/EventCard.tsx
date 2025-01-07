@@ -208,14 +208,17 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       <CardContent>
         <div className="space-y-4">
           <div className="space-y-2">
-            <div className="flex items-center text-sm">
-              <Calendar className="mr-2 h-4 w-4" />
-              <span>{new Date(event.date).toLocaleDateString()}</span>
-              {event.endTime && (
-                <span className="text-muted-foreground ml-1">
-                  - {new Date(event.endTime).toLocaleTimeString()}
-                </span>
-              )}
+            <div className="flex flex-wrap items-center text-sm gap-x-4">
+              <div className="flex items-center">
+                <Calendar className="mr-2 h-4 w-4" />
+                <span>{new Date(event.date).toLocaleDateString()}</span>
+                {event.endTime && (
+                  <span className="text-muted-foreground ml-1">
+                    - {new Date(event.endTime).toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
+              {event.weather && <WeatherDisplay weather={event.weather} />}
             </div>
 
             {event.isRecurring && (
@@ -304,7 +307,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             </div>
           </div>
 
-          {event.weather && <WeatherDisplay weather={event.weather} />}
+          
         </div>
       </CardContent>
       <CardFooter className="flex gap-2">
