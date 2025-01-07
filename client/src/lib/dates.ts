@@ -12,9 +12,42 @@ export function formatWithTimezone(date: string | Date, formatStr: string, timez
 }
 
 export function toUTC(dateStr: string, timezone: string = 'UTC'): Date {
+  if (!dateStr) return new Date();
   const date = new Date(dateStr);
-  const utcTime = new Date(date.toLocaleString('en-US', { timeZone }));
-  return new Date(date.getTime() + (date.getTime() - utcTime.getTime()));
+  if (isNaN(date.getTime())) return new Date();
+  
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+    
+    const parts = formatter.formatToParts(date);
+    const dateParts: any = {};
+    parts.forEach(part => {
+      if (part.type !== 'literal') {
+        dateParts[part.type] = parseInt(part.value, 10);
+      }
+    });
+    
+    return new Date(Date.UTC(
+      dateParts.year,
+      dateParts.month - 1,
+      dateParts.day,
+      dateParts.hour,
+      dateParts.minute,
+      dateParts.second
+    ));
+  } catch (e) {
+    console.error('Error converting to UTC:', e);
+    return new Date(dateStr);
+  }
 }
 
 export function utcToLocalInput(dateStr: string, timezone: string = 'UTC'): string {
