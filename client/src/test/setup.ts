@@ -7,6 +7,15 @@ import React from 'react';
 
 expect.extend(matchers);
 
+// Mock ResizeObserver
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+global.ResizeObserver = ResizeObserverMock;
+
 // Mock fetch globally
 global.fetch = vi.fn();
 

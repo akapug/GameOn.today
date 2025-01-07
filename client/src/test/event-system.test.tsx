@@ -90,31 +90,32 @@ describe('Event System', () => {
 
   describe('CreateEvent Component', () => {
     it('validates required fields', async () => {
-      render(<CreateEvent />, { wrapper });
+      const { container } = render(<CreateEvent />, { wrapper });
 
-      const submitButton = screen.getByText('Create Event');
-      await userEvent.click(submitButton);
+      const form = container.querySelector('form');
+      await userEvent.submit(form);
 
-      // Check for required field validations
-      expect(await screen.findByText('Title is required')).toBeInTheDocument();
-      expect(await screen.findByText('Location is required')).toBeInTheDocument();
-      expect(await screen.findByText('Event type is required')).toBeInTheDocument();
+      // Wait for validation messages
+      await screen.findByText('Event type is required');
+      await screen.findByText('Title is required');
+      await screen.findByText('Location is required');
     });
 
     it('handles event creation form submission', async () => {
-      render(<CreateEvent />, { wrapper });
+      const { container } = render(<CreateEvent />, { wrapper });
 
-      // Fill in the form
-      await userEvent.type(screen.getByLabelText(/Title/), 'New Test Event');
-      await userEvent.type(screen.getByLabelText(/Location/), 'Test Venue');
-      await userEvent.type(screen.getByLabelText(/Participant Threshold/), '10');
-
+      // Fill in required fields
+      await userEvent.type(screen.getByLabelText(/Title/i), 'New Test Event');
+      await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
+      await userEvent.type(screen.getByLabelText(/Participant Threshold/i), '10');
+      
       // Submit form
-      const submitButton = screen.getByText('Create Event');
-      await userEvent.click(submitButton);
+      const form = container.querySelector('form');
+      await userEvent.submit(form);
 
-      // Verify form submission
-      expect(submitButton).toBeDisabled();
+      // Wait for disabled state
+      const submitButton = screen.getByRole('button', { name: /Create Event/i });
+      await expect(submitButton).toBeDisabled();
     });
   });
 });
