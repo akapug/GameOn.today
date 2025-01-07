@@ -91,7 +91,3 @@ const ActivitySelect = forwardRef<HTMLButtonElement, ActivitySelectProps>((props
 ActivitySelect.displayName = "ActivitySelect";
 
 export default ActivitySelect;
-
-ActivitySelect.displayName = "ActivitySelect";
-
-export default ActivitySelect;
