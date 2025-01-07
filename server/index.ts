@@ -125,10 +125,10 @@ app.use((req, res, next) => {
     });
   }
 
-  const PORT = process.env.PORT || 80;
+  const PORT = process.env.PORT || 3000;
   server.listen(PORT, "0.0.0.0", () => {
     log(`Server running on port ${PORT}`);
     log(`Environment: ${process.env.NODE_ENV}`);
-    log(`Access the app at: https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);
+    log(`Server URL: https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);
   });
 })();
