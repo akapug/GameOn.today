@@ -4,7 +4,7 @@ export function formatWithTimezone(date: string | Date, formatStr: string, timez
   if (!date) return '';
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '';
-  // Format the UTC date directly in the target timezone
+  // Convert UTC date to target timezone for display
   return formatInTimeZone(d, timezone || 'UTC', formatStr);
 }
 
@@ -12,7 +12,7 @@ export function toUTC(dateStr: string, timezone: string = 'UTC'): Date {
   if (!dateStr) return new Date();
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return new Date();
-  
+
   try {
     const formatter = new Intl.DateTimeFormat('en-US', {
       timeZone: timezone,
@@ -24,7 +24,7 @@ export function toUTC(dateStr: string, timezone: string = 'UTC'): Date {
       second: '2-digit',
       hour12: false
     });
-    
+
     const parts = formatter.formatToParts(date);
     const dateParts: any = {};
     parts.forEach(part => {
@@ -32,7 +32,7 @@ export function toUTC(dateStr: string, timezone: string = 'UTC'): Date {
         dateParts[part.type] = parseInt(part.value, 10);
       }
     });
-    
+
     return new Date(Date.UTC(
       dateParts.year,
       dateParts.month - 1,
