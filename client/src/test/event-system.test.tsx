@@ -56,19 +56,13 @@ const createTestQueryClient = () => new QueryClient({
   },
 });
 
-const wrapper = ({ children }) => {
-  const queryClient = createTestQueryClient();
-  queryClient.setQueryData(['/api/event-types'], [
-    { id: 1, name: 'Test Type', color: '#000000' }
-  ]);
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {children}
-      </AuthProvider>
-    </QueryClientProvider>
-  );
-};
+import { wrapper } from './setup';
+
+const TestWrapper = ({ children }) => (
+  <AuthProvider>
+    {wrapper({ children })}
+  </AuthProvider>
+);
 
 describe('Event System', () => {
   beforeEach(() => {

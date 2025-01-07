@@ -32,44 +32,31 @@ vi.mock('../lib/activities', () => ({
   ]
 }));
 
-// Mock QueryClient provider
-vi.mock('@tanstack/react-query', () => ({
-  useQuery: () => ({ 
-    data: [], 
-    isLoading: false,
-    error: null
-  }),
-  useMutation: () => ({
-    mutate: vi.fn(),
-    isPending: false,
-    isError: false,
-    error: null
-  }),
-  useQueryClient: () => ({
-    invalidateQueries: vi.fn(),
-    setQueryData: vi.fn(),
-    getQueryData: vi.fn()
-  }),
-  QueryClient: function() {
-    return {
-      setQueryData: vi.fn(),
-      getQueryData: vi.fn(),
-      invalidateQueries: vi.fn()
-    };
-  },
-  QueryClientProvider: ({ children }) => children
-}));
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Mock AuthProvider context
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false }
+  }
+});
+
+export const wrapper = ({ children }) => (
+  <QueryClientProvider client={queryClient}>
+    {children}
+  </QueryClientProvider>
+);
+
+// Mock auth functionality
 vi.mock('../components/AuthProvider', () => ({
   useAuth: vi.fn().mockReturnValue({
-    user: null,
+    user: { uid: 'test-user', displayName: 'Test User' },
     loading: false,
-    error: null
+    error: null,
+    signInWithGoogle: vi.fn(),
+    signOut: vi.fn()
   }),
-  AuthProvider: ({ children }) => {
-    return React.createElement('div', null, children);
-  }
+  AuthProvider: ({ children }) => children
 }));
 
 afterEach(() => {

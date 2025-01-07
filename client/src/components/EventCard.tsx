@@ -363,7 +363,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
         </div>
       </CardContent>
       <CardFooter className="flex gap-2">
-        {event.participants.some(p => {
+        {event.participants?.some(p => {
           const responseToken = user?.uid || localStorage.getItem(`response-token-${p.id}`);
           return p.responseToken === responseToken;
         }) ? (
