@@ -170,7 +170,12 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
     <Card className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""}`}>
       <CardHeader>
         <div className="flex justify-between items-start">
-          <div>
+          <div className="flex flex-col gap-1">
+            {new Date(event.date) < new Date() && (
+              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full w-fit">
+                Event Concluded
+              </span>
+            )}
             <Link href={`/events/${event.urlHash}`}>
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
