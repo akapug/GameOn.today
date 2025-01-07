@@ -8,7 +8,16 @@ const __dirname = dirname(__filename);
 import { type Server } from "http";
 import viteConfig from "../vite.config";
 
-const viteLogger = createLogger();
+const viteLogger = createLogger({
+  level: 'info',
+  prefix: '[vite]',
+  customLogger: {
+    log: (msg) => console.log(`[vite] ${msg}`),
+    warn: (msg) => console.warn(`[vite] ${msg}`),
+    error: (msg) => console.error(`[vite] ${msg}`),
+    info: (msg) => console.info(`[vite] ${msg}`)
+  }
+});
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {

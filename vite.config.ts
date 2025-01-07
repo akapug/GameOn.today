@@ -28,6 +28,19 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    hmr: false
+    hmr: {
+      clientPort: 443,
+      protocol: 'wss',
+      host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
+      timeout: 5000,
+      overlay: {
+        errors: true,
+        warnings: true
+      }
+    },
+    logger: {
+      info: true,
+      error: true
+    }
   },
 });
