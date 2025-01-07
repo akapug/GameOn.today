@@ -49,8 +49,7 @@ export default function Home() {
 
   const isArchived = (event: EventWithDetails) => {
     const eventDate = new Date(event.date);
-    const threeHoursAfterStart = new Date(eventDate.getTime() + (3 * 60 * 60 * 1000));
-    return isBefore(threeHoursAfterStart, now);
+    return eventDate < now;
   };
 
   // Only show public events in the main list

@@ -244,7 +244,11 @@ export default function Event() {
                 variant="outline"
                 size="icon"
                 className="text-destructive"
-                onClick={() => setShowDeleteConfirm(true)}
+                onClick={() => {
+                  if (canDelete) {
+                    setShowDeleteConfirm(true);
+                  }
+                }}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
