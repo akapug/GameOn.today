@@ -7,15 +7,8 @@ import * as schema from "@db/schema";
 // Environment-specific database URLs
 const getDatabaseUrl = () => {
   const env = process.env.NODE_ENV || 'development';
-  if (env === 'production') {
-    if (!process.env.PROD_DATABASE_URL) {
-      throw new Error("PROD_DATABASE_URL must be set for production environment");
-    }
-    return process.env.PROD_DATABASE_URL;
-  }
-
   if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL must be set for development environment");
+    throw new Error("DATABASE_URL must be set");
   }
   return process.env.DATABASE_URL;
 };
@@ -28,16 +21,13 @@ const getDb = () => {
     try {
       const databaseUrl = getDatabaseUrl();
       const env = process.env.NODE_ENV || 'development';
+      const schemaName = env === 'production' ? 'production' : 'development';
 
-      console.log(`Attempting database connection for ${env} environment...`);
-      // Use connection pooling URL
-      const poolUrl = databaseUrl.replace('.aws-eu-central-1', '-pooler.aws-eu-central-1')
-                                .replace('.aws-eu-west-1', '-pooler.aws-eu-west-1')
-                                .replace('.aws-us-east-1', '-pooler.aws-us-east-1')
-                                .replace('.aws-us-west-2', '-pooler.aws-us-west-2');
+      console.log(`Attempting database connection for ${env} environment using ${schemaName} schema...`);
 
+      // Set the search path before creating the client
       const client = drizzle({
-        connection: poolUrl,
+        connection: databaseUrl,
         schema,
         ws: ws,
         connectionOptions: {
@@ -47,21 +37,27 @@ const getDb = () => {
         },
       });
 
+      // Set schema search path
+      await client.execute(sql`SET search_path TO ${sql.raw(schemaName)}, public`);
+
       // Test the connection
       const testQuery = await client.execute(sql`SELECT NOW()`);
-      console.log(`${env} database connection test successful:`, testQuery.rows[0]);
-      return client;
-    } catch (error: any) {
-      const errorMsg = error.message.toLowerCase();
-      if (errorMsg.includes('endpoint is disabled') || errorMsg.includes('paused')) {
-        console.error("Database connection error: Database appears to be paused. This may be due to billing issues or inactivity.");
-        throw new Error("Database is paused - please check your database status and billing information");
+      console.log(`${env} database connection (${schemaName} schema) test successful:`, testQuery.rows[0]);
+
+      // Add environment-specific logging
+      if (env === 'development') {
+        console.log('DEVELOPMENT MODE: Using development schema with nightly production data sync');
+      } else {
+        console.log('PRODUCTION MODE: Using production schema');
       }
 
-      console.error("Database connection error:", error.message);
+      return client;
+    } catch (error: any) {
+      console.error(`Database connection error (${process.env.NODE_ENV}):`, error.message);
+
       if (currentTry < maxRetries) {
         currentTry++;
-        const delay = Math.min(1000 * Math.pow(2, currentTry), 10000); // Exponential backoff
+        const delay = Math.min(1000 * Math.pow(2, currentTry), 10000);
         console.log(`Retrying connection (attempt ${currentTry}/${maxRetries}) in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return await connect();
@@ -74,3 +70,43 @@ const getDb = () => {
 };
 
 export const db = await getDb();
+
+// Add a safety check function for development-only operations
+export const ensureDevEnvironment = () => {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('This operation is not allowed in production environment');
+  }
+};
+
+// Function to sync development schema with production data
+export const syncDevelopmentSchema = async () => {
+  ensureDevEnvironment();
+
+  try {
+    console.log('Starting development schema sync from production...');
+
+    // Copy schema structure and data from production to development
+    await db.execute(sql`
+      -- Drop existing development schema
+      DROP SCHEMA IF EXISTS development CASCADE;
+
+      -- Create fresh development schema
+      CREATE SCHEMA development;
+
+      -- Copy schema structure and data from production
+      CREATE TABLE development.activities (LIKE production.activities INCLUDING ALL);
+      CREATE TABLE development.games (LIKE production.games INCLUDING ALL);
+      CREATE TABLE development.players (LIKE production.players INCLUDING ALL);
+
+      -- Copy data
+      INSERT INTO development.activities SELECT * FROM production.activities;
+      INSERT INTO development.games SELECT * FROM production.games;
+      INSERT INTO development.players SELECT * FROM production.players;
+    `);
+
+    console.log('Development schema sync completed successfully');
+  } catch (error) {
+    console.error('Error syncing development schema:', error);
+    throw error;
+  }
+};
