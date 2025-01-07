@@ -29,8 +29,10 @@ start = ["typescript-language-server", "--stdio"]
 localPort = 3000
 externalPort = 80
 
+[[ports]]
+localPort = 5000
+
 [workflows]
-runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
