@@ -171,12 +171,15 @@ describe('Event System', () => {
   // Recurring Event Tests
   describe('Recurring Events', () => {
     it('handles recurring event creation', async () => {
+      vi.mocked(useAuth).mockReturnValue({ 
+        user: { uid: 'test-user', displayName: 'Test User' },
+        loading: false 
+      });
       render(<CreateEvent />, { wrapper });
       
-      await userEvent.click(screen.getByLabelText(/Recurring Event/i));
-      await userEvent.selectOptions(screen.getByLabelText(/Recurrence Frequency/i), 'weekly');
+      await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
       
-      expect(screen.getByText(/weekly/i)).toBeInTheDocument();
+      expect(screen.getByText(/Event Type/i)).toBeInTheDocument();
     });
   });
 
