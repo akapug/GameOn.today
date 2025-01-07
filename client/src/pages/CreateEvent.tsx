@@ -330,7 +330,7 @@ export default function CreateEvent() {
                     <FormItem>
                       <FormLabel htmlFor="isRecurring">Recurring Event</FormLabel> {/* Added htmlFor */}
                       <Select
-                        id="isRecurring"  {/* Added id */}
+                        id="isRecurring" /* Added id */
                         onValueChange={(value) => field.onChange(value === 'true')}
                         value={String(field.value === true)}
                       >

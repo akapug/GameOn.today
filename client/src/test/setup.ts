@@ -1,11 +1,11 @@
-
 import '@testing-library/jest-dom';
-import { expect, afterEach, vi } from 'vitest';
+import { expect, afterEach, beforeEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { useAuth, AuthProvider } from '../components/AuthProvider';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 
 expect.extend(matchers);
 
@@ -41,18 +41,29 @@ vi.mock('../lib/activities', () => ({
   ]
 }));
 
-const queryClient = new QueryClient({
+
+afterEach(() => {
+  cleanup();
+});
+
+export const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false }
-  }
+    queries: {
+      retry: false,
+      cacheTime: 0,
+    },
+    mutations: {
+      retry: false,
+    },
+  },
 });
 
 export const wrapper = ({ children }) => {
-  return React.createElement(
-    QueryClientProvider,
-    { client: queryClient },
-    React.createElement(AuthProvider, null, children)
+  const testQueryClient = createTestQueryClient();
+  return (
+    <QueryClientProvider client={testQueryClient}>
+      <AuthProvider>{children}</AuthProvider>
+    </QueryClientProvider>
   );
 };
 
@@ -64,9 +75,4 @@ beforeEach(() => {
     signInWithGoogle: vi.fn(),
     signOut: vi.fn()
   });
-});
-
-afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
 });
