@@ -89,15 +89,15 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       }
 
       const data = await res.json();
-      
+
       // Update the local event data first
       event.eventTypeId = data.eventTypeId;
       event.eventType = data.eventType;
 
       // Then invalidate queries
       await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
-      await queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
-      
+      await queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(event.urlHash) });
+
       toast({ title: "Success", description: "Event updated successfully" });
       setIsEventEditDialogOpen(false);
     } catch (error) {
@@ -312,7 +312,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                                 throw new Error('Failed to delete response');
                               }
 
-                              queryClient.invalidateQueries({ queryKey: queryKeys.events.single(event.urlHash) });
+                              queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(event.urlHash) });
                               queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
                               toast({ title: "Success", description: "Response removed successfully" });
                             } catch (error) {
