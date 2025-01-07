@@ -3,26 +3,26 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { z } from "zod";
 
-export const activities = pgTable("activities", {
+export const eventTypes = pgTable("event_types", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   color: text("color").notNull(),
   icon: text("icon").notNull(),
 }, (table) => {
   return {
-    nameIdx: unique("activities_name_idx").on(table.name),
+    nameIdx: unique("event_types_name_idx").on(table.name),
   };
 });
 
-export const games = pgTable("games", {
+export const events = pgTable("events", {
   id: serial("id").primaryKey(),
   urlHash: text("url_hash").notNull().unique(),
   isPrivate: boolean("is_private").notNull().default(false),
-  activityId: integer("activity_id").references(() => activities.id),
+  eventTypeId: integer("event_type_id").references(() => eventTypes.id),
   title: text("title").notNull(),
   location: text("location").notNull(),
   date: timestamp("date", { mode: 'string', withTimezone: true }).notNull(),
-  playerThreshold: integer("player_threshold").notNull(),
+  participantThreshold: integer("participant_threshold").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   creatorId: text("creator_id").notNull(),
   creatorName: text("creator_name").notNull(),
@@ -32,12 +32,12 @@ export const games = pgTable("games", {
   webLink: text("web_link"),
   isRecurring: boolean("is_recurring").notNull().default(false),
   recurrenceFrequency: text("recurrence_frequency"),
-  parentGameId: integer("parent_game_id").references(() => games.id),
+  parentEventId: integer("parent_event_id").references(() => events.id),
 });
 
-export const players = pgTable("players", {
+export const participants = pgTable("participants", {
   id: serial("id").primaryKey(),
-  gameId: integer("game_id").references(() => games.id),
+  eventId: integer("event_id").references(() => events.id),
   name: text("name").notNull(),
   email: text("email"),
   phone: text("phone"),
@@ -47,31 +47,30 @@ export const players = pgTable("players", {
   comment: text("comment"),
 });
 
-export const gamesRelations = relations(games, ({ one, many }) => ({
-  activity: one(activities, {
-    fields: [games.activityId],
-    references: [activities.id],
+export const eventsRelations = relations(events, ({ one, many }) => ({
+  eventType: one(eventTypes, {
+    fields: [events.eventTypeId],
+    references: [eventTypes.id],
   }),
-  players: many(players),
+  participants: many(participants),
 }));
 
-export const playersRelations = relations(players, ({ one }) => ({
-  game: one(games, {
-    fields: [players.gameId],
-    references: [games.id],
+export const participantsRelations = relations(participants, ({ one }) => ({
+  event: one(events, {
+    fields: [participants.eventId],
+    references: [events.id],
   }),
 }));
 
-// Add strict boolean handling to game schema
-export const gameSchema = z.object({
+export const eventSchema = z.object({
   id: z.number(),
   urlHash: z.string(),
   isPrivate: z.boolean(),
-  activityId: z.number(),
+  eventTypeId: z.number(),
   title: z.string(),
   location: z.string(),
   date: z.string(),
-  playerThreshold: z.number(),
+  participantThreshold: z.number(),
   createdAt: z.string(),
   creatorId: z.string(),
   creatorName: z.string(),
@@ -81,25 +80,25 @@ export const gameSchema = z.object({
   webLink: z.string().nullable(),
   isRecurring: z.boolean(),
   recurrenceFrequency: z.string().nullable(),
-  parentGameId: z.number().nullable(),
+  parentEventId: z.number().nullable(),
 });
 
-export const insertGameSchema = createInsertSchema(games, {
+export const insertEventSchema = createInsertSchema(events, {
   isRecurring: z.boolean(),
   isPrivate: z.boolean(),
 });
-export const selectGameSchema = createSelectSchema(games, {
+export const selectEventSchema = createSelectSchema(events, {
   isRecurring: z.boolean(),
   isPrivate: z.boolean(),
 });
 
-export const insertPlayerSchema = createInsertSchema(players);
-export const selectPlayerSchema = createSelectSchema(players);
-export const insertActivitySchema = createInsertSchema(activities);
-export const selectActivitySchema = createSelectSchema(activities);
+export const insertParticipantSchema = createInsertSchema(participants);
+export const selectParticipantSchema = createSelectSchema(participants);
+export const insertEventTypeSchema = createInsertSchema(eventTypes);
+export const selectEventTypeSchema = createSelectSchema(eventTypes);
 
-export type Game = typeof games.$inferSelect;
-export type NewGame = typeof games.$inferInsert;
-export type Player = typeof players.$inferSelect;
-export type NewPlayer = typeof players.$inferInsert;
-export type Activity = typeof activities.$inferSelect;
+export type Event = typeof events.$inferSelect;
+export type NewEvent = typeof events.$inferInsert;
+export type Participant = typeof participants.$inferSelect;
+export type NewParticipant = typeof participants.$inferInsert;
+export type EventType = typeof eventTypes.$inferSelect;
