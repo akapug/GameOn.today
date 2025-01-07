@@ -6,21 +6,20 @@ async function main() {
   console.log('Setting up database schemas...');
 
   try {
-    // Create schemas if they don't exist
-    await db.execute(sql`
-      CREATE SCHEMA IF NOT EXISTS production;
-      CREATE SCHEMA IF NOT EXISTS development;
-    `);
+    // Create schemas
+    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS production`);
+    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS development`);
 
-    // Create tables in production schema
+    // Create production tables
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS production.activities (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         color TEXT NOT NULL,
         icon TEXT NOT NULL
-      );
+      )`);
 
+    await db.execute(sql`
       CREATE TABLE IF NOT EXISTS production.games (
         id SERIAL PRIMARY KEY,
         url_hash TEXT NOT NULL UNIQUE,
@@ -40,8 +39,9 @@ async function main() {
         is_recurring BOOLEAN NOT NULL DEFAULT false,
         recurrence_frequency TEXT,
         parent_game_id INTEGER REFERENCES production.games(id)
-      );
+      )`);
 
+    await db.execute(sql`
       CREATE TABLE IF NOT EXISTS production.players (
         id SERIAL PRIMARY KEY,
         game_id INTEGER REFERENCES production.games(id),
@@ -52,18 +52,18 @@ async function main() {
         likelihood DECIMAL NOT NULL DEFAULT 1,
         response_token TEXT NOT NULL,
         comment TEXT
-      );
-    `);
+      )`);
 
-    // Create tables in development schema
+    // Create development tables
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS development.activities (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         color TEXT NOT NULL,
         icon TEXT NOT NULL
-      );
+      )`);
 
+    await db.execute(sql`
       CREATE TABLE IF NOT EXISTS development.games (
         id SERIAL PRIMARY KEY,
         url_hash TEXT NOT NULL UNIQUE,
@@ -83,8 +83,9 @@ async function main() {
         is_recurring BOOLEAN NOT NULL DEFAULT false,
         recurrence_frequency TEXT,
         parent_game_id INTEGER REFERENCES development.games(id)
-      );
+      )`);
 
+    await db.execute(sql`
       CREATE TABLE IF NOT EXISTS development.players (
         id SERIAL PRIMARY KEY,
         game_id INTEGER REFERENCES development.games(id),
@@ -95,10 +96,9 @@ async function main() {
         likelihood DECIMAL NOT NULL DEFAULT 1,
         response_token TEXT NOT NULL,
         comment TEXT
-      );
-    `);
+      )`);
 
-    // Insert default activities in both schemas
+    // Insert default activities
     const defaultActivities = [
       { name: 'Basketball', color: '#FF6B6B', icon: '🏀' },
       { name: 'Soccer', color: '#4ECDC4', icon: '⚽' },
@@ -110,12 +110,12 @@ async function main() {
       await db.execute(sql`
         INSERT INTO production.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT (name) DO NOTHING;
-        
+        ON CONFLICT (name) DO NOTHING`);
+      
+      await db.execute(sql`
         INSERT INTO development.activities (name, color, icon)
         VALUES (${activity.name}, ${activity.color}, ${activity.icon})
-        ON CONFLICT (name) DO NOTHING;
-      `);
+        ON CONFLICT (name) DO NOTHING`);
     }
 
     console.log('Schema setup completed successfully');
