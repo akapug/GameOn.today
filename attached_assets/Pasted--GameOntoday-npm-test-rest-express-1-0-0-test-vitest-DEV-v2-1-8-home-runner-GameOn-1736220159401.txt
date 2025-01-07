@@ -1,0 +1,260 @@
+~/GameOntoday$ npm test
+
+> rest-express@1.0.0 test
+> vitest
+
+
+ DEV  v2.1.8 /home/runner/GameOntoday/client
+
+stderr | src/lib/__tests__/dates.test.ts > date utilities > should format date with timezone
+Invalid date or timezone: 2024-01-01T10:00:00.000Z UTC
+
+stderr | src/components/__tests__/GameCard.test.tsx > GameCard > should render game title
+Error: Uncaught [Error: [vitest] No "useQueryClient" export is defined on the "@tanstack/react-query" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) Error: [vitest] No "useQueryClient" export is defined on the "@tanstack/react-query" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/runner/GameOntoday/node_modules/vitest/dist/chunks/execute.2pr0rHgK.js:321:19)
+    at Object.get (file:///home/runner/GameOntoday/node_modules/vitest/dist/chunks/execute.2pr0rHgK.js:389:22)
+    at GameCard (/home/runner/GameOntoday/client/src/components/GameCard.tsx:58:23)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3) {
+  codeFrame: 'vi.mock(import("@tanstack/react-query"), async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+Error: Uncaught [Error: [vitest] No "useQueryClient" export is defined on the "@tanstack/react-query" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) Error: [vitest] No "useQueryClient" export is defined on the "@tanstack/react-query" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/runner/GameOntoday/node_modules/vitest/dist/chunks/execute.2pr0rHgK.js:321:19)
+    at Object.get (file:///home/runner/GameOntoday/node_modules/vitest/dist/chunks/execute.2pr0rHgK.js:389:22)
+    at GameCard (/home/runner/GameOntoday/client/src/components/GameCard.tsx:58:23)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3) {
+  codeFrame: 'vi.mock(import("@tanstack/react-query"), async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+The above error occurred in the <GameCard> component:
+
+    at GameCard (/home/runner/GameOntoday/client/src/components/GameCard.tsx:43:21)
+    at QueryClientProvider (/home/runner/GameOntoday/client/src/test/setup.ts:27:27)
+    at wrapper (/home/runner/GameOntoday/client/src/components/__tests__/GameCard.test.tsx:23:22)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+stderr | src/components/__tests__/GameCard.test.tsx > GameCard > should render location
+Error: Uncaught [Error: [vitest] No "useQueryClient" export is defined on the "@tanstack/react-query" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) Error: [vitest] No "useQueryClient" export is defined on the "@tanstack/react-query" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/runner/GameOntoday/node_modules/vitest/dist/chunks/execute.2pr0rHgK.js:321:19)
+    at Object.get (file:///home/runner/GameOntoday/node_modules/vitest/dist/chunks/execute.2pr0rHgK.js:389:22)
+    at GameCard (/home/runner/GameOntoday/client/src/components/GameCard.tsx:58:23)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3) {
+  codeFrame: 'vi.mock(import("@tanstack/react-query"), async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+Error: Uncaught [Error: [vitest] No "useQueryClient" export is defined on the "@tanstack/react-query" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) Error: [vitest] No "useQueryClient" export is defined on the "@tanstack/react-query" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/runner/GameOntoday/node_modules/vitest/dist/chunks/execute.2pr0rHgK.js:321:19)
+    at Object.get (file:///home/runner/GameOntoday/node_modules/vitest/dist/chunks/execute.2pr0rHgK.js:389:22)
+    at GameCard (/home/runner/GameOntoday/client/src/components/GameCard.tsx:58:23)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3) {
+  codeFrame: 'vi.mock(import("@tanstack/react-query"), async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+The above error occurred in the <GameCard> component:
+
+    at GameCard (/home/runner/GameOntoday/client/src/components/GameCard.tsx:43:21)
+    at QueryClientProvider (/home/runner/GameOntoday/client/src/test/setup.ts:27:27)
+    at wrapper (/home/runner/GameOntoday/client/src/components/__tests__/GameCard.test.tsx:23:22)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+ ❯ src/components/__tests__/GameCard.test.tsx (2)
+   ❯ GameCard (2)
+     × should render game title
+     × should render location
+ ❯ src/lib/__tests__/activities.test.ts (2)
+   ❯ activities (2)
+     × should return activities data structure
+     × should have required activity properties
+ ✓ src/lib/__tests__/api.test.ts (3)
+ ❯ src/lib/__tests__/dates.test.ts (3)
+   ❯ date utilities (3)
+     × should format date with timezone
+     ✓ should convert to UTC
+     ✓ should get user timezone
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/__tests__/GameCard.test.tsx > GameCard > should render game title
+ FAIL  src/components/__tests__/GameCard.test.tsx > GameCard > should render location
+Error: [vitest] No "useQueryClient" export is defined on the "@tanstack/react-query" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("@tanstack/react-query"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ GameCard src/components/GameCard.tsx:58:23
+     56|     isPrivate: game.isPrivate === true
+     57|   });
+     58|   const queryClient = useQueryClient();
+       |                       ^
+     59|   const { toast } = useToast();
+     60| 
+ ❯ renderWithHooks ../node_modules/react-dom/cjs/react-dom.development.js:15486:18
+ ❯ mountIndeterminateComponent ../node_modules/react-dom/cjs/react-dom.development.js:20103:13
+ ❯ beginWork ../node_modules/react-dom/cjs/react-dom.development.js:21626:16
+ ❯ beginWork$1 ../node_modules/react-dom/cjs/react-dom.development.js:27465:14
+ ❯ performUnitOfWork ../node_modules/react-dom/cjs/react-dom.development.js:26599:12
+ ❯ workLoopSync ../node_modules/react-dom/cjs/react-dom.development.js:26505:5
+ ❯ renderRootSync ../node_modules/react-dom/cjs/react-dom.development.js:26473:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/lib/__tests__/activities.test.ts > activities > should return activities data structure
+AssertionError: expected undefined to be defined
+ ❯ src/lib/__tests__/activities.test.ts:8:39
+      6|   it('should return activities data structure', () => {
+      7|     const { result } = renderHook(() => useActivities());
+      8|     expect(result.current.activities).toBeDefined();
+       |                                       ^
+      9|     expect(Array.isArray(result.current.activities)).toBe(true);
+     10|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/lib/__tests__/activities.test.ts > activities > should have required activity properties
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ src/lib/__tests__/activities.test.ts:14:37
+     12|   it('should have required activity properties', () => {
+     13|     const { result } = renderHook(() => useActivities());
+     14|     const activity = result.current.activities[0];
+       |                                     ^
+     15|     expect(activity).toHaveProperty('id');
+     16|     expect(activity).toHaveProperty('name');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/lib/__tests__/dates.test.ts > date utilities > should format date with timezone
+AssertionError: expected '' to match /\d{1,2}:\d{2} [AP]M PST/
+
+- Expected: 
+/\d{1,2}:\d{2} [AP]M PST/
+
++ Received: 
+""
+
+ ❯ src/lib/__tests__/dates.test.ts:8:23
+      6|     const date = new Date('2024-01-01T10:00:00Z');
+      7|     const formatted = formatWithTimezone(date, 'America/Los_Angeles');
+      8|     expect(formatted).toMatch(/\d{1,2}:\d{2} [AP]M PST/);
+       |                       ^
+      9|   });
+     10| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ Test Files  3 failed | 1 passed (4)
+      Tests  5 failed | 5 passed (10)
+   Start at  03:21:44
+   Duration  5.96s (transform 961ms, setup 2.63s, collect 2.50s, tests 243ms, environment 5.35s, prepare 1.15s)
+
+ FAIL  Tests failed. Watching for file changes...
+       press h to show help, press q to quit
