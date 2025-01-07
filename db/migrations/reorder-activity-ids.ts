@@ -3,7 +3,7 @@ import { db } from "../index";
 import { sql } from "drizzle-orm";
 
 async function reorderActivities(schema: string) {
-  // Drop existing constraints
+  // First drop constraints
   await db.execute(sql`
     ALTER TABLE ${sql.identifier(schema)}.games 
     DROP CONSTRAINT IF EXISTS games_activity_id_activities_id_fk;
@@ -14,7 +14,21 @@ async function reorderActivities(schema: string) {
     DROP CONSTRAINT IF EXISTS activities_pkey;
   `);
 
-  // Add primary key constraint
+  // Clean up duplicates keeping lowest IDs
+  await db.execute(sql`
+    WITH duplicates AS (
+      SELECT MIN(id) as keep_id, name
+      FROM ${sql.identifier(schema)}.activities
+      GROUP BY name
+    )
+    DELETE FROM ${sql.identifier(schema)}.activities a
+    WHERE NOT EXISTS (
+      SELECT 1 FROM duplicates d
+      WHERE d.keep_id = a.id AND d.name = a.name
+    );
+  `);
+
+  // Now add primary key constraint
   await db.execute(sql`
     ALTER TABLE ${sql.identifier(schema)}.activities 
     ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
