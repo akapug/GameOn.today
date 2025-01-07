@@ -39,6 +39,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
   const [comment, setComment] = useState('');
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
   const [isResponseEditDialogOpen, setIsResponseEditDialogOpen] = useState(false);
+  const [isEventEditDialogOpen, setIsEventEditDialogOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
