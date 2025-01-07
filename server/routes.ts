@@ -14,7 +14,8 @@ async function setSchemaMiddleware(req: any, res: any, next: any) {
   const schema = env === 'production' ? 'production' : 'development';
 
   try {
-    await db.execute(sql`SET search_path TO ${sql.raw(schema)}, public`);
+    await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+    console.log(`Set search path to ${schema} schema`); // Added logging
     next();
   } catch (error) {
     console.error(`Failed to set schema to ${schema}:`, error);

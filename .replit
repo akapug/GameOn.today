@@ -9,7 +9,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 build = ["NODE_ENV=production", "npm", "run", "build"]
-run = "npm run start"
+run = ["sh", "-c", "tsx db/scripts/setup-schemas.ts"]
 
 [[deployment.rewrites]]
 from = "/api/*"
@@ -28,3 +28,29 @@ start = ["typescript-language-server", "--stdio"]
 [[ports]]
 localPort = 3000
 externalPort = 80
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Database Setup"
+
+[[workflows.workflow]]
+name = "Database Setup"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "tsx db/scripts/setup-schemas.ts"

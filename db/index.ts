@@ -1,5 +1,4 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
-import { neon } from '@neondatabase/serverless';
 import { sql } from "drizzle-orm";
 import ws from "ws";
 import * as schema from "@db/schema";
@@ -25,23 +24,15 @@ const getDb = () => {
 
       console.log(`Attempting database connection for ${env} environment using ${schemaName} schema...`);
 
-      // Create initial raw SQL client to set search path
-      const sqlClient = neon(databaseUrl);
-
-      // Set search path explicitly to include both schema and public
-      await sqlClient`SET search_path TO ${sql.raw(schemaName)}, public`;
-
-      // Create the Drizzle client with schema-aware configuration
+      // Create the Drizzle client
       const client = drizzle({
         connection: databaseUrl,
         schema,
         ws: ws,
-        connectionOptions: {
-          transformValues: {
-            boolean: (val: unknown) => val === true || val === 'true' || val === 't',
-          },
-        },
       });
+
+      // Set schema explicitly before any operations
+      await client.execute(sql`SET search_path TO ${sql.identifier(schemaName)}, public`);
 
       // Verify schema exists and is accessible
       const schemaTest = await client.execute(sql`
@@ -54,10 +45,6 @@ const getDb = () => {
       if (!schemaTest.rows[0].exists) {
         throw new Error(`Schema '${schemaName}' does not exist`);
       }
-
-      // Verify search path is set correctly
-      const searchPath = await client.execute(sql`SHOW search_path`);
-      console.log(`Current search path: ${searchPath.rows[0].search_path}`);
 
       // Add environment-specific logging
       if (env === 'development') {
@@ -100,18 +87,14 @@ export const syncDevelopmentSchema = async () => {
   try {
     console.log('Starting development schema sync...');
 
-    // Create fresh development schema
     await db.execute(sql`
-      -- Drop existing development schema
-      DROP SCHEMA IF EXISTS development CASCADE;
-
       -- Create fresh development schema
-      CREATE SCHEMA development;
+      CREATE SCHEMA IF NOT EXISTS development;
 
-      -- Copy schema structure from production
-      CREATE TABLE development.activities (LIKE production.activities INCLUDING ALL);
-      CREATE TABLE development.games (LIKE production.games INCLUDING ALL);
-      CREATE TABLE development.players (LIKE production.players INCLUDING ALL);
+      -- Recreate tables in development schema
+      CREATE TABLE IF NOT EXISTS development.activities (LIKE production.activities INCLUDING ALL);
+      CREATE TABLE IF NOT EXISTS development.games (LIKE production.games INCLUDING ALL);
+      CREATE TABLE IF NOT EXISTS development.players (LIKE production.players INCLUDING ALL);
     `);
 
     console.log('Development schema sync completed successfully');
