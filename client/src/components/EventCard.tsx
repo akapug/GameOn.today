@@ -579,8 +579,14 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <div className="space-y-2">
               <Label>Event Type</Label>
               <EventTypeSelect 
-                value={formState.eventTypeId}
-                onChange={(value) => setFormState(prev => ({ ...prev, eventTypeId: value ? parseInt(value) : 0 }))}
+                value={formState.eventTypeId?.toString()}
+                onChange={(value) => {
+                  const eventTypeId = value ? parseInt(value, 10) : null;
+                  setFormState(prev => ({
+                    ...prev,
+                    eventTypeId
+                  }));
+                }}
               />
             </div>
             <div className="space-y-2">
