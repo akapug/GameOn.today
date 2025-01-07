@@ -8,7 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 build = ["sh", "-c", "NODE_ENV=production npm run build"]
-run = ["sh", "-c", "NODE_ENV=production tsx db/scripts/setup-schemas.ts && sleep 5 && NODE_ENV=production node dist/index.js"]
+run = ["sh", "-c", "NODE_ENV=production tsx db/scripts/setup-schemas.ts && sleep 10 && NODE_ENV=production node dist/server/index.js"]
 
 [[deployment.rewrites]]
 from = "/api/*"
