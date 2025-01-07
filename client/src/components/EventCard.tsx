@@ -71,10 +71,11 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       participantThreshold: formState.participantThreshold,
       notes: formState.notes,
       isPrivate: formState.isPrivate,
-      eventTypeId: formState.eventTypeId,
+      eventTypeId: Number(formState.eventTypeId),
       webLink: formState.webLink,
       isRecurring: formState.isRecurring,
-      recurrenceFrequency: formState.recurrenceFrequency
+      recurrenceFrequency: formState.recurrenceFrequency,
+      creatorId: event.creatorId
     };
 
     try {
