@@ -350,7 +350,7 @@ export function registerRoutes(app: Express): Server {
       console.error("Failed to update event:", {
         error,
         requestBody: req.body,
-        hash: params?.hash,
+        hash: req.params?.hash,
         stack: error instanceof Error ? error.stack : undefined
       });
       
