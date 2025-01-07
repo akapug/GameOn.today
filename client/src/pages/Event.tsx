@@ -105,17 +105,10 @@ export default function Event() {
 
   const deleteEvent = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/events/${params?.hash}`, {
+      return apiRequest(`/api/events/${params?.hash}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
-
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error || "Failed to delete event");
-      }
-
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
