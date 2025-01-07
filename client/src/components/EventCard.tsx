@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
@@ -58,7 +57,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const updatedEvent = {
       ...event,
       ...formState,
@@ -239,6 +238,9 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <Users className="mr-2 h-4 w-4" />
               <span>
                 {event.participantThreshold} participants needed / {event.participants.length || 0} responded
+                <span className="text-xs text-muted-foreground ml-1">
+                  (~{((event.participantThreshold || 0) * (progressPercentage / 100)).toFixed(1)} expected)
+                </span>
               </span>
             </div>
             <Progress value={progressPercentage} className="h-2 mt-2" />
