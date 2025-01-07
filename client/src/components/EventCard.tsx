@@ -97,36 +97,31 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
       const data = await res.json();
 
-      // Update detail cache with new data
-      queryClient.setQueryData(
-        queryKeys.events.detail(event.urlHash),
-        (oldData: any) => ({
-          ...oldData,
-          ...data,
-          eventType: data.eventType // Ensure eventType is updated
-        })
-      );
-
-      // Update list cache
-      queryClient.setQueriesData(
-        { queryKey: queryKeys.events.all },
-        (old: any) => {
-          if (!old || !Array.isArray(old)) return old;
-          return old.map((e: any) => 
-            e.urlHash === event.urlHash ? {
-              ...e,
-              ...data,
-              eventType: data.eventType // Ensure eventType is updated in list view
-            } : e
-          );
-        }
-      );
-
-      // Force refetch both queries
+      // Update both caches simultaneously
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(event.urlHash) }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.events.all })
+        queryClient.setQueryData(
+          queryKeys.events.detail(event.urlHash),
+          (oldData: any) => ({
+            ...oldData,
+            ...data
+          })
+        ),
+        queryClient.setQueriesData(
+          { queryKey: queryKeys.events.all },
+          (old: any) => {
+            if (!old || !Array.isArray(old)) return old;
+            return old.map((e: any) => 
+              e.urlHash === event.urlHash ? {
+                ...e,
+                ...data
+              } : e
+            );
+          }
+        )
       ]);
+
+      // Only invalidate after both caches are updated
+      await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
 
       toast({ title: "Success", description: "Event updated successfully" });
       setIsEventEditDialogOpen(false);
