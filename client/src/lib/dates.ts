@@ -1,3 +1,4 @@
+
 import { format, formatInTimeZone } from 'date-fns-tz';
 
 export function getUserTimezone(): string {
@@ -10,19 +11,17 @@ export function getUserTimezone(): string {
 }
 
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
-  return format(new Date(date), formatStr, { timeZone: timezone });
+  return formatInTimeZone(new Date(date), timezone, formatStr);
 }
 
 export function utcToLocalInput(date: string | Date, timezone?: string): string {
-  const d = new Date(date);
   const userTimezone = timezone || getUserTimezone();
-  const localDate = new Date(d.toLocaleString('en-US', { timeZone: userTimezone }));
-  return localDate.toISOString().slice(0, 16);
+  return formatInTimeZone(new Date(date), userTimezone, "yyyy-MM-dd'T'HH:mm");
 }
 
 export function toUTC(dateStr: string, timezone: string): Date {
   const date = new Date(dateStr);
-  const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
-  const tzOffset = tzDate.getTime() - date.getTime();
-  return new Date(date.getTime() - tzOffset);
+  const userTimezone = timezone || getUserTimezone();
+  const utcDate = new Date(formatInTimeZone(date, userTimezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+  return utcDate;
 }
