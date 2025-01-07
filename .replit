@@ -28,10 +28,6 @@ start = ["typescript-language-server", "--stdio"]
 localPort = 3000
 externalPort = 80
 
-[[ports]]
-localPort = 5000
-externalPort = 5000
-
 [workflows]
 
 [[workflows.workflow]]
