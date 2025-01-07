@@ -30,6 +30,7 @@ localPort = 3000
 externalPort = 80
 
 [workflows]
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -39,6 +40,10 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Database Setup"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test Runner"
 
 [[workflows.workflow]]
 name = "Database Setup"
@@ -53,3 +58,17 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "tsx db/scripts/setup-schemas.ts"
+
+[[workflows.workflow]]
+name = "Test Runner"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx vitest run client/src/test/event-system.test.tsx"
