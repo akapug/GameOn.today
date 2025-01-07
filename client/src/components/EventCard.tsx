@@ -451,7 +451,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
         {canDelete && (
           <>
-            <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)} aria-label="Edit">
+            <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
               <Edit className="h-4 w-4" />
             </Button>
             <Button 
@@ -500,7 +500,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
       {/* Join Event Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent aria-describedby="join-event-description">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Join Event</DialogTitle>
           </DialogHeader>
