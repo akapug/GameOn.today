@@ -28,7 +28,12 @@ export async function setupVite(app: Express, server: Server) {
     customLogger: viteLogger,
     server: {
       middlewareMode: true,
-      hmr: { server },
+      hmr: { 
+        protocol: 'ws',
+        host: '0.0.0.0',
+        port: 5000,
+        server //This line is added to use the existing http server for HMR
+      },
       watch: {
         usePolling: true,
         interval: 100
@@ -72,7 +77,7 @@ export function serveStatic(app: Express) {
 
   // Serve static files from dist/public
   app.use(express.static(distPath));
-  
+
   // Serve assets specifically
   app.use('/assets', express.static(path.join(distPath, 'assets')));
 

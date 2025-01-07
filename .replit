@@ -26,7 +26,7 @@ pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
 start = ["typescript-language-server", "--stdio"]
 
 [[ports]]
-localPort = 5000
+localPort = 80
 externalPort = 80
 
 [workflows]
