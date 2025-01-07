@@ -10,18 +10,18 @@ export function getUserTimezone(): string {
   }
 }
 
-export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
-  return formatInTimeZone(new Date(date), timezone, formatStr);
-}
-
-export function utcToLocalInput(date: string | Date, timezone?: string): string {
-  const userTimezone = timezone || getUserTimezone();
-  return formatInTimeZone(new Date(date), userTimezone, "yyyy-MM-dd'T'HH:mm");
-}
-
 export function toUTC(dateStr: string, timezone: string): Date {
   const date = new Date(dateStr);
-  const userTimezone = timezone || getUserTimezone();
-  const utcDate = new Date(formatInTimeZone(date, userTimezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-  return utcDate;
+  const localDate = new Date(formatInTimeZone(date, timezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+  return localDate;
+}
+
+export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
+  const utcDate = new Date(date);
+  return formatInTimeZone(utcDate, timezone, formatStr);
+}
+
+export function utcToLocalInput(date: string | Date, timezone: string = 'UTC'): string {
+  const utcDate = new Date(date);
+  return formatInTimeZone(utcDate, timezone, "yyyy-MM-dd'T'HH:mm");
 }
