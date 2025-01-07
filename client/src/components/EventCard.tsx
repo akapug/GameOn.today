@@ -41,8 +41,50 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
   const [isResponseEditDialogOpen, setIsResponseEditDialogOpen] = useState(false);
   const [isEventEditDialogOpen, setIsEventEditDialogOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [formState, setFormState] = useState({
+    title: event.title,
+    location: event.location,
+    date: event.date,
+    endTime: event.endTime || '',
+    participantThreshold: event.participantThreshold,
+    notes: event.notes || '',
+    isPrivate: event.isPrivate,
+    eventTypeId: event.eventTypeId
+  });
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const updatedEvent = {
+      ...event,
+      ...formState,
+    };
+
+    try {
+      const res = await fetch(`/api/events/${event.urlHash}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedEvent),
+      });
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+
+      await res.json();
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+      toast({ title: "Success", description: "Event updated successfully" });
+      setIsEventEditDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update event",
+        variant: "destructive",
+      });
+    }
+  };
 
   const canEditResponse = (participant: Participant) => {
     if (!participant.responseToken) return false;
@@ -477,16 +519,16 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
-                value={event.title}
-                onChange={(e) => {/* Event edit logic */}}
+                value={formState.title}
+                onChange={(e) => setFormState(prev => ({ ...prev, title: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
-                value={event.location}
-                onChange={(e) => {/* Event edit logic */}}
+                value={formState.location}
+                onChange={(e) => setFormState(prev => ({ ...prev, location: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -494,8 +536,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <Input
                 id="date"
                 type="datetime-local"
-                value={event.date.slice(0, 16)}
-                onChange={(e) => {/* Event edit logic */}}
+                value={formState.date.slice(0, 16)}
+                onChange={(e) => setFormState(prev => ({ ...prev, date: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -503,8 +545,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <Input
                 id="endTime"
                 type="datetime-local"
-                value={event.endTime?.slice(0, 16) || ''}
-                onChange={(e) => {/* Event edit logic */}}
+                value={formState.endTime?.slice(0, 16) || ''}
+                onChange={(e) => setFormState(prev => ({ ...prev, endTime: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -513,16 +555,16 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 id="participantThreshold"
                 type="number"
                 min="2"
-                value={event.participantThreshold}
-                onChange={(e) => {/* Event edit logic */}}
+                value={formState.participantThreshold}
+                onChange={(e) => setFormState(prev => ({ ...prev, participantThreshold: parseInt(e.target.value) }))}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
-                value={event.notes || ''}
-                onChange={(e) => {/* Event edit logic */}}
+                value={formState.notes}
+                onChange={(e) => setFormState(prev => ({ ...prev, notes: e.target.value }))}
               />
             </div>
             <Button type="submit">Save Changes</Button>
