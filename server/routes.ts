@@ -13,12 +13,7 @@ async function setSchemaMiddleware(req: any, res: any, next: any) {
   const schema = env === 'production' ? 'production' : 'development';
 
   try {
-    // Add timeout to schema setting
-    const schemaPromise = db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
-    await Promise.race([
-      schemaPromise,
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Schema setting timeout')), 5000))
-    ]);
+    await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
     console.log(`Set search path to ${schema} schema`);
     next();
   } catch (error) {

@@ -10,11 +10,9 @@ export const queryClient = new QueryClient({
           });
 
           if (!res.ok) {
-            if (res.status >= 500) {
-              console.warn(`Server error: ${res.status}`);
-              return null;
-            }
-            return null;
+            const error = new Error(`HTTP error! status: ${res.status}`);
+            console.error('Query failed:', error);
+            throw error; // Let React Query handle retries
           }
 
           return res.json();
