@@ -218,24 +218,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                     )}
                   </div>
                   <div className="flex gap-1">
-                    {canEditResponse(participant) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setEditingParticipant(participant);
-                          setParticipantName(participant.name);
-                          setParticipantEmail(participant.email || '');
-                          setJoinType(!participant.likelihood || participant.likelihood === 1 ? "yes" : "maybe");
-                          setLikelihood(participant.likelihood || 0.5);
-                          setComment(participant.comment || '');
-                          setIsResponseEditDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {canDelete && (
+                    {(canEditResponse(participant) || canDelete) && (
                       <Button
                         variant="ghost"
                         size="sm"
