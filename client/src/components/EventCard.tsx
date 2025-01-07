@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Calendar, MapPin, Users, Share2, LinkIcon, MessageSquare, Trash2, Edit, EyeOff } from "lucide-react";
+import { Calendar, MapPin, Users, Share2, LinkIcon, Facebook, Twitter, Edit, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Progress } from "./ui/progress";
@@ -17,6 +17,7 @@ import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "./WeatherDisplay";
 import type { Event, Participant, EventType } from "@db/schema";
 import type { WeatherInfo } from "../../server/services/weather";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 interface EventCardProps {
   event: Event & {
@@ -133,6 +134,18 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               Private
             </span>
           )}
+          {canDelete && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Delete</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -171,7 +184,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               </span>
             </div>
             <Progress value={progressPercentage} className="h-2 mt-2" />
-            
+
             {/* Participant Responses */}
             <div className="mt-4 space-y-2">
               {event.participants.map((participant) => (
@@ -184,6 +197,18 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                     <span className="text-muted-foreground ml-2">
                       - "{participant.comment}"
                     </span>
+                  )}
+                  {canEditResponse(participant) && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                 </div>
               ))}
