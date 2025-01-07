@@ -300,10 +300,14 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/events/:hash", async (req, res) => {
     try {
       const { hash } = req.params;
-      const { title, location, date, timezone, participantThreshold, creatorId, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
+      const { title, location, date, timezone, participantThreshold, creatorId, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate, eventTypeId } = req.body;
 
       const event = await db.query.events.findFirst({
         where: eq(events.urlHash, hash),
+        with: {
+          eventType: true,
+          participants: true
+        }
       });
 
       if (!event) {
@@ -322,6 +326,7 @@ export function registerRoutes(app: Express): Server {
           date: toUTC(date, timezone || event.timezone),
           timezone: timezone || event.timezone,
           participantThreshold,
+          eventTypeId: eventTypeId ? Number(eventTypeId) : event.eventTypeId,
           endTime: endTime ? toUTC(endTime, timezone || event.timezone) : null,
           notes: notes || null,
           webLink: webLink || null,

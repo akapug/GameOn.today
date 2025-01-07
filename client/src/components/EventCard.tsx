@@ -95,7 +95,10 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       const res = await fetch(`/api/events/${event.urlHash}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedEvent),
+        body: JSON.stringify({
+          ...updatedEvent,
+          eventTypeId: Number(formState.eventTypeId)
+        }),
         signal: controller.signal
       });
 
