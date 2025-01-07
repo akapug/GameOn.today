@@ -110,12 +110,21 @@ describe('Event System', () => {
       await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
       await userEvent.type(screen.getByLabelText(/Participant Threshold/i), '10');
       
-      // Submit form using button click
+      // Select event type (required field)
+      const eventTypeButton = screen.getByRole('combobox', { name: /Event Type/i });
+      await userEvent.click(eventTypeButton);
+      await userEvent.click(screen.getByRole('option', { name: /Test Type/i }));
+      
+      // Get the submit button
       const submitButton = screen.getByRole('button', { name: /Create Event/i });
+      
+      // Submit form and wait for mutation to start
       await userEvent.click(submitButton);
-
-      // Wait for disabled state
-      await expect(submitButton).toBeDisabled();
+      
+      // Use waitFor to handle async state changes
+      await waitFor(() => {
+        expect(submitButton).toBeDisabled();
+      });
     });
   });
 });
