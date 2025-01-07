@@ -13,16 +13,21 @@ export function formatWithTimezone(
   try {
     const parsedDate = typeof date === 'string' ? parseISO(date) : date;
     if (isNaN(parsedDate.getTime())) return '';
-    const formattedDate = formatInTimeZone(parsedDate, timezone, formatStr);
-
-    if (!includeZone) return formattedDate;
-
-    const tzAbbr = new Date().toLocaleTimeString('en-US', {
+    
+    // Format the time part
+    const formattedTime = formatInTimeZone(parsedDate, timezone, formatStr);
+    
+    // If we don't need timezone, return just the formatted time
+    if (!includeZone) return formattedTime;
+    
+    // Get timezone abbreviation
+    const tzInfo = parsedDate.toLocaleTimeString('en-US', {
       timeZone: timezone,
       timeZoneName: 'short'
-    }).split(' ')[2];
-
-    return `${formattedDate} (${tzAbbr})`;
+    });
+    const tzAbbr = tzInfo.split(' ').pop() || 'PST';
+    
+    return `${formattedTime} ${tzAbbr}`;
   } catch (e) {
     console.warn('Invalid date or timezone:', date, timezone);
     return '';
