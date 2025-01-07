@@ -16,14 +16,25 @@ interface EventListProps {
 }
 
 export default function EventList({ events, emptyMessage = "No events found", onCreateEvent }: EventListProps) {
-  const { data: fetchedEvents, isLoading, error } = useQuery({
+  const { data: fetchedEvents, isLoading } = useQuery({
     queryKey: ["/api/events"],
     queryFn: () => fetch('/api/events').then(res => res.json()),
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    cacheTime: 1000 * 60 * 30, // 30 minutes
   });
 
+  // Preserve existing behavior: use passed events if available, otherwise use fetched events
   const eventsToDisplay = Array.isArray(fetchedEvents) ? fetchedEvents : (Array.isArray(events) ? events : []);
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="h-[300px] rounded-lg bg-muted animate-pulse" />
+        ))}
+      </div>
+    );
+  }
 
   if (eventsToDisplay.length === 0 && onCreateEvent) {
     return (
