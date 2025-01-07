@@ -134,10 +134,8 @@ describe('Event System', () => {
         Promise.resolve(new Response(JSON.stringify({ success: true })))
       );
 
-      // Submit form
-      await form.handleSubmit(async (data) => {
-        await createEvent.mutateAsync(data);
-      })();
+      // Submit form using the submit button
+      await userEvent.click(submitButton);
       
       // Wait for button to be disabled during submission
       await waitFor(() => {
