@@ -16,6 +16,7 @@ import { Link } from "wouter";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryClient";
 import WeatherDisplay from "./WeatherDisplay";
+import EventTypeSelect from "./EventTypeSelect";
 import type { Event, Participant, EventType } from "@db/schema";
 import type { WeatherInfo } from "../../server/services/weather";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -496,15 +497,15 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <div className="space-y-2">
               <Label>Event Type</Label>
               <EventTypeSelect 
-                value={event.eventTypeId}
-                onChange={(value) => {/* Event edit logic */}}
+                value={formState.eventTypeId.toString()}
+                onChange={(value) => setFormState(prev => ({ ...prev, eventTypeId: parseInt(value) }))}
               />
             </div>
             <div className="space-y-2">
               <Label>Event Visibility</Label>
               <Select
-                value={event.isPrivate ? 'private' : 'public'}
-                onValueChange={(value) => {/* Event edit logic */}}
+                value={formState.isPrivate ? 'private' : 'public'}
+                onValueChange={(value) => setFormState(prev => ({ ...prev, isPrivate: value === 'private' }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select event visibility" />
