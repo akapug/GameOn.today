@@ -152,20 +152,14 @@ export default function CreateEvent() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(
-                (data) => {
-                  const validation = form.trigger();
-                  if (!validation) {
-                    const errors = form.formState.errors;
-                    setFormErrors(Object.keys(errors).reduce((acc, key) => {
-                      acc[key] = errors[key]?.message || '';
-                      return acc;
-                    }, {} as Record<string, string>));
-                    return;
-                  }
-                  createEvent.mutate(data);
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const isValid = await form.trigger();
+                if (!isValid) {
+                  return;
                 }
-              )} className="space-y-6">
+                createEvent.mutate(form.getValues());
+              }} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="eventTypeId"
