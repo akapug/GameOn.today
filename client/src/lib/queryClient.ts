@@ -4,27 +4,34 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: async ({ queryKey }) => {
-        const res = await fetch(queryKey[0] as string, {
-          credentials: "include",
-        });
+        try {
+          const res = await fetch(queryKey[0] as string, {
+            credentials: "include",
+          });
 
-        if (!res.ok) {
-          if (res.status >= 500) {
-            throw new Error(`${res.status}: ${res.statusText}`);
+          if (!res.ok) {
+            if (res.status >= 500) {
+              console.warn(`Server error: ${res.status}`);
+              return null;
+            }
+            return null;
           }
 
-          throw new Error(`${res.status}: ${await res.text()}`);
+          return res.json();
+        } catch (err) {
+          console.warn('Query failed silently:', err);
+          return null;
         }
-
-        return res.json();
       },
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: Infinity,
-      retry: false,
+      retry: 1,
+      retryDelay: 1000,
     },
     mutations: {
-      retry: false,
+      retry: 1,
+      retryDelay: 1000,
     }
   },
 });
