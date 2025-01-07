@@ -28,10 +28,10 @@ export default function AuthDialog({ open, onOpenChange, redirectTo }: AuthDialo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Please sign in</DialogTitle>
+          <DialogTitle>Sign in Required</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">
-          You need to sign in to create an event. You can still join existing events without signing in.
+          You need to sign in to create a game. You can still join existing games without signing in.
         </p>
         <div className="flex justify-end gap-2 mt-4">
           <Button onClick={signInWithGoogle}>

@@ -4,32 +4,27 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: async ({ queryKey }) => {
-        try {
-          const res = await fetch(queryKey[0] as string, {
-            credentials: "include",
-          });
+        const res = await fetch(queryKey[0] as string, {
+          credentials: "include",
+        });
 
-          if (!res.ok) {
-            const error = new Error(`HTTP error! status: ${res.status}`);
-            console.error('Query failed:', error);
-            throw error; // Let React Query handle retries
+        if (!res.ok) {
+          if (res.status >= 500) {
+            throw new Error(`${res.status}: ${res.statusText}`);
           }
 
-          return res.json();
-        } catch (err) {
-          console.warn('Query failed silently:', err);
-          return null;
+          throw new Error(`${res.status}: ${await res.text()}`);
         }
+
+        return res.json();
       },
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: Infinity,
-      retry: 1,
-      retryDelay: 1000,
+      retry: false,
     },
     mutations: {
-      retry: 1,
-      retryDelay: 1000,
+      retry: false,
     }
   },
 });

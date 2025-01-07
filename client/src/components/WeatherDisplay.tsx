@@ -24,10 +24,6 @@ export default function WeatherDisplay({ weather, className = "" }: WeatherDispl
     return <ThermometerSun className="h-4 w-4" />;
   };
 
-  if (typeof weather.temperature !== 'number' || isNaN(weather.temperature)) {
-    return null;
-  }
-
   return (
     <div className={`flex items-center gap-2 text-sm ${className}`}>
       {getWeatherIcon(weather.icon)}

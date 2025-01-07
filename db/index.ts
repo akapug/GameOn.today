@@ -22,9 +22,6 @@ const getDb = () => {
       const env = process.env.NODE_ENV || 'development';
       const schemaName = env === 'production' ? 'production' : 'development';
 
-      // Add connection timeout
-      const connectionTimeout = 10000; // 10 seconds
-
       console.log(`Attempting database connection for ${env} environment using ${schemaName} schema...`);
 
       const connectionPromise = new Promise((resolve, reject) => {
@@ -34,7 +31,7 @@ const getDb = () => {
           ws: ws,
         });
         resolve(client);
-        setTimeout(() => reject(new Error('Database connection timeout')), connectionTimeout);
+        setTimeout(() => reject(new Error('Database connection timeout')), 5000);
       });
 
       const client = await connectionPromise;

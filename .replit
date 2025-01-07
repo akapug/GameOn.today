@@ -8,7 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 build = ["sh", "-c", "NODE_ENV=production npm run build"]
-run = ["sh", "-c", "NODE_ENV=production tsx db/scripts/setup-schemas.ts && sleep 10 && NODE_ENV=production node dist/index.js"]
+run = ["sh", "-c", "NODE_ENV=production tsx db/scripts/setup-schemas.ts && sleep 5 && NODE_ENV=production node dist/index.js"]
 
 [[deployment.rewrites]]
 from = "/api/*"
@@ -30,10 +30,6 @@ localPort = 3000
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 24678
-externalPort = 3000
 
 [workflows]
 

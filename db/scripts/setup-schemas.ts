@@ -8,7 +8,7 @@ async function main() {
     await Promise.race([
       db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database connection timeout - please check database connection')), 15000)
+        setTimeout(() => reject(new Error('Database connection timeout')), 5000)
       )
     ]);
     console.log(`Set search path to ${schema} schema`);

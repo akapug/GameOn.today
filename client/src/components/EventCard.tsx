@@ -131,7 +131,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
       const errorMessage = error instanceof Error 
         ? (error.name === 'AbortError' ? 'Request timed out' : error.message)
         : "Failed to update event";
-
+      
       toast({
         title: "Error",
         description: errorMessage,
@@ -221,8 +221,8 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
   return (
     <Card className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""}`}>
-      <CardHeader className="p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
+      <CardHeader>
+        <div className="flex justify-between items-start">
           <div className="flex flex-col gap-1">
             {new Date(event.date).setHours(23,59,59) < new Date().getTime() && (
               <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full w-fit">
@@ -390,7 +390,6 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 setIsResponseEditDialogOpen(true);
               }
             }}
-            aria-label="Edit Response"
           >
             <Edit className="h-4 w-4 mr-2" />
             Edit Response
@@ -451,7 +450,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
         {canDelete && (
           <>
-            <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)} aria-label="Edit">
+            <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
               <Edit className="h-4 w-4" />
             </Button>
             <Button 
@@ -500,7 +499,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
       {/* Join Event Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent aria-describedby="join-event-description">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Join Event</DialogTitle>
           </DialogHeader>

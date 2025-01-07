@@ -18,7 +18,7 @@ export default function Changelog() {
         <div className="prose prose-slate dark:prose-invert">
           <ul className="space-y-4">
             <li>
-              <strong>January 6, 2024</strong> - Enhanced mobile responsiveness across the app, including improved card layouts, dialog sizing, and button arrangements. Added attendee comments, improved test coverage, and enhanced development/production environment separation
+              <strong>January 6, 2024</strong> - Added attendee comments, improved test coverage, and enhanced development/production environment separation
             </li>
             <li>
               <strong>January 5, 2024</strong> - Bugfixes, private game creation and handling

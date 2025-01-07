@@ -18,7 +18,7 @@ async function setSchemaMiddleware(req: any, res: any, next: any) {
     next();
   } catch (error) {
     console.error(`Failed to set schema to ${schema}:`, error);
-    res.status(503).json({ message: "Database temporarily unavailable" });
+    res.status(500).json({ message: "Database configuration error" });
   }
 }
 

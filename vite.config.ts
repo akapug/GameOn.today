@@ -29,13 +29,10 @@ export default defineConfig({
     host: '0.0.0.0',
     hmr: {
       clientPort: 443,
-      timeout: 30000,
-      path: '/@hmr'
-    },
-    watch: {
-      usePolling: false,
-      interval: 1000
-    },
-    middlewareMode: false
+      protocol: 'wss',
+      host: `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
+      timeout: 5000,
+      overlay: false
+    }
   },
 });
