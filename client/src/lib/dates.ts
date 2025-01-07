@@ -13,24 +13,18 @@ export function formatWithTimezone(date: string | Date, formatStr: string, timez
 
 export function toUTC(dateStr: string, timezone: string): Date {
   const date = new Date(dateStr);
-  const utcTime = new Date(date.toLocaleString('en-US', { timeZone }));
-  const offset = utcTime.getTime() - date.getTime();
-  return new Date(date.getTime() - offset);
+  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+  return utcDate;
 }
 
 export function utcToLocalInput(dateStr: string, timezone: string = 'UTC'): string {
   const date = new Date(dateStr);
-  const tzDate = new Date(date.toLocaleString('en-US', { timeZone }));
-  const offset = date.getTime() - tzDate.getTime();
-  const localDate = new Date(date.getTime() + offset);
-  return format(localDate, "yyyy-MM-dd'T'HH:mm");
+  return format(date, "yyyy-MM-dd'T'HH:mm", { timeZone: timezone });
 }
 
 export function localToUTCInput(dateStr: string, timezone: string = 'UTC'): string {
   const date = new Date(dateStr);
-  const tzDate = new Date(date.toLocaleString('en-US', { timeZone }));
-  const offset = tzDate.getTime() - date.getTime();
-  const utcDate = new Date(date.getTime() - offset);
+  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
   return utcDate.toISOString();
 }
 
