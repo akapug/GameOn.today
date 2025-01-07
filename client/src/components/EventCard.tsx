@@ -171,6 +171,23 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               </span>
             </div>
             <Progress value={progressPercentage} className="h-2 mt-2" />
+            
+            {/* Participant Responses */}
+            <div className="mt-4 space-y-2">
+              {event.participants.map((participant) => (
+                <div key={participant.id} className="flex items-center justify-between text-sm">
+                  <span>{participant.name}</span>
+                  <span className="text-muted-foreground">
+                    {participant.likelihood === 1 ? 'Yes' : `Maybe (${Math.round(participant.likelihood * 100)}%)`}
+                  </span>
+                  {participant.comment && (
+                    <span className="text-muted-foreground ml-2">
+                      - "{participant.comment}"
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           {event.weather && <WeatherDisplay weather={event.weather} />}
