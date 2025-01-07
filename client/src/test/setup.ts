@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
+import React from 'react';
 
 expect.extend(matchers);
 
@@ -41,15 +42,18 @@ vi.mock('@tanstack/react-query', () => ({
 }));
 
 // Mock AuthProvider context
-vi.mock('../components/AuthProvider', () => ({
-  useAuth: () => ({
-    user: { uid: 'test-user', displayName: 'Test User' },
-    loading: false,
-    signInWithGoogle: vi.fn(),
-    logout: vi.fn()
-  }),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
-}));
+vi.mock('../components/AuthProvider', () => {
+  const AuthProviderMock = ({ children }) => React.createElement(React.Fragment, null, children);
+  return {
+    useAuth: () => ({
+      user: { uid: 'test-user', displayName: 'Test User' },
+      loading: false,
+      signInWithGoogle: vi.fn(),
+      logout: vi.fn()
+    }),
+    AuthProvider: AuthProviderMock
+  };
+});
 
 afterEach(() => {
   cleanup();
