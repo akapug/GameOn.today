@@ -34,7 +34,8 @@ export default defineConfig({
       protocol: 'wss',
       path: '/ws',
       timeout: 5000,
-      host: process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co` : undefined
+      secure: true,
+      host: process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co` : '0.0.0.0'
     }
   },
 });
