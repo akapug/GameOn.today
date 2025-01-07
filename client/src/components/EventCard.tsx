@@ -97,28 +97,36 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
       const data = await res.json();
 
-      // Update cache with new data including full eventType object
+      // Update detail cache with new data
       queryClient.setQueryData(
         queryKeys.events.detail(event.urlHash),
         (oldData: any) => ({
           ...oldData,
-          ...data
+          ...data,
+          eventType: data.eventType // Ensure eventType is updated
         })
       );
 
-      // Update list cache to reflect changes
+      // Update list cache
       queryClient.setQueriesData(
         { queryKey: queryKeys.events.all },
         (old: any) => {
           if (!old || !Array.isArray(old)) return old;
           return old.map((e: any) => 
-            e.urlHash === event.urlHash ? { ...e, ...data } : e
+            e.urlHash === event.urlHash ? {
+              ...e,
+              ...data,
+              eventType: data.eventType // Ensure eventType is updated in list view
+            } : e
           );
         }
       );
 
-      // Invalidate queries to ensure consistency
-      await queryClient.invalidateQueries({ queryKey: queryKeys.events.all });
+      // Force refetch both queries
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(event.urlHash) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.events.all })
+      ]);
 
       toast({ title: "Success", description: "Event updated successfully" });
       setIsEventEditDialogOpen(false);
