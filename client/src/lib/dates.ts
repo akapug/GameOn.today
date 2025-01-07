@@ -14,13 +14,15 @@ export function formatWithTimezone(
     const parsedDate = typeof date === 'string' ? parseISO(date) : date;
     if (isNaN(parsedDate.getTime())) return '';
     const formattedDate = formatInTimeZone(parsedDate, timezone, formatStr);
-
+    
     if (!includeZone) return formattedDate;
 
+    // Format a time that will definitely include timezone abbreviation
     const tzAbbr = new Date().toLocaleTimeString('en-US', {
       timeZone: timezone,
+      hour: 'numeric',
       timeZoneName: 'short'
-    }).split(' ')[2];
+    }).split(' ').pop();
 
     return `${formattedDate} ${tzAbbr}`;
   } catch (e) {
