@@ -3,6 +3,7 @@ import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
 import React from 'react';
+import { useAuth } from '../components/AuthProvider';
 
 expect.extend(matchers);
 
@@ -17,6 +18,12 @@ global.ResizeObserver = ResizeObserverMock;
 
 // Mock fetch globally
 global.fetch = vi.fn();
+
+// Mock AuthProvider
+vi.mock('../components/AuthProvider', () => ({
+  useAuth: vi.fn(),
+  AuthProvider: ({ children }) => children
+}));
 
 // Mock activities data
 vi.mock('../lib/activities', () => ({
