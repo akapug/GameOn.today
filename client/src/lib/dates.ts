@@ -1,7 +1,9 @@
 import { format, formatInTimeZone } from 'date-fns-tz';
 
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
-  return formatInTimeZone(date, timezone, formatStr);
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '';
+  return formatInTimeZone(d, timezone || 'UTC', formatStr);
 }
 
 export function toUTC(dateStr: string, timezone: string): Date {

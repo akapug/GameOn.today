@@ -11,7 +11,7 @@ import { useAuth } from '../components/AuthProvider';
 
 // Mock useAuth hook
 vi.mock('../components/AuthProvider', () => ({
-  useAuth: vi.fn(),
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
   AuthProvider: ({ children }) => children,
 }));
 
@@ -20,6 +20,7 @@ vi.mock('../../server/services/weather', () => ({
   getWeatherInfo: vi.fn().mockResolvedValue({
     temperature: 20,
     conditions: 'Clear',
+    icon: '01d',
   }),
 }));
 
