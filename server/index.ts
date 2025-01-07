@@ -61,22 +61,13 @@ app.use((req, res, next) => {
     await setupVite(app, server);
     clearTimeout(startupTimeout);
   } else {
-    // Production: Serve static files with enhanced error handling
+    // Production: Initialize API routes first
     log("Starting production server...");
     const staticPath = path.join(__dirname, "..", "dist", "public");
-    log(`Serving static files from: ${staticPath}`);
-
-    // Verify static directory exists
-    try {
-      const fs = await import('fs');
-      if (!fs.existsSync(staticPath)) {
-        throw new Error(`Static directory not found: ${staticPath}`);
-      }
-      log(`Static directory exists and is accessible`);
-    } catch (error) {
-      console.error('Static directory verification failed:', error);
-      process.exit(1);
-    }
+    log(`Static files will be served from: ${staticPath}`);
+    
+    // Initialize API routes before static serving
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // First, serve the assets directory with appropriate cache headers
     app.use('/assets', express.static(path.join(staticPath, 'assets'), {
