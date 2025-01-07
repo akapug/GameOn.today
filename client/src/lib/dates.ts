@@ -15,9 +15,17 @@ export function toUTC(dateStr: string, timezone: string): Date {
 }
 
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
-  const formattedDate = formatInTimeZone(new Date(date), timezone, formatStr);
-  const tzAbbr = new Date().toLocaleTimeString('en-us',{timeZone: timezone, timeZoneName: 'short'}).split(' ')[2];
-  return `${formattedDate} ${tzAbbr}`;
+  try {
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return 'Invalid date';
+    }
+    const formattedDate = formatInTimeZone(parsedDate, timezone, formatStr);
+    const tzAbbr = new Date().toLocaleTimeString('en-us',{timeZone: timezone, timeZoneName: 'short'}).split(' ')[2];
+    return `${formattedDate} ${tzAbbr}`;
+  } catch (error) {
+    return 'Invalid date';
+  }
 }
 
 export function utcToLocalInput(date: string | Date | null | undefined, timezone: string = 'UTC'): string {
