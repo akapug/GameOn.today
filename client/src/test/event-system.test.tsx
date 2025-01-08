@@ -8,6 +8,7 @@ import EventCard from '../components/EventCard';
 import { AuthProvider } from '../components/AuthProvider';
 import Event from '../pages/Event';
 import { useAuth } from '../components/AuthProvider';
+import { mockAuth } from './setup';
 
 const mockUser = {
   uid: 'test-user',
@@ -21,10 +22,6 @@ const mockAuthContext = {
   signOut: vi.fn()
 };
 
-vi.mock('../components/AuthProvider', () => ({
-  useAuth: () => mockAuthContext,
-  AuthProvider: ({ children }) => children,
-}));
 
 // Mock weather service
 vi.mock('../../server/services/weather', () => ({
