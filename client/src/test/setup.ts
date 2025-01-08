@@ -9,14 +9,16 @@ import { MobileProvider } from '../hooks/use-mobile.tsx';
 
 expect.extend(matchers);
 
+const mockAuth = {
+  user: { uid: 'test-user', displayName: 'Test User' },
+  loading: false,
+  signInWithGoogle: vi.fn(),
+  signOut: vi.fn()
+};
+
 vi.mock('../components/AuthProvider', () => ({
   AuthProvider: ({ children }) => children,
-  useAuth: () => ({
-    user: { uid: 'test-user', displayName: 'Test User' },
-    loading: false,
-    signInWithGoogle: vi.fn(),
-    signOut: vi.fn()
-  })
+  useAuth: () => mockAuth
 }));
 
 const createTestQueryClient = () => new QueryClient({
