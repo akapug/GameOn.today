@@ -1,3 +1,4 @@
+
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -78,26 +79,17 @@ describe('Event System', () => {
 
   // Integration Tests
   describe('Integration Tests', () => {
-    beforeEach(() => {
-      vi.mocked(useAuth).mockReturnValue({
-        user: { uid: 'test-user', displayName: 'Test User' },
-        loading: false,
-        error: null,
-        signInWithGoogle: vi.fn(),
-        signOut: vi.fn()
-      });
-    });
     it('creates and displays event in list', async () => {
       const { rerender } = render(<CreateEvent />, { wrapper });
-
+      
       await userEvent.type(screen.getByLabelText(/Title/i), 'New Event');
       await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
       await userEvent.click(screen.getByLabelText(/Event Type/i));
       await userEvent.click(screen.getByText('Test Type'));
-
+      
       const submitButton = screen.getByRole('button', { name: /Create Event/i });
       await userEvent.click(submitButton);
-
+      
       rerender(<EventCard event={mockEvent} />);
       expect(screen.getByText('New Event')).toBeInTheDocument();
     });
@@ -126,10 +118,10 @@ describe('Event System', () => {
     it('displays API error messages', async () => {
       vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('API Error'));
       render(<CreateEvent />, { wrapper });
-
+      
       await userEvent.type(screen.getByLabelText(/Title/i), 'New Event');
       await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
-
+      
       await waitFor(() => {
         expect(screen.getByText(/API Error/i)).toBeInTheDocument();
       });
@@ -138,9 +130,9 @@ describe('Event System', () => {
     it('handles network failures gracefully', async () => {
       vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network Error'));
       render(<EventCard event={mockEvent} />, { wrapper });
-
+      
       await userEvent.click(screen.getByRole('button', { name: /Join Event/i }));
-
+      
       await waitFor(() => {
         expect(screen.getByText(/Network Error/i)).toBeInTheDocument();
       });
@@ -154,14 +146,14 @@ describe('Event System', () => {
         user: { uid: 'test-creator', displayName: 'Test Creator' }, 
         loading: false 
       });
-
+      
       render(<Event />, { wrapper });
       const editButton = screen.getByRole('button', { name: /Edit/i });
       await userEvent.click(editButton);
-
+      
       await userEvent.type(screen.getByLabelText(/Title/i), 'Updated Event');
       await userEvent.click(screen.getByRole('button', { name: /Save/i }));
-
+      
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/events'),
         expect.objectContaining({ method: 'PUT' })
@@ -173,10 +165,10 @@ describe('Event System', () => {
   describe('Recurring Events', () => {
     it('handles recurring event creation', async () => {
       render(<CreateEvent />, { wrapper });
-
+      
       await userEvent.click(screen.getByLabelText(/Recurring Event/i));
       await userEvent.selectOptions(screen.getByLabelText(/Recurrence Frequency/i), 'weekly');
-
+      
       expect(screen.getByText(/weekly/i)).toBeInTheDocument();
     });
   });
@@ -191,7 +183,7 @@ describe('Event System', () => {
           conditions: 'Clear',
         },
       };
-
+      
       render(<EventCard event={eventWithWeather} />, { wrapper });
       expect(screen.getByText(/20°/i)).toBeInTheDocument();
     });
@@ -206,10 +198,10 @@ describe('Event System', () => {
         value: 375
       });
       window.dispatchEvent(new Event('resize'));
-
+      
       render(<EventCard event={mockEvent} />, { wrapper });
       const card = screen.getByTestId('event-card');
-
+      
       expect(window.getComputedStyle(card).maxWidth).toBe('100%');
     });
   });
@@ -220,7 +212,7 @@ describe('Event System', () => {
       const start = performance.now();
       render(<EventCard event={mockEvent} />, { wrapper });
       const end = performance.now();
-
+      
       expect(end - start).toBeLessThan(1000); // 1 second threshold
     });
   });

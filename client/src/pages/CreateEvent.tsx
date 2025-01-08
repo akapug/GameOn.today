@@ -328,9 +328,8 @@ export default function CreateEvent() {
                   name="isRecurring"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="isRecurring">Recurring Event</FormLabel> {/* Added htmlFor */}
+                      <FormLabel>Recurring Event</FormLabel>
                       <Select
-                        id="isRecurring"  {/* Added id */}
                         onValueChange={(value) => field.onChange(value === 'true')}
                         value={String(field.value === true)}
                       >
@@ -346,7 +345,7 @@ export default function CreateEvent() {
                   )}
                 />
 
-                {form.watch("isRecurring") === "true" && (
+                {form.watch("isRecurring") === true && (
                   <FormField
                     control={form.control}
                     name="recurrenceFrequency"
