@@ -41,7 +41,8 @@ vi.mock('../lib/activities', () => ({
   ]
 }));
 
-const queryClient = new QueryClient({
+// Create a single test QueryClient instance
+const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: { retry: false },
     mutations: { retry: false }
@@ -49,9 +50,10 @@ const queryClient = new QueryClient({
 });
 
 export const wrapper = ({ children }) => {
+  const testQueryClient = createTestQueryClient();
   return React.createElement(
     QueryClientProvider,
-    { client: queryClient },
+    { client: testQueryClient },
     React.createElement(AuthProvider, null, children)
   );
 };
