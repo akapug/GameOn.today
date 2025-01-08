@@ -60,9 +60,10 @@ import { wrapper } from './setup';
 
 const TestWrapper = ({ children }) => {
   const queryClient = createTestQueryClient();
+  const mockLocation = "/";
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
+      <Router base="" hook={() => [mockLocation, () => {}]}>
         <AuthProvider>
           {children}
         </AuthProvider>
