@@ -5,7 +5,7 @@ import * as matchers from '@testing-library/jest-dom/matchers';
 import * as React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '../components/AuthProvider';
-import { MobileProvider } from '../hooks/use-mobile';
+import { MobileProvider } from '../hooks/use-mobile.tsx';
 
 expect.extend(matchers);
 
