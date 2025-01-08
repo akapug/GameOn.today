@@ -26,7 +26,8 @@ export default function AuthDialog({ open, onOpenChange, redirectTo }: AuthDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby="auth-dialog-description">
+        <div id="auth-dialog-description" className="sr-only">Authentication dialog for user login and registration</div>
         <DialogHeader>
           <DialogTitle>Sign in Required</DialogTitle>
         </DialogHeader>
