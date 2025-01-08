@@ -58,11 +58,18 @@ const createTestQueryClient = () => new QueryClient({
 
 import { wrapper } from './setup';
 
-const TestWrapper = ({ children }) => (
-  <AuthProvider>
-    {wrapper({ children })}
-  </AuthProvider>
-);
+const TestWrapper = ({ children }) => {
+  const queryClient = createTestQueryClient();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </Router>
+    </QueryClientProvider>
+  );
+};
 
 describe('Event System', () => {
   beforeEach(() => {
