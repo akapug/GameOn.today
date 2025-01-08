@@ -44,7 +44,7 @@ interface EventWithDetails extends EventType {
 }
 
 export default function Event() {
-  const [, params] = useRoute("/events/:hash");
+  const [, params] = useRoute<{ hash: string }>("/events/:hash");
   const [, setLocation] = useLocation();
   const [participantName, setParticipantName] = useState("");
   const [participantEmail, setParticipantEmail] = useState("");
