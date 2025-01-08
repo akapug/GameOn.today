@@ -8,18 +8,16 @@ import { AuthProvider } from '../components/AuthProvider';
 
 expect.extend(matchers);
 
-// Mock AuthProvider
 vi.mock('../components/AuthProvider', () => ({
   AuthProvider: ({ children }) => children,
   useAuth: () => ({
     user: { uid: 'test-user', displayName: 'Test User' },
     loading: false,
     signInWithGoogle: vi.fn(),
-    logout: vi.fn()
+    signOut: vi.fn()
   })
 }));
 
-// Create a test QueryClient
 const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: { retry: false },
@@ -27,15 +25,14 @@ const createTestQueryClient = () => new QueryClient({
   }
 });
 
-// Wrapper for tests
-export const wrapper = ({ children }) => {
-  const testQueryClient = createTestQueryClient();
+export function wrapper({ children }) {
+  const queryClient = createTestQueryClient();
   return React.createElement(
-    QueryClientProvider,
-    { client: testQueryClient },
+    QueryClientProvider, 
+    { client: queryClient },
     React.createElement(AuthProvider, null, children)
   );
-};
+}
 
 // Mock ResizeObserver
 class ResizeObserverMock {
