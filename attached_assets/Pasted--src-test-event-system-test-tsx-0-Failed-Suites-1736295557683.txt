@@ -1,0 +1,895 @@
+❯ src/test/event-system.test.tsx (0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/event-system.test.tsx [ src/test/event-system.test.tsx ]
+Error: Transform failed with 1 error:
+/home/runner/GameOntoday/client/src/test/setup.ts:34:25: ERROR: Expected ">" but found "client"
+  Plugin: vite:esbuild
+  File: /home/runner/GameOntoday/client/src/test/setup.ts:34:25
+  
+  Expected ">" but found "client"
+  32 |    const queryClient = createTestQueryClient();
+  33 |    return (
+  34 |      <QueryClientProvider client={queryClient}>
+     |                           ^
+  35 |        {children}
+  36 |      </QueryClientProvider>
+  
+ ❯ failureErrorWithLog ../node_modules/vite/node_modules/esbuild/lib/main.js:1472:15
+ ❯ ../node_modules/vite/node_modules/esbuild/lib/main.js:755:50
+ ❯ responseCallbacks.<computed> ../node_modules/vite/node_modules/esbuild/lib/main.js:622:9
+ ❯ handleIncomingPacket ../node_modules/vite/node_modules/esbuild/lib/main.js:677:12
+ ❯ Socket.readFromStdout ../node_modules/vite/node_modules/esbuild/lib/main.js:600:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  00:17:09
+   Duration  1.79s (transform 27ms, setup 0ms, collect 0ms, tests 0ms, environment 520ms, prepare 348ms)
+
+~/GameOntoday$ npx vitest run client/src/test/event-system.test.tsx
+
+ RUN  v2.1.8 /home/runner/GameOntoday/client
+
+stderr | src/test/event-system.test.tsx > Event System > Integration Tests > creates and displays event in list
+Error: Uncaught [TypeError: Cannot destructure property 'user' of '__vite_ssr_import_14__.useAuth(...)' as it is undefined.]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) TypeError: Cannot destructure property 'user' of '__vite_ssr_import_14__.useAuth(...)' as it is undefined.
+    at CreateEvent (/home/runner/GameOntoday/client/src/pages/CreateEvent.tsx:33:11)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+Error: Uncaught [TypeError: Cannot destructure property 'user' of '__vite_ssr_import_14__.useAuth(...)' as it is undefined.]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) TypeError: Cannot destructure property 'user' of '__vite_ssr_import_14__.useAuth(...)' as it is undefined.
+    at CreateEvent (/home/runner/GameOntoday/client/src/pages/CreateEvent.tsx:33:11)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+The above error occurred in the <CreateEvent> component:
+
+    at CreateEvent (/home/runner/GameOntoday/client/src/pages/CreateEvent.tsx:46:46)
+    at AuthProvider (/home/runner/GameOntoday/client/src/test/setup.ts:3:20)
+    at QueryClientProvider (file:///home/runner/GameOntoday/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at wrapper (/home/runner/GameOntoday/client/src/test/setup.ts:43:20)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+stderr | src/test/event-system.test.tsx > Event System > Authentication Flows > shows auth dialog for unauthenticated users
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/test/event-system.test.tsx > Event System > Error Handling > handles network failures gracefully
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+ ❯ src/test/event-system.test.tsx (10) 3207ms
+   ❯ Event System (10) 3206ms
+     ❯ Integration Tests (1)
+       × creates and displays event in list
+     ✓ Authentication Flows (2) 399ms
+       ✓ shows auth dialog for unauthenticated users
+       ✓ allows event creation for authenticated users
+     ❯ Error Handling (2) 2551ms
+       × displays API error messages 1414ms
+       × handles network failures gracefully 1137ms
+     ❯ Event Editing (1)
+       × allows creator to edit event details
+     ❯ Recurring Events (1)
+       × handles recurring event creation
+     ✓ Weather Integration (1)
+       ✓ displays weather information when available
+     ❯ Mobile Responsiveness (1)
+       × adjusts layout for mobile viewport
+     ✓ Performance (1)
+       ✓ loads event list efficiently
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Integration Tests > creates and displays event in list
+TypeError: Cannot destructure property 'user' of 'useAuth(...)' as it is undefined.
+ ❯ CreateEvent src/pages/CreateEvent.tsx:33:11
+     31|   const { toast } = useToast();
+     32|   const queryClient = useQueryClient();
+     33|   const { user } = useAuth();
+       |           ^
+     34|   const [showAuthDialog, setShowAuthDialog] = useState(!user);
+     35|   const userTimezone = getUserTimezone();
+ ❯ renderWithHooks ../node_modules/react-dom/cjs/react-dom.development.js:15486:18
+ ❯ mountIndeterminateComponent ../node_modules/react-dom/cjs/react-dom.development.js:20103:13
+ ❯ beginWork ../node_modules/react-dom/cjs/react-dom.development.js:21626:16
+ ❯ beginWork$1 ../node_modules/react-dom/cjs/react-dom.development.js:27465:14
+ ❯ performUnitOfWork ../node_modules/react-dom/cjs/react-dom.development.js:26599:12
+ ❯ workLoopSync ../node_modules/react-dom/cjs/react-dom.development.js:26505:5
+ ❯ renderRootSync ../node_modules/react-dom/cjs/react-dom.development.js:26473:7
+ ❯ recoverFromConcurrentError ../node_modules/react-dom/cjs/react-dom.development.js:25889:20
+ ❯ performConcurrentWorkOnRoot ../node_modules/react-dom/cjs/react-dom.development.js:25789:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Error Handling > displays API error messages
+TestingLibraryElementError: Unable to find an element with the text: /API Error/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="min-h-screen bg-background"
+    >
+      <header
+        class="p-4 border-b"
+      >
+        <div
+          class="container flex items-center"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          >
+            <svg
+              class="lucide lucide-arrow-left mr-2 h-4 w-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m12 19-7-7 7-7"
+              />
+              <path
+                d="M19 12H5"
+              />
+            </svg>
+            Back
+          </button>
+          <h1
+            class="text-2xl font-bold ml-4"
+          >
+            Create New Event
+          </h1>
+        </div>
+      </header>
+      <main
+        class="container py-6"
+      >
+        <div
+          class="rounded-lg border bg-card text-card-foreground shadow-sm"
+        >
+          <div
+            class="p-6 pt-6"
+          >
+            <form
+              class="space-y-6"
+            >
+              <div
+                class="space-y-2"
+              >
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 after:content-['*'] after:ml-0.5 after:text-red-500"
+                  for=":rl:-form-item"
+                >
+                  Event Type
+                </label>
+                <button
+                  aria-controls="radix-:rm:"
+                  aria-expanded="false"
+                  aria-haspopup="dialog"
+                  aria-label="Event Type"
+                  class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full justify-between text-muted-foreground"
+                  data-state="closed"
+                  role="combobox"
+                  type="button"
+                >
+                  Select event type...
+                </button>
+              </div>
+              <div
+                class="space-y-2"
+              >
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  for=":rn:-form-item"
+                >
+                  Event Visibility
+                </label>
+                <button
+                  aria-autocomplete="none"
+                  aria-controls="radix-:ro:"
+                  aria-expanded="false"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+                  data-state="closed"
+                  dir="ltr"
+                  role="combobox"
+                  type="button"
+                >
+                  <span
+                    style="pointer-events: none;"
+                  >
+                    Public (Visible on homepage)
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-chevron-down h-4 w-4 opacity-50"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m6 9 6 6 6-6"
+                    />
+                  </svg>
+                </button>
+                <select
+                  aria-hidden="true"
+                  style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"
+                  tabindex="-1"
+                >
+                  <option
+                    selected=""
+                    value="public"
+ ...
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body
+    style=""
+  >
+    <div>
+      <div
+        class="min-h-screen bg-background"
+      >
+        <header
+          class="p-4 border-b"
+        >
+          <div
+            class="container flex items-center"
+          >
+            <button
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            >
+              <svg
+                class="lucide lucide-arrow-left mr-2 h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="m12 19-7-7 7-7"
+                />
+                <path
+                  d="M19 12H5"
+                />
+              </svg>
+              Back
+            </button>
+            <h1
+              class="text-2xl font-bold ml-4"
+            >
+              Create New Event
+            </h1>
+          </div>
+        </header>
+        <main
+          class="container py-6"
+        >
+          <div
+            class="rounded-lg border bg-card text-card-foreground shadow-sm"
+          >
+            <div
+              class="p-6 pt-6"
+            >
+              <form
+                class="space-y-6"
+              >
+                <div
+                  class="space-y-2"
+                >
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 after:content-['*'] after:ml-0.5 after:text-red-500"
+                    for=":rl:-form-item"
+                  >
+                    Event Type
+                  </label>
+                  <button
+                    aria-controls="radix-:rm:"
+                    aria-expanded="false"
+                    aria-haspopup="dialog"
+                    aria-label="Event Type"
+                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full justify-between text-muted-foreground"
+                    data-state="closed"
+                    role="combobox"
+                    type="button"
+                  >
+                    Select event type...
+                  </button>
+                </div>
+                <div
+                  class="space-y-2"
+                >
+                  <label
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    for=":rn:-form-item"
+                  >
+                    Event Visibility
+                  </label>
+                  <button
+                    aria-autocomplete="none"
+                    aria-controls="radix-:ro:"
+                    aria-expanded="false"
+                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+                    data-state="closed"
+                    dir="ltr"
+                    role="combobox"
+                    type="button"
+                  >
+                    <span
+                      style="pointer-events: none;"
+                    >
+                      Public (Visible on homepage)
+                    </span>
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-chevron-down h-4 w-4 opacity-50"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="m6 9 6 6 6-6"
+                      />
+                    </svg>
+                  </button>
+                  <select
+                    aria-hidden="true"
+                    style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0p...
+ ❯ Proxy.waitForWrapper ../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/test/event-system.test.tsx:125:13
+    123|       await userEvent.click(screen.getByRole('button', { name: /Create Event/i }));
+    124|       
+    125|       await waitFor(() => {
+       |             ^
+    126|         expect(screen.getByText(/API Error/i)).toBeInTheDocument();
+    127|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Error Handling > handles network failures gracefully
+TestingLibraryElementError: Unable to find an element with the text: /Network Error/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <div
+      class="rounded-lg border bg-card text-card-foreground shadow-sm w-full"
+      data-testid="event-card"
+    >
+      <div
+        class="flex flex-col space-y-1.5 p-6"
+      >
+        <div
+          class="flex justify-between items-start"
+        >
+          <div
+            class="flex flex-col gap-1"
+          >
+            <a
+              href="/events/test-event"
+            >
+              <div
+                class="flex items-center gap-2"
+              >
+                <h3
+                  class="text-xl font-semibold hover:text-primary cursor-pointer"
+                >
+                  Test Event
+                </h3>
+                <span
+                  class="text-sm px-2 py-0.5 rounded-full"
+                  style="background-color: rgba(0, 0, 0, 0.125); color: rgb(0, 0, 0);"
+                >
+                  Test Type
+                </span>
+              </div>
+            </a>
+            <div
+              class="text-sm text-muted-foreground flex items-center"
+            >
+              <svg
+                class="lucide lucide-map-pin mr-2 h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                />
+                <circle
+                  cx="12"
+                  cy="10"
+                  r="3"
+                />
+              </svg>
+              <button
+                class="text-primary hover:underline"
+              >
+                Test Location
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="p-6 pt-0"
+      >
+        <div
+          class="space-y-4"
+        >
+          <div
+            class="space-y-2"
+          >
+            <div
+              class="flex flex-wrap items-center text-sm gap-x-4"
+            >
+              <div
+                class="flex items-center"
+              >
+                <svg
+                  class="lucide lucide-calendar mr-2 h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M8 2v4"
+                  />
+                  <path
+                    d="M16 2v4"
+                  />
+                  <rect
+                    height="18"
+                    rx="2"
+                    width="18"
+                    x="3"
+                    y="4"
+                  />
+                  <path
+                    d="M3 10h18"
+                  />
+                </svg>
+                <span>
+                  January 8th, 2025 12:18 AM UTC
+                </span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div
+              class="flex items-center text-sm mb-2"
+            >
+              <svg
+                class="lucide lucide-users mr-2 h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                />
+                <circle
+                  cx="9"
+                  cy="7"
+                  r="4"
+                />
+                <path
+                  d="M22 21v-2a4 4 0 0 0-3-3.87"
+                />
+                <path
+                  d="M16 3.13a4 4 0 0 1 0 7.75"
+                />
+              </svg>
+              <span>
+                5
+                 part...
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body
+    data-scroll-locked="1"
+    style="pointer-events: none;"
+  >
+    <span
+      aria-hidden="true"
+      data-aria-hidden="true"
+      data-radix-focus-guard=""
+      style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+      tabindex="0"
+    />
+    <div
+      aria-hidden="true"
+      data-aria-hidden="true"
+    >
+      <div
+        class="rounded-lg border bg-card text-card-foreground shadow-sm w-full"
+        data-testid="event-card"
+      >
+        <div
+          class="flex flex-col space-y-1.5 p-6"
+        >
+          <div
+            class="flex justify-between items-start"
+          >
+            <div
+              class="flex flex-col gap-1"
+            >
+              <a
+                href="/events/test-event"
+              >
+                <div
+                  class="flex items-center gap-2"
+                >
+                  <h3
+                    class="text-xl font-semibold hover:text-primary cursor-pointer"
+                  >
+                    Test Event
+                  </h3>
+                  <span
+                    class="text-sm px-2 py-0.5 rounded-full"
+                    style="background-color: rgba(0, 0, 0, 0.125); color: rgb(0, 0, 0);"
+                  >
+                    Test Type
+                  </span>
+                </div>
+              </a>
+              <div
+                class="text-sm text-muted-foreground flex items-center"
+              >
+                <svg
+                  class="lucide lucide-map-pin mr-2 h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                  />
+                  <circle
+                    cx="12"
+                    cy="10"
+                    r="3"
+                  />
+                </svg>
+                <button
+                  class="text-primary hover:underline"
+                >
+                  Test Location
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="p-6 pt-0"
+        >
+          <div
+            class="space-y-4"
+          >
+            <div
+              class="space-y-2"
+            >
+              <div
+                class="flex flex-wrap items-center text-sm gap-x-4"
+              >
+                <div
+                  class="flex items-center"
+                >
+                  <svg
+                    class="lucide lucide-calendar mr-2 h-4 w-4"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M8 2v4"
+                    />
+                    <path
+                      d="M16 2v4"
+                    />
+                    <rect
+                      height="18"
+                      rx="2"
+                      width="18"
+                      x="3"
+                      y="4"
+                    />
+                    <path
+                      d="M3 10h18"
+                    />
+                  </svg>
+                  <span>
+                    January 8th, 2025 12:18 AM UTC
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div
+                class="flex items-center text-sm mb-2"
+              >
+                <svg
+                  class="lucide lucide-users mr-2 h-4 w-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                  />
+                  <circle
+                    cx="9"
+                    cy="7"
+                    r="4"
+                  />
+                  <pa...
+ ❯ Proxy.waitForWrapper ../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/test/event-system.test.tsx:136:13
+    134|       await userEvent.click(screen.getByRole('button', { name: /Join Event/i }));
+    135|       
+    136|       await waitFor(() => {
+       |             ^
+    137|         expect(screen.getByText(/Network Error/i)).toBeInTheDocument();
+    138|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Event Editing > allows creator to edit event details
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Edit/i`
+
+There are no accessible roles. But there might be some inaccessible roles. If you wish to access them, then set the `hidden` option to `true`. Learn more about this here: https://testing-library.com/docs/dom-testing-library/api-queries#byrole
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div />
+</body>
+ ❯ Object.getElementError ../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/test/event-system.test.tsx:151:33
+    149|       
+    150|       render(<Event />, { wrapper });
+    151|       const editButton = screen.getByRole('button', { name: /Edit/i });
+       |                                 ^
+    152|       await userEvent.click(editButton);
+    153|       
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Recurring Events > handles recurring event creation
+TestingLibraryElementError: Found a label with the text of: /Recurring Event/i, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="min-h-screen bg-background"
+    >
+      <header
+        class="p-4 border-b"
+      >
+        <div
+          class="container flex items-center"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          >
+            <svg
+              class="lucide lucide-arrow-left mr-2 h-4 w-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m12 19-7-7 7-7"
+              />
+              <path
+                d="M19 12H5"
+              />
+            </svg>
+            Back
+          </button>
+          <h1
+            class="text-2xl font-bold ml-4"
+          >
+            Create New Event
+          </h1>
+        </div>
+      </header>
+      <main
+        class="container py-6"
+      >
+        <div
+          class="rounded-lg border bg-card text-card-foreground shadow-sm"
+        >
+          <div
+            class="p-6 pt-6"
+          >
+            <form
+              class="space-y-6"
+            >
+              <div
+                class="space-y-2"
+              >
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 after:content-['*'] after:ml-0.5 after:text-red-500"
+                  for=":r1k:-form-item"
+                >
+                  Event Type
+                </label>
+                <button
+                  aria-controls="radix-:r1l:"
+                  aria-expanded="false"
+                  aria-haspopup="dialog"
+                  aria-label="Event Type"
+                  class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full justify-between text-muted-foreground"
+                  data-state="closed"
+                  role="combobox"
+                  type="button"
+                >
+                  Select event type...
+                </button>
+              </div>
+              <div
+                class="space-y-2"
+              >
+                <label
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  for=":r1m:-form-item"
+                >
+                  Event Visibility
+                </label>
+                <button
+                  aria-autocomplete="none"
+                  aria-controls="radix-:r1n:"
+                  aria-expanded="false"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+                  data-state="closed"
+                  dir="ltr"
+                  role="combobox"
+                  type="button"
+                >
+                  <span
+                    style="pointer-events: none;"
+                  >
+                    Public (Visible on homepage)
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-chevron-down h-4 w-4 opacity-50"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m6 9 6 6 6-6"
+                    />
+                  </svg>
