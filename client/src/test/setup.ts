@@ -28,9 +28,17 @@ const createTestQueryClient = () => new QueryClient({
 export function wrapper({ children }) {
   const queryClient = createTestQueryClient();
   return React.createElement(
-    QueryClientProvider, 
+    QueryClientProvider,
     { client: queryClient },
-    React.createElement(AuthProvider, null, children)
+    React.createElement(
+      AuthProvider,
+      null,
+      React.createElement(
+        MobileProvider,
+        null,
+        children
+      )
+    )
   );
 }
 
