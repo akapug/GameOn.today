@@ -8,20 +8,12 @@ import EventCard from '../components/EventCard';
 import { AuthProvider } from '../components/AuthProvider';
 import Event from '../pages/Event';
 import { useAuth } from '../components/AuthProvider';
-import { mockAuth } from './setup';
 
-const mockUser = {
-  uid: 'test-user',
-  displayName: 'Test User'
-};
-
-const mockAuthContext = {
-  user: mockUser,
-  loading: false,
-  signInWithGoogle: vi.fn(),
-  signOut: vi.fn()
-};
-
+// Mock useAuth hook
+vi.mock('../components/AuthProvider', () => ({
+  useAuth: vi.fn(),
+  AuthProvider: ({ children }) => children,
+}));
 
 // Mock weather service
 vi.mock('../../server/services/weather', () => ({
@@ -96,7 +88,7 @@ describe('Event System', () => {
   // Integration Tests
   describe('Integration Tests', () => {
     it('creates and displays event in list', async () => {
-      const { rerender } = render(<CreateEvent />, { wrapper: TestWrapper });
+      const { rerender } = render(<CreateEvent />, { wrapper });
 
       await userEvent.type(screen.getByLabelText(/Title/i), 'New Event');
       await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
