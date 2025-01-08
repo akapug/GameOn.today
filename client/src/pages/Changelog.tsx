@@ -6,11 +6,9 @@ export default function Changelog() {
   return (
     <div className="container py-6 px-4">
       <div className="flex items-center gap-2 mb-6">
-        <Link href="/">
-          <a className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </a>
+        <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
         </Link>
       </div>
       <div className="max-w-2xl mx-auto">
