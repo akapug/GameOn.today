@@ -1,7 +1,8 @@
-
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import EventCard from '../EventCard';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from '../AuthProvider';
 
 const mockEvent = {
   id: 1,
@@ -15,54 +16,31 @@ const mockEvent = {
   isPrivate: false,
   creatorId: 'test-creator',
   creatorName: 'Test Creator',
-  timezone: 'UTC'
+  timezone: 'UTC',
+  weather: null
 };
+
+// Create a fresh QueryClient for each test
+const createTestQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false }
+  }
+});
 
 describe('EventCard', () => {
   it('renders event details correctly', () => {
-    render(<EventCard event={mockEvent} />);
+    const queryClient = createTestQueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <EventCard event={mockEvent} />
+        </AuthProvider>
+      </QueryClientProvider>
+    );
+
     expect(screen.getByText('Test Event')).toBeInTheDocument();
-    expect(screen.getByText('Test Location')).toBeInTheDocument();
-  });
-});
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-vi.mock('@tanstack/react-query', async () => {
-  const actual = await vi.importActual('@tanstack/react-query');
-  return {
-    ...actual,
-    useQueryClient: () => new QueryClient()
-  };
-});
-
-const queryClient = new QueryClient();
-
-describe('EventCard', () => {
-  const mockEvent = {
-    id: 1,
-    urlHash: 'test-event',
-    title: 'Test Event',
-    location: 'Test Location',
-    date: new Date().toISOString(),
-    participantThreshold: 10,
-    participants: [],
-    timezone: 'America/Los_Angeles',
-    eventTypeId: 1
-  };
-
-  const wrapper = ({ children }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
-
-  it('should render event title', () => {
-    render(<EventCard event={mockEvent} />, { wrapper });
-    expect(screen.getByText('Test Event')).toBeInTheDocument();
-  });
-
-  it('should render location', () => {
-    render(<EventCard event={mockEvent} />, { wrapper });
     expect(screen.getByText('Test Location')).toBeInTheDocument();
   });
 });
