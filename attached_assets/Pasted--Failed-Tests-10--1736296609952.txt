@@ -1,0 +1,28 @@
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/event-system.test.tsx > Event System > Integration Tests > creates and displays event in list
+ FAIL  src/test/event-system.test.tsx > Event System > Authentication Flows > shows auth dialog for unauthenticated users
+ FAIL  src/test/event-system.test.tsx > Event System > Authentication Flows > allows event creation for authenticated users
+ FAIL  src/test/event-system.test.tsx > Event System > Error Handling > displays API error messages
+ FAIL  src/test/event-system.test.tsx > Event System > Error Handling > handles network failures gracefully
+ FAIL  src/test/event-system.test.tsx > Event System > Event Editing > allows creator to edit event details
+ FAIL  src/test/event-system.test.tsx > Event System > Recurring Events > handles recurring event creation
+ FAIL  src/test/event-system.test.tsx > Event System > Weather Integration > displays weather information when available
+ FAIL  src/test/event-system.test.tsx > Event System > Performance > loads event list efficiently
+ReferenceError: MobileProvider is not defined
+ ❯ wrapper src/test/setup.ts:37:9
+     35|       null,
+     36|       React.createElement(
+     37|         MobileProvider,
+       |         ^
+     38|         null,
+     39|         children
+ ❯ renderWithHooks ../node_modules/react-dom/cjs/react-dom.development.js:15486:18
+ ❯ mountIndeterminateComponent ../node_modules/react-dom/cjs/react-dom.development.js:20103:13
+ ❯ beginWork ../node_modules/react-dom/cjs/react-dom.development.js:21626:16
+ ❯ beginWork$1 ../node_modules/react-dom/cjs/react-dom.development.js:27465:14
+ ❯ performUnitOfWork ../node_modules/react-dom/cjs/react-dom.development.js:26599:12
+ ❯ workLoopSync ../node_modules/react-dom/cjs/react-dom.development.js:26505:5
+ ❯ renderRootSync ../node_modules/react-dom/cjs/react-dom.development.js:26473:7
+ ❯ recoverFromConcurrentError ../node_modules/react-dom/cjs/react-dom.development.js:25889:20
+ ❯ performConcurrentWorkOnRoot ../node_modules/react-dom/cjs/react-dom.development.js:25789:22
