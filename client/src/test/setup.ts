@@ -4,10 +4,37 @@ import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
 import React from 'react';
-import { useAuth, AuthProvider } from '../components/AuthProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 expect.extend(matchers);
+
+// Mock AuthProvider
+vi.mock('../components/AuthProvider', () => ({
+  AuthProvider: ({ children }) => children,
+  useAuth: () => ({
+    user: { uid: 'test-user', displayName: 'Test User' },
+    loading: false,
+    signInWithGoogle: vi.fn(),
+    logout: vi.fn()
+  })
+}));
+
+// Test QueryClient setup
+export const createTestQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false }
+  }
+});
+
+export const wrapper = ({ children }) => {
+  const queryClient = createTestQueryClient();
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+};
 
 // Mock ResizeObserver
 class ResizeObserverMock {
