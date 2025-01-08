@@ -1,4 +1,3 @@
-
 import '@testing-library/jest-dom';
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
@@ -20,20 +19,21 @@ vi.mock('../components/AuthProvider', () => ({
   })
 }));
 
-// Test QueryClient setup
-export const createTestQueryClient = () => new QueryClient({
+// Create a test QueryClient
+const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: { retry: false },
     mutations: { retry: false }
   }
 });
 
+// Wrapper for tests
 export const wrapper = ({ children }) => {
-  const queryClient = createTestQueryClient();
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+  const testQueryClient = createTestQueryClient();
+  return React.createElement(
+    QueryClientProvider,
+    { client: testQueryClient },
+    React.createElement(AuthProvider, null, children)
   );
 };
 
@@ -49,11 +49,14 @@ global.ResizeObserver = ResizeObserverMock;
 // Mock fetch globally
 global.fetch = vi.fn();
 
-// Mock AuthProvider
-vi.mock('../components/AuthProvider', () => ({
-  useAuth: vi.fn(),
-  AuthProvider: ({ children }) => children
-}));
+beforeEach(() => {
+  vi.mocked(global.fetch).mockClear();
+});
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
 // Mock activities data
 vi.mock('../lib/activities', () => ({
@@ -68,35 +71,3 @@ vi.mock('../lib/activities', () => ({
     { id: 1, name: "Basketball", color: "orange", icon: "circle" }
   ]
 }));
-
-// Create a single test QueryClient instance
-const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false }
-  }
-});
-
-export const wrapper = ({ children }) => {
-  const testQueryClient = createTestQueryClient();
-  return React.createElement(
-    QueryClientProvider,
-    { client: testQueryClient },
-    React.createElement(AuthProvider, null, children)
-  );
-};
-
-beforeEach(() => {
-  vi.mocked(useAuth).mockReturnValue({
-    user: { uid: 'test-user', displayName: 'Test User' },
-    loading: false,
-    error: null,
-    signInWithGoogle: vi.fn(),
-    signOut: vi.fn()
-  });
-});
-
-afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
-});
