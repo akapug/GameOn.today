@@ -300,7 +300,9 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/events/:hash", async (req, res) => {
     try {
       const { hash } = req.params;
-      const { title, location, date, timezone, participantThreshold, creatorId, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
+      const { title, location, date, timezone, participantThreshold, creatorId, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate, eventTypeId } = req.body;
+
+      console.log("Update request received:", { hash, eventTypeId, creatorId });
 
       const event = await db.query.events.findFirst({
         where: eq(events.urlHash, hash),
@@ -312,6 +314,18 @@ export function registerRoutes(app: Express): Server {
 
       if (event.creatorId !== creatorId) {
         return res.status(403).json({ message: "Only the creator can edit this event" });
+      }
+
+      // Verify event type exists if it's being updated
+      if (eventTypeId) {
+        const eventType = await db.query.eventTypes.findFirst({
+          where: eq(eventTypes.id, Number(eventTypeId))
+        });
+        
+        if (!eventType) {
+          console.error(`Invalid event type ID: ${eventTypeId}`);
+          return res.status(400).json({ message: `Event type with ID ${eventTypeId} does not exist` });
+        }
       }
 
       const [updatedEvent] = await db
@@ -327,10 +341,16 @@ export function registerRoutes(app: Express): Server {
           webLink: webLink || null,
           isRecurring: isRecurring === true,
           recurrenceFrequency: isRecurring === true ? recurrenceFrequency : null,
-          isPrivate: isPrivate === true
+          isPrivate: isPrivate === true,
+          eventTypeId: eventTypeId ? Number(eventTypeId) : event.eventTypeId
         })
         .where(eq(events.urlHash, hash))
         .returning();
+
+      console.log("Event updated successfully:", { 
+        id: updatedEvent.id, 
+        eventTypeId: updatedEvent.eventTypeId 
+      });
 
       const eventWithWeather = await getEventWithWeather(updatedEvent);
       res.json(eventWithWeather);
