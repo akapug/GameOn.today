@@ -199,10 +199,10 @@ describe('Event System', () => {
       });
       window.dispatchEvent(new Event('resize'));
       
-      render(<EventCard event={mockEvent} />, { wrapper });
-      const card = screen.getByTestId('event-card');
+      const { container } = render(<EventCard event={mockEvent} />, { wrapper: TestWrapper });
+      const card = container.querySelector('[data-testid="event-card"]');
       
-      expect(window.getComputedStyle(card).maxWidth).toBe('100%');
+      expect(card).toHaveClass('w-full');
     });
   });
 

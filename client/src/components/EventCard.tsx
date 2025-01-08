@@ -214,7 +214,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
   });
 
   return (
-    <Card data-testid="event-card" className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""}`}>
+    <Card data-testid="event-card" className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""} px-3 sm:px-6`}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex flex-col gap-1">
