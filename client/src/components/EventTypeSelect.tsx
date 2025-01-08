@@ -31,7 +31,7 @@ const EventTypeSelect = forwardRef<HTMLButtonElement, EventTypeSelectProps>((pro
     queryKey: ['/api/event-types'],
   });
 
-  const selectedType = eventTypes?.find(t => t.id === value);
+  const selectedType = eventTypes?.find(t => t.id === Number(value));
 
   return (
     <Popover>
