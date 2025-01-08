@@ -18,6 +18,9 @@ export default function Changelog() {
         <div className="prose prose-slate dark:prose-invert">
           <ul className="space-y-4">
             <li>
+              <strong>January 7, 2024</strong> - Bugfixes and mobile responsiveness optimizations
+            </li>
+            <li>
               <strong>January 6, 2024</strong> - Added attendee comments, improved test coverage, and enhanced development/production environment separation
             </li>
             <li>
