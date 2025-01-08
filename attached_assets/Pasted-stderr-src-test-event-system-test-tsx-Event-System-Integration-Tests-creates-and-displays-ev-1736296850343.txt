@@ -1,0 +1,59 @@
+stderr | src/test/event-system.test.tsx > Event System > Integration Tests > creates and displays event in list
+Error: Uncaught [TypeError: Cannot destructure property 'user' of '__vite_ssr_import_14__.useAuth(...)' as it is undefined.]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) TypeError: Cannot destructure property 'user' of '__vite_ssr_import_14__.useAuth(...)' as it is undefined.
+    at CreateEvent (/home/runner/GameOntoday/client/src/pages/CreateEvent.tsx:33:11)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+Error: Uncaught [TypeError: Cannot destructure property 'user' of '__vite_ssr_import_14__.useAuth(...)' as it is undefined.]
+    at reportException (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at beginWork$1 (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
+    at performUnitOfWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:26599:12) TypeError: Cannot destructure property 'user' of '__vite_ssr_import_14__.useAuth(...)' as it is undefined.
+    at CreateEvent (/home/runner/GameOntoday/client/src/pages/CreateEvent.tsx:33:11)
+    at renderWithHooks (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/runner/GameOntoday/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/home/runner/GameOntoday/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+The above error occurred in the <CreateEvent> component:
+
+    at CreateEvent (/home/runner/GameOntoday/client/src/pages/CreateEvent.tsx:46:46)
+    at MobileProvider (/home/runner/GameOntoday/client/src/hooks/use-mobile.tsx:7:27)
+    at AuthProvider (/home/runner/GameOntoday/client/src/test/setup.ts:3:20)
+    at QueryClientProvider (file:///home/runner/GameOntoday/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at wrapper (/home/runner/GameOntoday/client/src/test/setup.ts:45:20)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+stderr | src/test/event-system.test.tsx > Event System > Authentication Flows > shows auth dialog for unauthenticated users
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/test/event-system.test.tsx > Event System > Error Handling > handles network failures gracefully
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
