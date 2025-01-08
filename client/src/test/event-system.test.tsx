@@ -9,9 +9,20 @@ import { AuthProvider } from '../components/AuthProvider';
 import Event from '../pages/Event';
 import { useAuth } from '../components/AuthProvider';
 
-// Mock useAuth hook
+const mockUser = {
+  uid: 'test-user',
+  displayName: 'Test User'
+};
+
+const mockAuthContext = {
+  user: mockUser,
+  loading: false,
+  signInWithGoogle: vi.fn(),
+  signOut: vi.fn()
+};
+
 vi.mock('../components/AuthProvider', () => ({
-  useAuth: vi.fn(),
+  useAuth: () => mockAuthContext,
   AuthProvider: ({ children }) => children,
 }));
 
@@ -88,7 +99,7 @@ describe('Event System', () => {
   // Integration Tests
   describe('Integration Tests', () => {
     it('creates and displays event in list', async () => {
-      const { rerender } = render(<CreateEvent />, { wrapper });
+      const { rerender } = render(<CreateEvent />, { wrapper: TestWrapper });
 
       await userEvent.type(screen.getByLabelText(/Title/i), 'New Event');
       await userEvent.type(screen.getByLabelText(/Location/i), 'Test Venue');
