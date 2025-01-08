@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Router } from 'wouter';
 import CreateEvent from '../pages/CreateEvent';
 import EventCard from '../components/EventCard';
 import { AuthProvider } from '../components/AuthProvider';
@@ -199,7 +200,12 @@ describe('Event System', () => {
       });
       window.dispatchEvent(new Event('resize'));
       
-      const { container } = render(<EventCard event={mockEvent} />, { wrapper: TestWrapper });
+      const { container } = render(
+        <Router>
+          <EventCard event={mockEvent} />
+        </Router>, 
+        { wrapper: TestWrapper }
+      );
       const card = container.querySelector('[data-testid="event-card"]');
       
       expect(card).toHaveClass('w-full');
