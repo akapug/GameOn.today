@@ -662,6 +662,52 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 onChange={(e) => setFormState(prev => ({ ...prev, notes: e.target.value }))}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="webLink">Web Link</Label>
+              <Input
+                id="webLink"
+                value={formState.webLink}
+                onChange={(e) => setFormState(prev => ({ ...prev, webLink: e.target.value }))}
+                placeholder="Link to more info"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Recurring Event</Label>
+              <Select
+                value={String(formState.isRecurring)}
+                onValueChange={(value) => setFormState(prev => ({ 
+                  ...prev, 
+                  isRecurring: value === 'true',
+                  recurrenceFrequency: value === 'false' ? null : prev.recurrenceFrequency
+                }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Is this a recurring event?" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="false">No</SelectItem>
+                  <SelectItem value="true">Yes</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {formState.isRecurring && (
+              <div className="space-y-2">
+                <Label>Recurrence Frequency</Label>
+                <Select
+                  value={formState.recurrenceFrequency || ''}
+                  onValueChange={(value) => setFormState(prev => ({ ...prev, recurrenceFrequency: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="How often does this event repeat?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="biweekly">Biweekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <Button type="submit">Save Changes</Button>
           </form>
         </DialogContent>
