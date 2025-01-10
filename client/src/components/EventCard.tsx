@@ -457,7 +457,12 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
         {canDelete && (
           <>
-            <Button variant="outline" size="icon" onClick={() => setIsEventEditDialogOpen(true)}>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => setIsEventEditDialogOpen(true)}
+              aria-label="Edit"
+            >
               <Edit className="h-4 w-4" />
             </Button>
             <Button 
