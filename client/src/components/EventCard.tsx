@@ -286,6 +286,19 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 {event.notes}
               </div>
             )}
+            {event.webLink && (
+                <div className="flex items-center text-sm">
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  <a 
+                    href={event.webLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    More Information
+                  </a>
+                </div>
+              )}
           </div>
 
           <div>
