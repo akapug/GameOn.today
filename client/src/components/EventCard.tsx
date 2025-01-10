@@ -457,8 +457,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
         {canDelete && (
           <>
-            <div role="button">
-              <Button 
+            <Button 
                 variant="outline" 
                 size="icon" 
                 onClick={() => setIsEventEditDialogOpen(true)}
@@ -466,7 +465,6 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               >
                 <Edit className="h-4 w-4" />
               </Button>
-            </div>
             <Button 
               variant="outline" 
               size="icon" 
