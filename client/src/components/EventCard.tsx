@@ -681,8 +681,19 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 id="webLink"
                 value={formState.webLink}
                 onChange={(e) => setFormState(prev => ({ ...prev, webLink: e.target.value }))}
-                placeholder="Link to more info"
+                onBlur={(e) => {
+                  if (e.target.value && !e.target.value.startsWith('http')) {
+                    setFormState(prev => ({ ...prev, webLink: '' }));
+                    toast({
+                      title: "Invalid URL",
+                      description: "Please include http:// or https:// in your URL",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                placeholder="http:// or https:// required"
               />
+              <p className="text-xs text-muted-foreground">Include http:// or https:// in the URL</p>
             </div>
             <div className="space-y-2">
               <Label>Recurring Event</Label>
