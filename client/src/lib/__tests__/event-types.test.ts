@@ -1,27 +1,20 @@
 
 import { describe, it, expect, vi } from 'vitest';
-import { useEventTypes } from '../eventTypes';
+import { useEventTypes } from '../activities';
 import { renderHook } from '@testing-library/react';
-
-vi.mock('../eventTypes', () => ({
-  useEventTypes: () => ({
-    data: [
-      { id: 1, name: 'Basketball', color: '#FF6B6B', icon: '🏀' }
-    ],
-    isLoading: false,
-    error: null
-  })
-}));
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 describe('eventTypes', () => {
   it('should return event types data structure', () => {
-    const { result } = renderHook(() => useEventTypes());
-    expect(result.current.data).toBeDefined();
-    expect(result.current.data?.[0]).toEqual({
-      id: 1,
-      name: 'Basketball',
-      color: '#FF6B6B',
-      icon: '🏀'
-    });
+    const queryClient = new QueryClient();
+    const wrapper = ({ children }) => (
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useEventTypes(), { wrapper });
+    expect(result.current).toBeDefined();
+    expect(result.current.queryKey).toEqual(['/api/event-types']);
   });
 });
