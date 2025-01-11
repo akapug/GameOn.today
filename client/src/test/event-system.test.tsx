@@ -236,7 +236,7 @@ describe("Event System", () => {
       );
 
       const card = container.querySelector('[data-testid="event-card"]');
-      expect(card).toHaveClass("md:col-span-1");
+      expect(card).toHaveClass("w-full");
     });
   });
 
