@@ -62,13 +62,13 @@ const TestWrapper = ({ children }) => {
   const queryClient = createTestQueryClient();
   const mockLocation = "/";
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router base="" hook={() => [mockLocation, () => {}]}>
+    <Router base="" hook={() => [mockLocation, () => {}]}>
+      <QueryClientProvider client={queryClient}>
         <AuthProvider>
           {children}
         </AuthProvider>
-      </Router>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </Router>
   );
 };
 
