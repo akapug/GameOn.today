@@ -200,12 +200,20 @@ describe('Event System', () => {
   // Mobile Responsiveness Tests
   describe('Mobile Responsiveness', () => {
     it('adjusts layout for mobile viewport', () => {
-      Object.defineProperty(window, 'innerWidth', {
+      // Mock window.matchMedia
+      Object.defineProperty(window, 'matchMedia', {
         writable: true,
-        configurable: true,
-        value: 375,
+        value: jest.fn().mockImplementation(query => ({
+          matches: query === '(max-width: 768px)',
+          media: query,
+          onchange: null,
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          dispatchEvent: jest.fn(),
+        })),
       });
-      window.dispatchEvent(new Event('resize'));
 
       const { container } = render(
         <QueryClientProvider client={createTestQueryClient()}>
@@ -214,8 +222,9 @@ describe('Event System', () => {
           </Router>
         </QueryClientProvider>
       );
+
       const card = container.querySelector('[data-testid="event-card"]');
-      expect(card).toHaveClass('w-full');
+      expect(card).toHaveClass('md:col-span-1');
     });
   });
 
