@@ -6,6 +6,17 @@ import { useEventTypes } from '../activities';
 import { queryKeys } from '../queryClient';
 import React from 'react';
 
+vi.mock('../activities', () => ({
+  useEventTypes: () => ({
+    data: [
+      { id: 1, name: "Test Event Type" }
+    ],
+    queryKey: queryKeys.eventTypes,
+    isLoading: false,
+    error: null
+  })
+}));
+
 describe('eventTypes', () => {
   it('should return event types data structure', () => {
     const queryClient = new QueryClient({
