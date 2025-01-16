@@ -189,21 +189,32 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Get all public events
-  app.get("/api/events", async (_req, res) => {
+  app.get("/api/events", async (req, res) => {
     try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const offset = (page - 1) * limit;
+
       const allEvents = await db.query.events.findMany({
         where: eq(events.isPrivate, false),
         with: {
           eventType: true,
           participants: true,
         },
+        limit,
+        offset,
+        orderBy: (events, { desc }) => [desc(events.date)]
       });
 
       const eventsWithWeather = await Promise.all(
         allEvents.map(getEventWithWeather)
       );
 
-      res.json(eventsWithWeather);
+      res.json({
+        events: eventsWithWeather,
+        page,
+        limit
+      });
     } catch (error) {
       console.error("Failed to fetch events:", error);
       res.status(500).json({ message: "Failed to fetch events" });
