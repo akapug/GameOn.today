@@ -51,43 +51,15 @@ export default function Home() {
     const eventDate = new Date(event.date);
     const now = new Date();
     
-    if (now < eventDate) {
-      return false;  // Future events are never archived
-    }
-    
     if (event.endTime) {
       // If end time exists, archive 1 hour after end time
       const endTime = new Date(event.endTime);
       const archiveTime = new Date(endTime.getTime() + (60 * 60 * 1000)); // 1 hour after end
-      const isNowArchived = now.getTime() >= archiveTime.getTime();
-      
-      // Only create recurring event once when status changes to archived
-      if (isNowArchived && event.isRecurring && !event._wasArchived) {
-        event._wasArchived = true; // Mark as processed
-        fetch('/api/events/recurring', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ parentEventId: event.id })
-        }).catch(console.error);
-      }
-      
-      return isNowArchived;
+      return now >= archiveTime;
     } else {
       // If no end time, archive 6 hours after start time
       const archiveTime = new Date(eventDate.getTime() + (6 * 60 * 60 * 1000)); // 6 hours after start
-      const isNowArchived = now.getTime() >= archiveTime.getTime();
-      
-      // Only create recurring event once when status changes to archived
-      if (isNowArchived && event.isRecurring && !event._wasArchived) {
-        event._wasArchived = true; // Mark as processed
-        fetch('/api/events/recurring', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ parentEventId: event.id })
-        }).catch(console.error);
-      }
-      
-      return isNowArchived;
+      return now >= archiveTime;
     }
   };
 
