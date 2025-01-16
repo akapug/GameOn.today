@@ -11,7 +11,12 @@ export function getUserTimezone(): string {
 }
 
 export function toUTC(dateStr: string, timezone: string): Date {
-  return new Date(formatInTimeZone(new Date(dateStr), timezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+  // Convert local time in specified timezone to UTC
+  const localDate = new Date(dateStr);
+  const utcDate = new Date(formatInTimeZone(localDate, timezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+  const offset = new Date(localDate.toLocaleString('en-US', { timeZone: timezone })).getTime() - 
+                 new Date(localDate.toLocaleString('en-US', { timeZone: 'UTC' })).getTime();
+  return new Date(utcDate.getTime() - offset);
 }
 
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
