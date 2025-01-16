@@ -29,15 +29,23 @@ async function getCoordinates(location: string): Promise<{ lat: number; lon: num
       return null;
     }
 
-    // Use the first result from OpenWeather's geocoding API
-    const result = data[0];
-    if (!result) return null;
+    // Parse input location
+    const [inputCity, inputState] = location.split(',').map(part => part.trim().toLowerCase());
+    
+    // Find best match by comparing city and state
+    const bestMatch = data.find(loc => {
+      const cityMatch = loc.name.toLowerCase() === inputCity;
+      const stateMatch = !inputState || 
+                        (loc.state && loc.state.toLowerCase() === inputState) ||
+                        (loc.state && loc.state.toLowerCase().includes(inputState));
+      return loc.country === 'US' && cityMatch && stateMatch;
+    }) || data[0]; // Fallback to first result if no exact match
 
-    console.log(`Location resolved: ${result.name}, ${result.state || ''}, ${result.country}`);
+    console.log(`Location resolved: ${bestMatch.name}, ${bestMatch.state || ''}, ${bestMatch.country}`);
     
     return {
-      lat: result.lat,
-      lon: result.lon
+      lat: bestMatch.lat,
+      lon: bestMatch.lon
     };
   } catch (error) {
     console.error('Error fetching coordinates:', error);
