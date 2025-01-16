@@ -215,51 +215,50 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
 
   return (
     <Card data-testid="event-card" className={`w-full ${fullscreen ? "max-w-4xl mx-auto mt-6" : ""} px-3 sm:px-6`}>
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div className="flex flex-col gap-1">
-            {new Date(event.date).setHours(23,59,59) < new Date().getTime() && (
-              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full w-fit">
-                Event Concluded
-              </span>
-            )}
-            <Link href={`/events/${event.urlHash}`}>
-              <div className="flex items-center gap-2">
-                <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
-                  {event.title}
-                </h3>
-                <span 
-                  className="text-sm px-2 py-0.5 rounded-full" 
-                  style={{ 
-                    backgroundColor: event.eventType?.color ? `${event.eventType.color}20` : '#eee',
-                    color: event.eventType?.color || '#666'
-                  }}
-                >
-                  {event.eventType?.name || 'Event'}
+      <CardContent>
+        <div className="space-y-4">
+          <div className="flex justify-between items-start">
+            <div className="flex flex-col gap-1">
+              {new Date(event.date).setHours(23,59,59) < new Date().getTime() && (
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full w-fit">
+                  Event Concluded
                 </span>
-              </div>
-            </Link>
-            <div className="text-sm text-muted-foreground">
-              <div className="flex items-center">
-                <MapPin className="mr-2 h-4 w-4" />
-                <button
-                  onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`, '_blank')}
-                  className="text-primary hover:underline"
-                >
-                  {event.location}
-                </button>
+              )}
+              <Link href={`/events/${event.urlHash}`}>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-semibold hover:text-primary cursor-pointer">
+                    {event.title}
+                  </h3>
+                  <span 
+                    className="text-sm px-2 py-0.5 rounded-full" 
+                    style={{ 
+                      backgroundColor: event.eventType?.color ? `${event.eventType.color}20` : '#eee',
+                      color: event.eventType?.color || '#666'
+                    }}
+                  >
+                    {event.eventType?.name || 'Event'}
+                  </span>
+                </div>
+              </Link>
+              <div className="text-sm text-muted-foreground">
+                <div className="flex items-center">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  <button
+                    onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`, '_blank')}
+                    className="text-primary hover:underline"
+                  >
+                    {event.location}
+                  </button>
+                </div>
               </div>
             </div>
+            {event.isPrivate && (
+              <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full flex items-center gap-1">
+                <EyeOff className="h-3 w-3" />
+                Private
+              </span>
+            )}
           </div>
-          {event.isPrivate && (
-            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full flex items-center gap-1">
-              <EyeOff className="h-3 w-3" />
-              Private
-            </span>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
         <div>
           <div className="space-y-2">
             <div className="flex flex-wrap items-center text-sm gap-x-4">
