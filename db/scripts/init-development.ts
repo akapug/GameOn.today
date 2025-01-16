@@ -1,3 +1,4 @@
+
 import { db } from "../index";
 import { sql } from "drizzle-orm";
 import { activities } from "../schema";
@@ -8,6 +9,19 @@ async function main() {
     
     // Set schema
     await db.execute(sql`SET search_path TO development, public`);
+    
+    // Ensure unique constraint exists
+    await db.execute(sql`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint 
+          WHERE conname = 'activities_name_key'
+        ) THEN
+          ALTER TABLE activities ADD CONSTRAINT activities_name_key UNIQUE (name);
+        END IF;
+      END $$;
+    `);
     
     // Insert default activities
     const defaultActivities = [
