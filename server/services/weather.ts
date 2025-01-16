@@ -18,7 +18,7 @@ async function getCoordinates(location: string): Promise<{ lat: number; lon: num
   try {
     // Add country code to improve accuracy, defaulting to US
     const searchQuery = location.includes(',') ? location : `${location},US`;
-    
+
     console.log(`Searching for location: ${searchQuery}`);
     const response = await nodeFetch(
       `${BASE_URL}geo/1.0/direct?q=${encodeURIComponent(searchQuery)}&limit=5&appid=${API_KEY}`
@@ -37,12 +37,12 @@ async function getCoordinates(location: string): Promise<{ lat: number; lon: num
     }
 
     console.log(`Found ${data.length} potential matches for ${location}`);
-    
+
     // Parse input location and handle cases with no comma
     const parts = location.split(',');
     const inputCity = parts[0].trim().toLowerCase();
     const inputState = parts.length > 1 ? parts[1].trim().toLowerCase() : '';
-    
+
     // Find best match by comparing city and state with fuzzy matching
     const bestMatch = data.find(loc => {
       const cityMatch = loc.name.toLowerCase().includes(inputCity) || 
@@ -55,7 +55,7 @@ async function getCoordinates(location: string): Promise<{ lat: number; lon: num
 
     console.log(`Selected location: ${bestMatch.name}, ${bestMatch.state || ''}, ${bestMatch.country}`);
     console.log(`Location resolved: ${bestMatch.name}, ${bestMatch.state || ''}, ${bestMatch.country}`);
-    
+
     return {
       lat: bestMatch.lat,
       lon: bestMatch.lon
@@ -67,7 +67,9 @@ async function getCoordinates(location: string): Promise<{ lat: number; lon: num
 }
 
 export async function getWeatherForecast(location: string, date: Date): Promise<WeatherInfo | null> {
-  try {
+  // Weather functionality temporarily disabled
+  return null;
+  /*try {
     const coords = await getCoordinates(location);
     if (!coords) return null;
 
@@ -86,7 +88,7 @@ export async function getWeatherForecast(location: string, date: Date): Promise<
     const targetDay = targetDate.getUTCDate();
     const targetMonth = targetDate.getUTCMonth();
     const targetYear = targetDate.getUTCFullYear();
-    
+
     // Filter forecasts for the same day first
     const sameDayForecasts = data.list.filter((forecast: any) => {
       const forecastDate = new Date(forecast.dt * 1000);
@@ -118,4 +120,5 @@ export async function getWeatherForecast(location: string, date: Date): Promise<
     console.error('Error fetching weather data:', error);
     return null;
   }
+  */
 }

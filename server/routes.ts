@@ -4,7 +4,7 @@ import { db } from "@db";
 import { events, participants, eventTypes } from "@db/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
 import nodemailer from "nodemailer";
-import { getWeatherForecast } from "./services/weather";
+// import { getWeatherForecast } from "./services/weather"; //Commented out to prevent 429 errors
 import { formatWithTimezone, toUTC } from "../client/src/lib/dates";
 
 // Schema middleware to ensure correct schema is set for each request
@@ -120,7 +120,7 @@ async function getEventWithWeather(event: any) {
     ...event,
     isRecurring: event.isRecurring === true || event.isRecurring === 't',
     isPrivate: event.isPrivate === true || event.isPrivate === 't',
-    weather: await getWeatherForecast(event.location, new Date(event.date))
+    // weather: await getWeatherForecast(event.location, new Date(event.date)) //Commented out to prevent 429 errors
   };
 }
 
@@ -321,7 +321,7 @@ export function registerRoutes(app: Express): Server {
         const eventType = await db.query.eventTypes.findFirst({
           where: eq(eventTypes.id, Number(eventTypeId))
         });
-        
+
         if (!eventType) {
           console.error(`Invalid event type ID: ${eventTypeId}`);
           return res.status(400).json({ message: `Event type with ID ${eventTypeId} does not exist` });
