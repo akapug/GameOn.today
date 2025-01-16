@@ -1,17 +1,17 @@
 
 import { db } from "../index";
-import { activities, events } from "../schema";
+import { events } from "../schema";
 import { sql } from "drizzle-orm";
 import { ensureDevEnvironment } from "../index";
 
 const sampleEvents = [
   {
     title: "Weekly Basketball Pickup Game",
-    activityId: 2,
+    eventTypeId: 1,
     location: "Downtown Recreation Center",
     date: new Date("2025-01-14T18:00:00Z"),
     endTime: new Date("2025-01-14T20:00:00Z"),
-    playerThreshold: 6,
+    participantThreshold: 6,
     isRecurring: true,
     recurrenceFrequency: "weekly",
     webLink: "https://meetup.com/sample-basketball",
@@ -24,17 +24,17 @@ const sampleEvents = [
   },
   {
     title: "Tennis Doubles Tournament",
-    activityId: 3,
+    eventTypeId: 3,
     location: "City Tennis Club",
     date: new Date("2025-01-20T14:00:00Z"),
     endTime: new Date("2025-01-20T18:00:00Z"),
-    playerThreshold: 12,
+    participantThreshold: 12,
     isRecurring: false,
     webLink: "https://citytennisclub.com/tournament",
     notes: "Tournament brackets will be posted 1 hour before start",
     urlHash: "tennis-tourney",
     isPrivate: false,
-    creatorId: "sample-creator-2", 
+    creatorId: "sample-creator-2",
     creatorName: "Jane Smith",
     timezone: "America/New_York"
   }
