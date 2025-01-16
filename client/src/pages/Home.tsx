@@ -48,8 +48,18 @@ export default function Home() {
   };
 
   const isArchived = (event: EventWithDetails) => {
-    const eventDate = new Date(event.date);
-    return eventDate < now;
+    const now = new Date();
+    const startDate = new Date(event.date);
+    
+    // If event has end time, use that
+    if (event.endTime) {
+      const endDate = new Date(event.endTime);
+      return now > endDate;
+    }
+    
+    // Otherwise, use start time + 6 hours
+    const defaultEndDate = new Date(startDate.getTime() + (6 * 60 * 60 * 1000));
+    return now > defaultEndDate;
   };
 
   // Only show public events in the main list
