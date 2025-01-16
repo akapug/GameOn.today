@@ -263,12 +263,14 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
             <div className="flex flex-wrap items-center text-sm gap-x-4">
               <div className="flex items-center">
                 <Calendar className="mr-2 h-4 w-4" />
-                <span>{formatWithTimezone(event.date, "PPP p", event.timezone || 'UTC')}</span>
-                {event.endTime && (
-                  <span className="text-muted-foreground ml-1">
-                    - {formatWithTimezone(event.endTime, "p", event.timezone || 'UTC').split(' ')[0]}
-                  </span>
-                )}
+                <span>
+                  {formatWithTimezone(event.date, "PPP p", event.timezone || 'UTC')}
+                  {event.endTime && (
+                    <span className="text-muted-foreground ml-1">
+                      - {formatWithTimezone(event.endTime, "p", event.timezone || 'UTC')}
+                    </span>
+                  )}
+                </span>
               </div>
               {event.weather && <WeatherDisplay weather={event.weather} />}
             </div>
