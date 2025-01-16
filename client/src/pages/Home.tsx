@@ -48,10 +48,10 @@ export default function Home() {
   };
 
   const isArchived = (event: EventWithDetails) => {
-    const now = new Date();
-    const eventDate = new Date(event.date);
-    const isPast = eventDate < now;
-    
+    const nowTimestamp = Date.now();
+    const eventTimestamp = new Date(event.date).getTime();
+    const isPast = eventTimestamp < nowTimestamp;
+
     // Handle recurring event creation if needed
     if (isPast && event.isRecurring && !event._wasArchived) {
       event._wasArchived = true;
@@ -61,7 +61,7 @@ export default function Home() {
         body: JSON.stringify({ parentEventId: event.id })
       }).catch(console.error);
     }
-    
+
     return isPast;
   };
 
