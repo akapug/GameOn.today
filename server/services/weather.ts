@@ -53,8 +53,7 @@ async function getCoordinates(location: string): Promise<{ lat: number; lon: num
       return loc.country === 'US' && (cityMatch || stateMatch);
     }) || data[0]; // Fallback to first result if no match
 
-    console.log(`Selected location: ${bestMatch.name}, ${bestMatch.state || ''}, ${bestMatch.country}`); if no exact match
-
+    console.log(`Selected location: ${bestMatch.name}, ${bestMatch.state || ''}, ${bestMatch.country}`);
     console.log(`Location resolved: ${bestMatch.name}, ${bestMatch.state || ''}, ${bestMatch.country}`);
     
     return {
