@@ -51,28 +51,16 @@ export default function Home() {
     const eventDate = new Date(event.date);
     const now = new Date();
     
-    let isNowArchived = false;
     if (event.endTime) {
       // If end time exists, archive 1 hour after end time
       const endTime = new Date(event.endTime);
       const archiveTime = new Date(endTime.getTime() + (60 * 60 * 1000)); // 1 hour after end
-      isNowArchived = now >= archiveTime;
+      return now >= archiveTime;
     } else {
       // If no end time, archive 6 hours after start time
       const archiveTime = new Date(eventDate.getTime() + (6 * 60 * 60 * 1000)); // 6 hours after start
-      isNowArchived = now >= archiveTime;
+      return now >= archiveTime;
     }
-
-    // Create next recurring event if this one just got archived
-    if (isNowArchived && event.isRecurring) {
-      fetch('/api/events/recurring', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ parentEventId: event.id })
-      }).catch(console.error);
-    }
-
-    return isNowArchived;
   };
 
   // Only show public events in the main list

@@ -516,43 +516,6 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Create next recurring event instance
-  app.post("/api/events/recurring", async (req, res) => {
-    try {
-      const { parentEventId } = req.body;
-      const parentEvent = await db.query.events.findFirst({
-        where: eq(events.id, parentEventId)
-      });
-
-      if (!parentEvent || !parentEvent.isRecurring) {
-        return res.status(400).json({ message: "Not a recurring event" });
-      }
-
-      const nextDate = (() => {
-        const date = new Date(parentEvent.date);
-        switch (parentEvent.recurrenceFrequency) {
-          case 'weekly': date.setDate(date.getDate() + 7); break;
-          case 'biweekly': date.setDate(date.getDate() + 14); break;
-          case 'monthly': date.setMonth(date.getMonth() + 1); break;
-        }
-        return date;
-      })();
-
-      const [newEvent] = await db.insert(events).values({
-        ...parentEvent,
-        id: undefined,
-        date: nextDate,
-        parentEventId: parentEvent.id,
-        urlHash: await generateUniqueUrlHash()
-      }).returning();
-
-      res.json(newEvent);
-    } catch (error) {
-      console.error("Failed to create recurring event:", error);
-      res.status(500).json({ message: "Failed to create recurring event" });
-    }
-  });
-
 
   return httpServer;
 }
