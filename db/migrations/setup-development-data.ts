@@ -1,4 +1,6 @@
 
+import { db } from "../index";
+
 const sampleEvents = [
   {
     title: "Weekly Basketball Pickup Game",
