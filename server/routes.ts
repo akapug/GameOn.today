@@ -517,5 +517,67 @@ export function registerRoutes(app: Express): Server {
   });
 
 
+  // Duplicate recurring event endpoint
+  app.post("/api/events/:hash/duplicate", async (req, res) => {
+    try {
+      const { hash } = req.params;
+
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
+      });
+
+      if (!event || !event.isRecurring) {
+        return res.status(404).json({ message: "Event not found or not recurring" });
+      }
+
+      // Calculate next occurrence date
+      const startDate = new Date(event.date);
+      const nextDate = new Date(startDate);
+
+      switch(event.recurrenceFrequency) {
+        case 'weekly':
+          nextDate.setDate(nextDate.getDate() + 7);
+          break;
+        case 'biweekly':
+          nextDate.setDate(nextDate.getDate() + 14);
+          break;
+        case 'monthly':
+          nextDate.setMonth(nextDate.getMonth() + 1);
+          break;
+        default:
+          return res.status(400).json({ message: "Invalid recurrence frequency" });
+      }
+
+      // Check if next occurrence already exists
+      const existingEvent = await db.query.events.findFirst({
+        where: and(
+          eq(events.parentEventId, event.id),
+          eq(events.date, nextDate.toISOString())
+        ),
+      });
+
+      if (existingEvent) {
+        return res.status(200).json({ message: "Next occurrence already exists" });
+      }
+
+      // Create next occurrence
+      const [newEvent] = await db.insert(events).values({
+        ...event,
+        id: undefined,
+        urlHash: await generateUniqueUrlHash(),
+        date: nextDate.toISOString(),
+        endTime: event.endTime ? 
+          new Date(nextDate.getTime() + (new Date(event.endTime).getTime() - startDate.getTime())).toISOString() : 
+          null,
+        parentEventId: event.id
+      }).returning();
+
+      res.json(newEvent);
+    } catch (error) {
+      console.error("Failed to duplicate recurring event:", error);
+      res.status(500).json({ message: "Failed to duplicate recurring event" });
+    }
+  });
+
   return httpServer;
 }
