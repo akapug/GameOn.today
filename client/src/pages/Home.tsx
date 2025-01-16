@@ -48,21 +48,8 @@ export default function Home() {
   };
 
   const isArchived = (event: EventWithDetails) => {
-    const nowTimestamp = Date.now();
-    const eventTimestamp = new Date(event.date).getTime();
-    const isPast = eventTimestamp < nowTimestamp;
-
-    // Handle recurring event creation if needed
-    if (isPast && event.isRecurring && !event._wasArchived) {
-      event._wasArchived = true;
-      fetch('/api/events/recurring', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ parentEventId: event.id })
-      }).catch(console.error);
-    }
-
-    return isPast;
+    const eventDate = new Date(event.date);
+    return eventDate < now;
   };
 
   // Only show public events in the main list
