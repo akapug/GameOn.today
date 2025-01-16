@@ -20,6 +20,7 @@ import EventTypeSelect from "./EventTypeSelect";
 import type { Event, Participant, EventType } from "@db/schema";
 import type { WeatherInfo } from "../../server/services/weather";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { format } from "date-fns";
 import { formatWithTimezone, utcToLocalInput, getUserTimezone } from "@/lib/dates";
 
 interface EventCardProps {
