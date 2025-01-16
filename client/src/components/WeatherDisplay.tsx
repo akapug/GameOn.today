@@ -5,6 +5,7 @@ interface WeatherInfo {
   description: string;
   icon: string;
   precipitation: number;
+  resolvedLocation?: string;
 }
 
 interface WeatherDisplayProps {
@@ -28,6 +29,11 @@ export default function WeatherDisplay({ weather, className = "" }: WeatherDispl
     <div className={`flex items-center gap-2 text-sm ${className}`}>
       {getWeatherIcon(weather.icon)}
       <span>{Math.round(weather.temperature)}°F</span>
+      {weather.resolvedLocation && (
+        <span className="text-xs text-muted-foreground ml-1">
+          ({weather.resolvedLocation})
+        </span>
+      )}
       {weather.precipitation > 0 && (
         <span className="text-muted-foreground">
           ({Math.round(weather.precipitation)}% chance of rain)
