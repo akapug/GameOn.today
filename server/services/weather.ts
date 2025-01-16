@@ -19,27 +19,41 @@ async function getCoordinates(location: string): Promise<{ lat: number; lon: num
     // Add country code to improve accuracy, defaulting to US
     const searchQuery = location.includes(',') ? location : `${location},US`;
     
+    console.log(`Searching for location: ${searchQuery}`);
     const response = await nodeFetch(
       `${BASE_URL}geo/1.0/direct?q=${encodeURIComponent(searchQuery)}&limit=5&appid=${API_KEY}`
     );
     const data = await response.json();
 
-    if (!Array.isArray(data) || data.length === 0) {
-      console.error(`No valid coordinates found for location: ${location}`);
+    if (!Array.isArray(data)) {
+      console.error(`Invalid response format for location: ${location}`);
+      console.error('Response:', data);
       return null;
     }
 
-    // Parse input location
-    const [inputCity, inputState] = location.split(',').map(part => part.trim().toLowerCase());
+    if (data.length === 0) {
+      console.error(`No results found for location: ${location}`);
+      return null;
+    }
+
+    console.log(`Found ${data.length} potential matches for ${location}`);
     
-    // Find best match by comparing city and state
+    // Parse input location and handle cases with no comma
+    const parts = location.split(',');
+    const inputCity = parts[0].trim().toLowerCase();
+    const inputState = parts.length > 1 ? parts[1].trim().toLowerCase() : '';
+    
+    // Find best match by comparing city and state with fuzzy matching
     const bestMatch = data.find(loc => {
-      const cityMatch = loc.name.toLowerCase() === inputCity;
+      const cityMatch = loc.name.toLowerCase().includes(inputCity) || 
+                       inputCity.includes(loc.name.toLowerCase());
       const stateMatch = !inputState || 
                         (loc.state && loc.state.toLowerCase() === inputState) ||
                         (loc.state && loc.state.toLowerCase().includes(inputState));
-      return loc.country === 'US' && cityMatch && stateMatch;
-    }) || data[0]; // Fallback to first result if no exact match
+      return loc.country === 'US' && (cityMatch || stateMatch);
+    }) || data[0]; // Fallback to first result if no match
+
+    console.log(`Selected location: ${bestMatch.name}, ${bestMatch.state || ''}, ${bestMatch.country}`); if no exact match
 
     console.log(`Location resolved: ${bestMatch.name}, ${bestMatch.state || ''}, ${bestMatch.country}`);
     
