@@ -258,8 +258,6 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 Private
               </span>
             )}
-          </div>
-        <div>
           <div className="space-y-2">
             <div className="flex flex-wrap items-center text-sm gap-x-4">
               <div className="flex items-center">
