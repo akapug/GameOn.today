@@ -50,9 +50,7 @@ export default function Home() {
   const isArchived = (event: EventWithDetails) => {
     const now = new Date();
     const eventDate = new Date(event.date);
-    eventDate.setHours(23, 59, 59);
-    
-    const isPast = now > eventDate;
+    const isPast = eventDate < now;
     
     // Handle recurring event creation if needed
     if (isPast && event.isRecurring && !event._wasArchived) {
