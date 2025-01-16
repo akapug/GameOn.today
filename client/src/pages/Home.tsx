@@ -59,10 +59,8 @@ export default function Home() {
     const shouldArchive = now > endDate;
     
     // Handle recurring event creation only on transition to archived
-    if (shouldArchive && event.isRecurring && !event._wasArchived) {
-      event._wasArchived = true; // Mark as processed
-      
-      // Create next occurrence
+    if (shouldArchive && event.isRecurring && !event.parentEventId) {
+      // Calculate next occurrence date
       const nextDate = new Date(startDate);
       switch(event.recurrenceFrequency) {
         case 'weekly':
@@ -76,19 +74,26 @@ export default function Home() {
           break;
       }
 
-      // Create next occurrence
-      fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...event,
-          date: nextDate.toISOString(),
-          endTime: event.endTime ? 
-            new Date(nextDate.getTime() + (endDate.getTime() - startDate.getTime())).toISOString() : 
-            null,
-          parentEventId: event.id
-        })
-      }).catch(console.error);
+      // Only create next occurrence if it doesn't exist yet
+      const nextEventExists = eventsList.some(e => 
+        e.parentEventId === event.id && 
+        new Date(e.date).getTime() === nextDate.getTime()
+      );
+
+      if (!nextEventExists) {
+        fetch('/api/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...event,
+            date: nextDate.toISOString(),
+            endTime: event.endTime ? 
+              new Date(nextDate.getTime() + (endDate.getTime() - startDate.getTime())).toISOString() : 
+              null,
+            parentEventId: event.id
+          })
+        }).catch(console.error);
+      }
     }
     
     return shouldArchive;
