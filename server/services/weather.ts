@@ -22,10 +22,10 @@ async function getCoordinates(location: string): Promise<{ lat: number; lon: num
     const response = await nodeFetch(
       `${BASE_URL}geo/1.0/direct?q=${encodeURIComponent(searchQuery)}&limit=5&appid=${API_KEY}`
     );
-    const data = await response.json() as any[];
+    const data = await response.json();
 
-    if (!data || data.length === 0) {
-      console.error(`No coordinates found for location: ${location}`);
+    if (!Array.isArray(data) || data.length === 0) {
+      console.error(`No valid coordinates found for location: ${location}`);
       return null;
     }
 
