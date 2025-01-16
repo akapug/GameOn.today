@@ -52,14 +52,41 @@ export default function Home() {
     const startDate = new Date(event.date);
     
     // If event has end time, use that
-    if (event.endTime) {
-      const endDate = new Date(event.endTime);
-      return now > endDate;
+    const endDate = event.endTime ? new Date(event.endTime) : new Date(startDate.getTime() + (6 * 60 * 60 * 1000));
+    const shouldArchive = now > endDate;
+    
+    // Handle recurring event creation
+    if (shouldArchive && event.isRecurring && !event._wasArchived) {
+      event._wasArchived = true;
+      const nextDate = new Date(startDate);
+      
+      switch(event.recurrenceFrequency) {
+        case 'weekly':
+          nextDate.setDate(nextDate.getDate() + 7);
+          break;
+        case 'biweekly':
+          nextDate.setDate(nextDate.getDate() + 14);
+          break;
+        case 'monthly':
+          nextDate.setMonth(nextDate.getMonth() + 1);
+          break;
+      }
+
+      // Create next occurrence
+      fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...event,
+          date: nextDate.toISOString(),
+          endTime: event.endTime ? new Date(nextDate.getTime() + (endDate.getTime() - startDate.getTime())).toISOString() : null,
+          parentEventId: event.id,
+          _wasArchived: false
+        })
+      }).catch(console.error);
     }
     
-    // Otherwise, use start time + 6 hours
-    const defaultEndDate = new Date(startDate.getTime() + (6 * 60 * 60 * 1000));
-    return now > defaultEndDate;
+    return shouldArchive;
   };
 
   // Only show public events in the main list
