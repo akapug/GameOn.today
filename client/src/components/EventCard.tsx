@@ -649,8 +649,21 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
               <Input
                 id="date"
                 type="datetime-local"
+                min={new Date().toISOString().slice(0, 16)}
                 value={utcToLocalInput(formState.date, event.timezone)}
-                onChange={(e) => setFormState(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) => {
+                  const selectedDate = new Date(e.target.value);
+                  const now = new Date();
+                  if (selectedDate < now) {
+                    toast({
+                      title: "Invalid Date",
+                      description: "Event date cannot be in the past",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  setFormState(prev => ({ ...prev, date: e.target.value }));
+                }}
               />
             </div>
             <div className="space-y-2">
