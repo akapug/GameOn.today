@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { WeatherInfo } from "../../server/services/weather";
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from "@/lib/queryClient";
+import { useState } from 'react';
 
 interface EventListProps {
   events: Array<Event & { 
@@ -17,22 +18,27 @@ interface EventListProps {
 }
 
 export default function EventList({ events, emptyMessage = "No events found", onCreateEvent }: EventListProps) {
-  const { data: fetchedEvents, isLoading } = useQuery({
-    queryKey: ["/api/events"],
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
+  const { data: fetchedData, isLoading } = useQuery({
+    queryKey: ["/api/events", page, limit],
     queryFn: async () => {
       try {
-        const res = await fetch('/api/events');
+        const res = await fetch(`/api/events?page=${page}&limit=${limit}`);
         if (!res.ok) throw new Error('Network response was not ok');
         return res.json();
       } catch (error) {
         console.error('Failed to fetch events:', error);
-        return [];
+        return { events: [], page: 1, limit };
       }
     },
-    staleTime: 0, // Always check for fresh data
-    refetchInterval: 3000, // Refetch every 3 seconds
+    staleTime: 0,
+    refetchInterval: 3000,
     retry: 3
   });
+
+  const fetchedEvents = fetchedData?.events || [];
 
   const eventsToDisplay = Array.isArray(events) ? events : [];
 
@@ -50,7 +56,7 @@ export default function EventList({ events, emptyMessage = "No events found", on
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {eventsToDisplay.map((event) => (
+      {fetchedEvents.map((event) => (
         <EventCard key={event.id} event={event} />
       ))}
     </div>
