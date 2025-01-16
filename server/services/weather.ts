@@ -12,7 +12,6 @@ export interface WeatherInfo {
   description: string;
   icon: string;
   precipitation: number;
-  resolvedLocation?: string;
 }
 
 async function getCoordinates(location: string): Promise<{ lat: number; lon: number } | null> {
@@ -100,8 +99,7 @@ export async function getWeatherForecast(location: string, date: Date): Promise<
       temperature: closestForecast.main.temp,
       description: closestForecast.weather[0].description,
       icon: closestForecast.weather[0].icon,
-      precipitation: closestForecast.pop * 100, // Convert to percentage
-      resolvedLocation: `${data.city.name}, ${data.city.country}`
+      precipitation: closestForecast.pop * 100 // Convert to percentage
     };
   } catch (error) {
     console.error('Error fetching weather data:', error);
