@@ -239,14 +239,16 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
                 </span>
               </div>
             </Link>
-            <div className="text-sm text-muted-foreground flex items-center space-y-1">
-              <MapPin className="mr-2 h-4 w-4" />
-              <button
-                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`, '_blank')}
-                className="text-primary hover:underline"
-              >
-                {event.location}
-              </button>
+            <div className="text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <MapPin className="mr-2 h-4 w-4" />
+                <button
+                  onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`, '_blank')}
+                  className="text-primary hover:underline"
+                >
+                  {event.location}
+                </button>
+              </div>
             </div>
           </div>
           {event.isPrivate && (
@@ -258,7 +260,7 @@ export default function EventCard({ event, fullscreen = false }: EventCardProps)
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div>
           <div className="space-y-2">
             <div className="flex flex-wrap items-center text-sm gap-x-4">
               <div className="flex items-center">
