@@ -50,41 +50,21 @@ export default function Home() {
   const isArchived = (event: EventWithDetails) => {
     const now = new Date();
     const eventDate = new Date(event.date);
+    eventDate.setHours(23, 59, 59);
     
-    if (event.endTime) {
-      // If end time exists, archive 1 hour after end time
-      const endTime = new Date(event.endTime);
-      const archiveTime = new Date(endTime.getTime() + (60 * 60 * 1000)); // 1 hour after end
-      const isNowArchived = now >= archiveTime;
-      
-      // Only create recurring event once when status changes to archived
-      if (isNowArchived && event.isRecurring && !event._wasArchived) {
-        event._wasArchived = true; // Mark as processed
-        fetch('/api/events/recurring', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ parentEventId: event.id })
-        }).catch(console.error);
-      }
-      
-      return isNowArchived;
-    } else {
-      // If no end time, archive 6 hours after start time
-      const archiveTime = new Date(eventDate.getTime() + (6 * 60 * 60 * 1000)); // 6 hours after start
-      const isNowArchived = now >= archiveTime;
-      
-      // Only create recurring event once when status changes to archived
-      if (isNowArchived && event.isRecurring && !event._wasArchived) {
-        event._wasArchived = true; // Mark as processed
-        fetch('/api/events/recurring', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ parentEventId: event.id })
-        }).catch(console.error);
-      }
-      
-      return isNowArchived;
+    const isPast = now > eventDate;
+    
+    // Handle recurring event creation if needed
+    if (isPast && event.isRecurring && !event._wasArchived) {
+      event._wasArchived = true;
+      fetch('/api/events/recurring', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parentEventId: event.id })
+      }).catch(console.error);
     }
+    
+    return isPast;
   };
 
   // Only show public events in the main list
