@@ -1,3 +1,4 @@
+
 import { Cloud, CloudRain, Sun, ThermometerSun } from "lucide-react";
 
 interface WeatherInfo {
@@ -14,9 +15,9 @@ interface WeatherDisplayProps {
 }
 
 export default function WeatherDisplay({ weather, className = "" }: WeatherDisplayProps) {
-  const getWeatherIcon = (iconCode?: string) => {
-    if (!iconCode) return null;
-    // Map OpenWeather icon codes to Lucide icons
+  if (!weather) return null;
+  
+  const getWeatherIcon = (iconCode: string) => {
     if (iconCode.includes('01')) return <Sun className="h-4 w-4" />;
     if (iconCode.includes('02') || iconCode.includes('03') || iconCode.includes('04')) 
       return <Cloud className="h-4 w-4" />;
@@ -29,9 +30,12 @@ export default function WeatherDisplay({ weather, className = "" }: WeatherDispl
     <div className={`flex items-center gap-2 text-sm ${className}`}>
       {getWeatherIcon(weather.icon)}
       <span>{Math.round(weather.temperature)}°F</span>
+      <span className="text-xs text-muted-foreground">
+        ({weather.description})
+      </span>
       {weather.resolvedLocation && (
-        <span className="text-xs text-muted-foreground ml-1">
-          ({weather.resolvedLocation})
+        <span className="text-xs text-muted-foreground">
+          {weather.resolvedLocation}
         </span>
       )}
       {weather.precipitation > 0 && (
