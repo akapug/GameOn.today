@@ -1,0 +1,61 @@
+DEVELOPMENT MODE: Using development schema
+8:34:06 PM [express] Starting development server with Vite...
+8:34:06 PM [express] Server running on port 3000
+8:34:06 PM [express] Environment: development
+8:34:06 PM [express] Server URL: https://workspace.davidryal.repl.co
+Files in the public directory are served at the root path.
+Instead of /public/favicon.svg, use /favicon.svg.
+Set search path to development schema
+8:34:09 PM [express] GET /api/init 200 in 194ms :: {"eventTypes":[{"id":1,"name":"Frisbee","color":"#4CAF50","icon":"🥏"},{"id":2,"name":"Basketball","color":"#FF6B6B","icon":"🏀"},{"id":3,"name":"Soccer","color":"#4ECDC4","icon":"⚽"},{"id":4,"name":"Volleyball","color":"#96CEB4","icon":"🏐"},{"id":5,"name":"Poker","color":"#E63946","icon":"🃏"},{"id":6,"name":"Board Games","color":"#457B9D","icon":"🎲"},{"id":7,"name":"Going Out","color":"#2A9D8F","icon":"🎉"},{"id":8,"name":"Tennis","color":"#45B7D1","icon":"🎾"},{"id":9,"name":"Pickleball","color":"#FF9800","icon":"🎾"},{"id":10,"name":"Golf","color":"#8BC34A","icon":"⛳"},{"id":11,"name":"Other","color":"#6C757D","icon":"🎮"}],"serverTime":"2025-01-16T20:34:09.960Z"}
+Set search path to development schema
+Set search path to development schema
+Searching for location: ok,US
+Searching for location: City Tennis Club,US
+Searching for location: Downtown Recreation Center,US
+Searching for location: Sacramento,US
+Searching for location: ok,US
+Searching for location: hi,US
+Searching for location: Sacramento, CA
+Searching for location: hi,US
+8:34:10 PM [express] GET /api/event-types 304 in 255ms :: [{"id":1,"name":"Frisbee","color":"#4CAF50","icon":"🥏"},{"id":2,"name":"Basketball","color":"#FF6B6B","icon":"🏀"},{"id":3,"name":"Soccer","color":"#4ECDC4","icon":"⚽"},{"id":4,"name":"Volleyball","color":"#96CEB4","icon":"🏐"},{"id":5,"name":"Poker","color":"#E63946","icon":"🃏"},{"id":6,"name":"Board Games","color":"#457B9D","icon":"🎲"},{"id":7,"name":"Going Out","color":"#2A9D8F","icon":"🎉"},{"id":8,"name":"Tennis","color":"#45B7D1","icon":"🎾"},{"id":9,"name":"Pickleball","color":"#FF9800","icon":"🎾"},{"id":10,"name":"Golf","color":"#8BC34A","icon":"⛳"},{"id":11,"name":"Other","color":"#6C757D","icon":"🎮"}]
+Invalid response format for location: City Tennis Club
+Response: {
+  cod: 429,
+  message: 'Your account is temporary blocked due to exceeding of requests limitation of your subscription type. Please choose the proper subscription https://openweathermap.org/price'
+}
+Invalid response format for location: ok
+Response: {
+  cod: 429,
+  message: 'Your account is temporary blocked due to exceeding of requests limitation of your subscription type. Please choose the proper subscription https://openweathermap.org/price'
+}
+Invalid response format for location: Sacramento
+Response: {
+  cod: 429,
+  message: 'Your account is temporary blocked due to exceeding of requests limitation of your subscription type. Please choose the proper subscription https://openweathermap.org/price'
+}
+Invalid response format for location: Downtown Recreation Center
+Response: {
+  cod: 429,
+  message: 'Your account is temporary blocked due to exceeding of requests limitation of your subscription type. Please choose the proper subscription https://openweathermap.org/price'
+}
+Invalid response format for location: hi
+Response: {
+  cod: 429,
+  message: 'Your account is temporary blocked due to exceeding of requests limitation of your subscription type. Please choose the proper subscription https://openweathermap.org/price'
+}
+Invalid response format for location: Sacramento, CA
+Response: {
+  cod: 429,
+  message: 'Your account is temporary blocked due to exceeding of requests limitation of your subscription type. Please choose the proper subscription https://openweathermap.org/price'
+}
+Invalid response format for location: hi
+Response: {
+  cod: 429,
+  message: 'Your account is temporary blocked due to exceeding of requests limitation of your subscription type. Please choose the proper subscription https://openweathermap.org/price'
+}
+Invalid response format for location: ok
+Response: {
+  cod: 429,
+  message: 'Your account is temporary blocked due to exceeding of requests limitation of your subscription type. Please choose the proper subscription https://openweathermap.org/price'
+}
+8:34:10 PM [express] GET /api/events 304
