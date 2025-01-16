@@ -19,9 +19,19 @@ interface EventListProps {
 export default function EventList({ events, emptyMessage = "No events found", onCreateEvent }: EventListProps) {
   const { data: fetchedEvents, isLoading } = useQuery({
     queryKey: ["/api/events"],
-    queryFn: () => fetch('/api/events').then(res => res.json()),
+    queryFn: async () => {
+      try {
+        const res = await fetch('/api/events');
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+        return [];
+      }
+    },
     staleTime: 0, // Always check for fresh data
     refetchInterval: 3000, // Refetch every 3 seconds
+    retry: 3
   });
 
   const eventsToDisplay = Array.isArray(events) ? events : [];
