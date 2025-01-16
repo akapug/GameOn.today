@@ -55,7 +55,7 @@ export default function Home() {
       // If end time exists, archive 1 hour after end time
       const endTime = new Date(event.endTime);
       const archiveTime = new Date(endTime.getTime() + (60 * 60 * 1000)); // 1 hour after end
-      const isNowArchived = now >= archiveTime;
+      const isNowArchived = now.getTime() >= archiveTime.getTime();
       
       // Only create recurring event once when status changes to archived
       if (isNowArchived && event.isRecurring && !event._wasArchived) {
@@ -71,7 +71,7 @@ export default function Home() {
     } else {
       // If no end time, archive 6 hours after start time
       const archiveTime = new Date(eventDate.getTime() + (6 * 60 * 60 * 1000)); // 6 hours after start
-      const isNowArchived = now >= archiveTime;
+      const isNowArchived = now.getTime() >= archiveTime.getTime();
       
       // Only create recurring event once when status changes to archived
       if (isNowArchived && event.isRecurring && !event._wasArchived) {
