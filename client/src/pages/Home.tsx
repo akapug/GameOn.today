@@ -51,6 +51,19 @@ export default function Home() {
     const eventDate = new Date(event.date);
     const now = new Date();
 
+    // First check if event is in the future
+    const eventDateTime = new Date(
+      eventDate.getFullYear(),
+      eventDate.getMonth(),
+      eventDate.getDate(),
+      event.endTime ? new Date(event.endTime).getHours() : eventDate.getHours(),
+      event.endTime ? new Date(event.endTime).getMinutes() : eventDate.getMinutes()
+    );
+
+    if (eventDateTime > now) {
+      return false; // Future events are never archived
+    }
+
     if (event.endTime) {
       // If end time exists, archive 1 hour after end time
       const endTime = new Date(event.endTime);
