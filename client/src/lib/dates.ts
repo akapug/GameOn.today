@@ -11,11 +11,7 @@ export function getUserTimezone(): string {
 }
 
 export function toUTC(dateStr: string, timezone: string): Date {
-  const date = new Date(dateStr);
-  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
-  const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
-  const tzOffset = tzDate.getTime() - utcDate.getTime();
-  return new Date(date.getTime() - tzOffset);
+  return new Date(formatInTimeZone(new Date(dateStr), timezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 }
 
 export function formatWithTimezone(date: string | Date, formatStr: string, timezone: string = 'UTC'): string {
@@ -24,7 +20,9 @@ export function formatWithTimezone(date: string | Date, formatStr: string, timez
     if (isNaN(parsedDate.getTime())) {
       return 'Invalid date';
     }
-    return formatInTimeZone(parsedDate, timezone, formatStr);
+    const formattedDate = formatInTimeZone(parsedDate, timezone, formatStr);
+    const tzAbbr = new Date().toLocaleTimeString('en-us',{timeZone: timezone, timeZoneName: 'short'}).split(' ')[2];
+    return `${formattedDate} ${tzAbbr}`;
   } catch (error) {
     return 'Invalid date';
   }
