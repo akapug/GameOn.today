@@ -15,7 +15,6 @@ const getDatabaseUrl = () => {
 const getDb = () => {
   const maxRetries = 5;
   let currentTry = 0;
-  const maxRetries = 5;
 
   const connect = async () => {
     if (!process.env.DATABASE_URL) {
