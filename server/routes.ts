@@ -426,16 +426,15 @@ export function registerRoutes(app: Express): Server {
       const responseToken = uid || generateEventHash();
 
       // Check for existing participant by email or response token
-      const conditions = [];
-      if (email) conditions.push(eq(participants.email, email));
-      if (uid) conditions.push(eq(participants.responseToken, uid));
-      
       const existingParticipants = await db.instance.select()
         .from(participants)
         .where(
           and(
             eq(participants.eventId, event.id),
-            conditions.length ? or(...conditions) : undefined
+            or(
+              email ? eq(participants.email, email) : eq(participants.email, ''),
+              uid ? eq(participants.responseToken, uid) : eq(participants.responseToken, '')
+            )
           )
         );
 
