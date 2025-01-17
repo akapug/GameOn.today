@@ -16,6 +16,14 @@ export default function Guide() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Getting Started Guide</h1>
         <div className="prose prose-slate dark:prose-invert">
+          <h2>Why Create an Account?</h2>
+          <ul className="list-disc pl-6 mb-6">
+            <li>Create and manage your own events</li>
+            <li>Join other people's events</li>
+            <li>Receive email notifications about your events</li>
+            <li>Track your participation history</li>
+          </ul>
+
           <h2>Creating an Event</h2>
           <ol className="list-decimal pl-6 mb-6">
             <li>Click the "New Event" button on the home page</li>
