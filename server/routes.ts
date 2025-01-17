@@ -230,13 +230,11 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/events/:hash", async (req, res) => {
     try {
       const { hash } = req.params;
-      const event = await db.query.events.findFirst({
-        where: eq(events.urlHash, hash),
-        with: {
-          eventType: true,
-          participants: true,
-        },
-      });
+      const [event] = await db.instance.select()
+        .from(events)
+        .leftJoin(eventTypes, eq(events.eventTypeId, eventTypes.id))
+        .leftJoin(participants, eq(events.id, participants.eventId))
+        .where(eq(events.urlHash, hash));
 
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
@@ -256,9 +254,10 @@ export function registerRoutes(app: Express): Server {
       const { eventTypeId, title, location, date, timezone, participantThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
 
       // Verify event type exists first
-      const eventType = await db.query.eventTypes.findFirst({
-        where: eq(eventTypes.id, Number(eventTypeId))
-      });
+      const [eventType] = await db.instance.select()
+        .from(eventTypes)
+        .where(eq(eventTypes.id, Number(eventTypeId)))
+        .limit(1);
 
       if (!eventType) {
         return res.status(400).json({
@@ -334,9 +333,10 @@ export function registerRoutes(app: Express): Server {
 
       // Verify event type exists if it's being updated
       if (eventTypeId) {
-        const eventType = await db.query.eventTypes.findFirst({
-          where: eq(eventTypes.id, Number(eventTypeId))
-        });
+        const [eventType] = await db.instance.select()
+          .from(eventTypes)
+          .where(eq(eventTypes.id, Number(eventTypeId)))
+          .limit(1);
 
         if (!eventType) {
           console.error(`Invalid event type ID: ${eventTypeId}`);
