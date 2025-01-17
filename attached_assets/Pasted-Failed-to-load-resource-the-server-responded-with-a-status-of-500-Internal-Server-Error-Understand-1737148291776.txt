@@ -1,0 +1,52 @@
+Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/basketball-weekly/duplicate:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/46K4nm/duplicate:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/46K4nm/duplicate:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/basketball-weekly/duplicate:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/basketball-weekly/duplicate:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/46K4nm/duplicate:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/basketball-weekly/duplicate:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+4Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61Understand this warningAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/tennis-tourney/join:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+2Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61Understand this warningAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/tennis-tourney/join:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+2Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61Understand this warningAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/api/events/tennis-tourney/join:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+797Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+07e132e0-5fc6-47f9-a69e-00478446e24c-00-3rcdlm792p3bi.picard.replit.dev/:1 
+        
+        
+       Failed to load resource: the server responded with a status of 502 (Bad Gateway)
