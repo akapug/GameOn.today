@@ -78,7 +78,7 @@ const getDb = () => {
   return connect();
 };
 
-export const db = (async () => {
+const dbPromise = (async () => {
   try {
     return await getDb();
   } catch (error) {
@@ -86,6 +86,8 @@ export const db = (async () => {
     throw error;
   }
 })();
+
+export const db = await dbPromise;
 
 // Add a safety check function for development-only operations
 export const ensureDevEnvironment = () => {
