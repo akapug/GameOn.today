@@ -78,7 +78,14 @@ const getDb = () => {
   return connect();
 };
 
-export const db = await getDb();
+export const db = (async () => {
+  try {
+    return await getDb();
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+    throw error;
+  }
+})();
 
 // Add a safety check function for development-only operations
 export const ensureDevEnvironment = () => {
