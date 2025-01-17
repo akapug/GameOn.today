@@ -410,12 +410,13 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Name is required" });
       }
 
-      const event = await db.query.events.findFirst({
-        where: eq(events.urlHash, hash),
-        with: {
-          participants: true,
-        },
-      });
+      const [event] = await db.instance.select({
+        id: events.id,
+        participants: true
+      })
+      .from(events)
+      .where(eq(events.urlHash, hash))
+      .leftJoin(participants, eq(events.id, participants.eventId));
 
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
@@ -425,16 +426,23 @@ export function registerRoutes(app: Express): Server {
       const responseToken = uid || generateEventHash();
 
       // Check for existing participant by email or response token
-      const existingParticipant = event.participants.find(p =>
-        (email && p.email === email) ||
-        (uid && p.responseToken === uid)
-      );
+      const existingParticipants = await db.instance.select()
+        .from(participants)
+        .where(
+          and(
+            eq(participants.eventId, event.id),
+            or(
+              email ? eq(participants.email, email) : undefined,
+              uid ? eq(participants.responseToken, uid) : undefined
+            )
+          )
+        );
 
-      if (existingParticipant) {
+      if (existingParticipants.length > 0) {
         return res.status(400).json({ message: "You have already joined this event" });
       }
 
-      const [newParticipant] = await db.insert(participants).values({
+      const [newParticipant] = await db.instance.insert(participants).values({
         eventId: event.id,
         name: name.trim(),
         email: email?.trim(),
@@ -443,7 +451,11 @@ export function registerRoutes(app: Express): Server {
         comment: comment?.trim(),
       }).returning();
 
-      const expectedParticipants = event.participants.reduce((sum, participant) => {
+      const allParticipants = await db.instance.select()
+        .from(participants)
+        .where(eq(participants.eventId, event.id));
+
+      const expectedParticipants = allParticipants.reduce((sum, participant) => {
         return sum + (Number(participant.likelihood) || 1);
       }, likelihood || 1);
 
