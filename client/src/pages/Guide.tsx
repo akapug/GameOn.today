@@ -20,6 +20,8 @@ export default function Guide() {
             <li>Login is required to create and join events</li>
             <li>Your profile picture and name will be visible to other users</li>
             <li>You can manage your events and responses from the user menu</li>
+            <li>Your name and email are automatically filled when joining events</li>
+            <li>No need to re-enter your information for each event you join</li>
           </ul>
 
           <h2 className="text-xl font-bold mt-6 mb-3">Creating Events</h2>
