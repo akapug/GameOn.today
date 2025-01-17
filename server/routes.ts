@@ -412,10 +412,16 @@ export function registerRoutes(app: Express): Server {
 
       const [event] = await db.instance.select({
         id: events.id,
-        participantThreshold: events.participantThreshold
+        participantThreshold: events.participantThreshold,
       })
       .from(events)
-      .where(eq(events.urlHash, hash));
+      .where(eq(events.urlHash, hash))
+      .leftJoin(participants, eq(events.id, participants.eventId));
+
+      // If no event found, return 404
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
 
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
