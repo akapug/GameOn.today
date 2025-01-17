@@ -13,7 +13,7 @@ async function setSchemaMiddleware(req: any, res: any, next: any) {
   const schema = env === 'production' ? 'production' : 'development';
 
   try {
-    await db.instance.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+    await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
     console.log(`Set search path to ${schema} schema`);
     next();
   } catch (error) {
@@ -134,10 +134,10 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/init", async (_req, res) => {
     try {
       const schema = process.env.NODE_ENV === 'production' ? 'production' : 'development';
-      await db.instance.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+      await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
 
       // Verify schema exists and is ready
-      const schemaCheck = await db.instance.execute(sql`
+      const schemaCheck = await db.execute(sql`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
           WHERE table_schema = ${schema}
@@ -148,8 +148,7 @@ export function registerRoutes(app: Express): Server {
       if (!schemaCheck.rows[0].exists) {
         throw new Error('Schema not ready');
       }
-      const allEventTypes = await db.instance.select().from(eventTypes);
-      console.log('Event types:', allEventTypes);
+      const allEventTypes = await db.query.eventTypes.findMany();
       res.json({
         eventTypes: allEventTypes,
         serverTime: new Date().toISOString()
@@ -192,28 +191,13 @@ export function registerRoutes(app: Express): Server {
   // Get all public events
   app.get("/api/events", async (_req, res) => {
     try {
-      const allEvents = await db.instance.select({
-        id: events.id,
-        urlHash: events.urlHash,
-        isPrivate: events.isPrivate,
-        eventTypeId: events.eventTypeId,
-        title: events.title,
-        location: events.location,
-        date: events.date,
-        participantThreshold: events.participantThreshold,
-        createdAt: events.createdAt,
-        creatorId: events.creatorId,
-        creatorName: events.creatorName,
-        timezone: events.timezone,
-        endTime: events.endTime,
-        notes: events.notes,
-        webLink: events.webLink,
-        isRecurring: events.isRecurring,
-        recurrenceFrequency: events.recurrenceFrequency,
-        parentEventId: events.parentEventId,
-      })
-      .from(events)
-      .where(eq(events.isPrivate, false));
+      const allEvents = await db.query.events.findMany({
+        where: eq(events.isPrivate, false),
+        with: {
+          eventType: true,
+          participants: true,
+        },
+      });
 
       const eventsWithWeather = await Promise.all(
         allEvents.map(getEventWithWeather)
@@ -230,11 +214,13 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/events/:hash", async (req, res) => {
     try {
       const { hash } = req.params;
-      const [event] = await db.instance.select()
-        .from(events)
-        .leftJoin(eventTypes, eq(events.eventTypeId, eventTypes.id))
-        .leftJoin(participants, eq(events.id, participants.eventId))
-        .where(eq(events.urlHash, hash));
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
+        with: {
+          eventType: true,
+          participants: true,
+        },
+      });
 
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
@@ -254,10 +240,9 @@ export function registerRoutes(app: Express): Server {
       const { eventTypeId, title, location, date, timezone, participantThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
 
       // Verify event type exists first
-      const [eventType] = await db.instance.select()
-        .from(eventTypes)
-        .where(eq(eventTypes.id, Number(eventTypeId)))
-        .limit(1);
+      const eventType = await db.query.eventTypes.findFirst({
+        where: eq(eventTypes.id, Number(eventTypeId))
+      });
 
       if (!eventType) {
         return res.status(400).json({
@@ -333,10 +318,9 @@ export function registerRoutes(app: Express): Server {
 
       // Verify event type exists if it's being updated
       if (eventTypeId) {
-        const [eventType] = await db.instance.select()
-          .from(eventTypes)
-          .where(eq(eventTypes.id, Number(eventTypeId)))
-          .limit(1);
+        const eventType = await db.query.eventTypes.findFirst({
+          where: eq(eventTypes.id, Number(eventTypeId))
+        });
 
         if (!eventType) {
           console.error(`Invalid event type ID: ${eventTypeId}`);
@@ -403,10 +387,6 @@ export function registerRoutes(app: Express): Server {
   // Join event
   app.post("/api/events/:hash/join", async (req, res) => {
     try {
-      // Set correct schema
-      const schema = process.env.NODE_ENV === 'production' ? 'production' : 'development';
-      await db.instance.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
-
       const { hash } = req.params;
       const { name, email, likelihood, uid, comment } = req.body;
 
@@ -416,10 +396,9 @@ export function registerRoutes(app: Express): Server {
 
       const event = await db.query.events.findFirst({
         where: eq(events.urlHash, hash),
-        columns: {
-          id: true,
-          participantThreshold: true
-        }
+        with: {
+          participants: true,
+        },
       });
 
       if (!event) {
@@ -430,23 +409,16 @@ export function registerRoutes(app: Express): Server {
       const responseToken = uid || generateEventHash();
 
       // Check for existing participant by email or response token
-      const existingParticipants = await db.instance.select()
-        .from(participants)
-        .where(
-          and(
-            eq(participants.eventId, event.id),
-            or(
-              email ? eq(participants.email, email) : eq(participants.email, ''),
-              uid ? eq(participants.responseToken, uid) : eq(participants.responseToken, '')
-            )
-          )
-        );
+      const existingParticipant = event.participants.find(p =>
+        (email && p.email === email) ||
+        (uid && p.responseToken === uid)
+      );
 
-      if (existingParticipants.length > 0) {
+      if (existingParticipant) {
         return res.status(400).json({ message: "You have already joined this event" });
       }
 
-      const [newParticipant] = await db.instance.insert(participants).values({
+      const [newParticipant] = await db.insert(participants).values({
         eventId: event.id,
         name: name.trim(),
         email: email?.trim(),
@@ -455,11 +427,7 @@ export function registerRoutes(app: Express): Server {
         comment: comment?.trim(),
       }).returning();
 
-      const allParticipants = await db.instance.select()
-        .from(participants)
-        .where(eq(participants.eventId, event.id));
-
-      const expectedParticipants = allParticipants.reduce((sum, participant) => {
+      const expectedParticipants = event.participants.reduce((sum, participant) => {
         return sum + (Number(participant.likelihood) || 1);
       }, likelihood || 1);
 
@@ -540,7 +508,7 @@ export function registerRoutes(app: Express): Server {
 
   app.get("/api/event-types", async (_req, res) => {
     try {
-      const types = await db.instance.select().from(eventTypes);
+      const types = await db.query.eventTypes.findMany();
       res.json(types);
     } catch (error) {
       console.error("Error fetching event types:", error);
@@ -554,28 +522,12 @@ export function registerRoutes(app: Express): Server {
     try {
       const { hash } = req.params;
 
-      const [event] = await db.instance.select()
-        .from(events)
-        .where(eq(events.urlHash, hash));
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
+      });
 
-      if (!event) {
-        return res.status(404).json({ message: "Event not found" });
-      }
-
-      if (!event.isRecurring) {
-        return res.status(400).json({ message: "This event is not set to recur" });
-      }
-
-      // Prevent duplicate events within 24 hours of the original event
-      const existingDuplicate = await db.instance.select()
-        .from(events)
-        .where(
-          eq(events.parentEventId, event.id)
-        )
-        .where(sql`${events.date} >= NOW() AND ${events.date} <= NOW() + INTERVAL '24 hours'`);
-
-      if (existingDuplicate.length > 0) {
-        return res.status(409).json({ message: "Event already duplicated recently" });
+      if (!event || !event.isRecurring) {
+        return res.status(404).json({ message: "Event not found or not recurring" });
       }
 
       // Calculate next occurrence date

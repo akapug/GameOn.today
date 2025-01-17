@@ -1,7 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { db } from "@db";
 import path from "path";
 import { fileURLToPath } from 'url';
 
@@ -41,13 +40,8 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  try {
-    // Initialize database first
-    await db.init();
-    console.log('Database initialized successfully');
-
-    // Register API routes
-    const server = registerRoutes(app);
+  // Register API routes first
+  const server = registerRoutes(app);
 
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -137,8 +131,4 @@ app.use((req, res, next) => {
     log(`Environment: ${process.env.NODE_ENV}`);
     log(`Server URL: https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);
   });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
 })();

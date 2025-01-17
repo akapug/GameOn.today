@@ -1,22 +1,20 @@
-
 import { db } from "@db";
 import { sql } from "drizzle-orm";
 
 async function main() {
   console.log('Setting up database schemas...');
   const schema = process.env.NODE_ENV === 'production' ? 'production' : 'development';
-  await db.init(); // Initialize database connection first
-  await db.instance.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+  await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
   console.log(`Set database search_path to schema: ${schema}`);
 
   console.log(`${schema.toUpperCase()} MODE: Using ${schema} schema`);
 
   try {
     // Create schemas if they don't exist
-    await db.instance.execute(sql`CREATE SCHEMA IF NOT EXISTS ${sql.identifier(schema)}`);
+    await db.execute(sql`CREATE SCHEMA IF NOT EXISTS ${sql.identifier(schema)}`);
 
     // Create event_types table first (replaces activities)
-    await db.instance.execute(sql`
+    await db.execute(sql`
       CREATE TABLE IF NOT EXISTS ${sql.identifier(schema)}.event_types (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
@@ -25,7 +23,7 @@ async function main() {
       )`);
 
     // Create unique constraint on name if it doesn't exist
-    await db.instance.execute(sql`
+    await db.execute(sql`
       DO $$
       BEGIN
         IF NOT EXISTS (
@@ -38,7 +36,7 @@ async function main() {
     `);
 
     // Create events table
-    await db.instance.execute(sql`
+    await db.execute(sql`
       CREATE TABLE IF NOT EXISTS ${sql.identifier(schema)}.events (
         id SERIAL PRIMARY KEY,
         url_hash TEXT NOT NULL UNIQUE,
@@ -61,7 +59,7 @@ async function main() {
       )`);
 
     // Create participants table
-    await db.instance.execute(sql`
+    await db.execute(sql`
       CREATE TABLE IF NOT EXISTS ${sql.identifier(schema)}.participants (
         id SERIAL PRIMARY KEY,
         event_id INTEGER REFERENCES ${sql.identifier(schema)}.events(id),
@@ -83,7 +81,7 @@ async function main() {
     ];
 
     for (const eventType of defaultEventTypes) {
-      await db.instance.execute(sql`
+      await db.execute(sql`
         INSERT INTO ${sql.identifier(schema)}.event_types (name, color, icon)
         VALUES (${eventType.name}, ${eventType.color}, ${eventType.icon})
         ON CONFLICT (name) DO NOTHING`);

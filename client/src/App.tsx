@@ -2,7 +2,6 @@ import { Switch, Route, Link } from "wouter";
 import Home from "./pages/Home";
 import CreateEvent from "./pages/CreateEvent";
 import Event from "./pages/Event";
-import Guide from "./pages/Guide";
 import About from "./pages/About";
 import Changelog from "./pages/Changelog";
 import { AuthProvider } from "./components/AuthProvider";
@@ -18,9 +17,6 @@ function App() {
           <div className="container flex h-14 items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-6">
               <Logo />
-              <Link className="text-sm text-muted-foreground hover:text-foreground" href="/guide">
-                Guide
-              </Link>
               <Link className="text-sm text-muted-foreground hover:text-foreground" href="/about">
                 About
               </Link>
@@ -36,7 +32,6 @@ function App() {
             <Route path="/" component={Home} />
             <Route path="/create" component={CreateEvent} />
             <Route path="/events/:hash" component={Event} />
-            <Route path="/guide" component={Guide} />
             <Route path="/about" component={About} />
             <Route path="/changelog" component={Changelog} />
           </Switch>
