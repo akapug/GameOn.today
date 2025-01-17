@@ -15,11 +15,18 @@ const getDatabaseUrl = () => {
 const getDb = () => {
   const maxRetries = 5;
   let currentTry = 0;
+  const maxRetries = 5;
 
   const connect = async () => {
-    try {
-      const databaseUrl = getDatabaseUrl();
-      const env = process.env.NODE_ENV || 'development';
+    if (!process.env.DATABASE_URL) {
+      console.error('DATABASE_URL is not set');
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+    
+    while (currentTry < maxRetries) {
+      try {
+        const databaseUrl = process.env.DATABASE_URL;
+        const env = process.env.NODE_ENV || 'development';
       const schemaName = env === 'production' ? 'production' : 'development';
 
       console.log(`Attempting database connection for ${env} environment using ${schemaName} schema...`);
