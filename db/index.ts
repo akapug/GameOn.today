@@ -78,16 +78,27 @@ const getDb = () => {
   return connect();
 };
 
-const dbPromise = (async () => {
+let dbInstance: any;
+
+const initDb = async () => {
   try {
-    return await getDb();
+    dbInstance = await getDb();
+    return dbInstance;
   } catch (error) {
     console.error('Failed to initialize database:', error);
     throw error;
   }
-})();
+};
 
-export const db = await dbPromise;
+export const db = {
+  get instance() {
+    if (!dbInstance) {
+      throw new Error('Database not initialized');
+    }
+    return dbInstance;
+  },
+  init: initDb
+};
 
 // Add a safety check function for development-only operations
 export const ensureDevEnvironment = () => {
