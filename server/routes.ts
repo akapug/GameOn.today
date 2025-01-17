@@ -426,15 +426,16 @@ export function registerRoutes(app: Express): Server {
       const responseToken = uid || generateEventHash();
 
       // Check for existing participant by email or response token
+      const conditions = [];
+      if (email) conditions.push(eq(participants.email, email));
+      if (uid) conditions.push(eq(participants.responseToken, uid));
+      
       const existingParticipants = await db.instance.select()
         .from(participants)
         .where(
           and(
             eq(participants.eventId, event.id),
-            or(
-              email ? eq(participants.email, email) : undefined,
-              uid ? eq(participants.responseToken, uid) : undefined
-            )
+            conditions.length ? or(...conditions) : undefined
           )
         );
 
@@ -566,11 +567,9 @@ export function registerRoutes(app: Express): Server {
       const existingDuplicate = await db.instance.select()
         .from(events)
         .where(
-          and(
-            eq(events.parentEventId, event.id),
-            sql`${events.date} >= NOW() AND ${events.date} <= NOW() + INTERVAL '24 hours'`
-          )
-        );
+          eq(events.parentEventId, event.id)
+        )
+        .where(sql`${events.date} >= NOW() AND ${events.date} <= NOW() + INTERVAL '24 hours'`);
 
       if (existingDuplicate.length > 0) {
         return res.status(409).json({ message: "Event already duplicated recently" });
