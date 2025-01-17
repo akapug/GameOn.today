@@ -21,74 +21,66 @@ const getDb = () => {
       console.error('DATABASE_URL is not set');
       throw new Error('DATABASE_URL environment variable is not set');
     }
-    
+
     while (currentTry < maxRetries) {
       try {
         const databaseUrl = process.env.DATABASE_URL;
         const env = process.env.NODE_ENV || 'development';
-      const schemaName = env === 'production' ? 'production' : 'development';
+        const schemaName = env === 'production' ? 'production' : 'development';
 
-      console.log(`Attempting database connection for ${env} environment using ${schemaName} schema...`);
+        console.log(`Attempting database connection for ${env} environment using ${schemaName} schema...`);
 
-      // Create the Drizzle client
-      const client = drizzle({
-        connection: databaseUrl,
-        schema,
-        ws: ws,
-      });
+        // Create the Drizzle client
+        const client = drizzle({
+          connection: databaseUrl,
+          schema,
+          ws: ws,
+        });
 
-      // Set schema explicitly before any operations
-      await client.execute(sql`SET search_path TO ${sql.identifier(schemaName)}`);
-      console.log(`Set database search_path to schema: ${schemaName}`);
+        // Set schema explicitly before any operations
+        await client.execute(sql`SET search_path TO ${sql.identifier(schemaName)}`);
+        console.log(`Set database search_path to schema: ${schemaName}`);
 
-      // Verify schema exists and is accessible
-      const schemaTest = await client.execute(sql`
-        SELECT EXISTS (
-          SELECT FROM information_schema.schemata 
-          WHERE schema_name = ${schemaName}
-        );
-      `);
+        // Verify schema exists and is accessible
+        const schemaTest = await client.execute(sql`
+          SELECT EXISTS (
+            SELECT FROM information_schema.schemata 
+            WHERE schema_name = ${schemaName}
+          );
+        `);
 
-      if (!schemaTest.rows[0].exists) {
-        throw new Error(`Schema '${schemaName}' does not exist`);
+        if (!schemaTest.rows[0].exists) {
+          throw new Error(`Schema '${schemaName}' does not exist`);
+        }
+
+        // Add environment-specific logging
+        if (env === 'development') {
+          console.log('DEVELOPMENT MODE: Using development schema');
+        } else {
+          console.log('PRODUCTION MODE: Using production schema');
+        }
+
+        return client;
+      } catch (error) {
+        console.error(`Database connection error (${process.env.NODE_ENV}):`, error.message);
+
+        if (currentTry < maxRetries) {
+          currentTry++;
+          const delay = Math.min(1000 * Math.pow(2, currentTry), 10000);
+          console.log(`Retrying connection (attempt ${currentTry}/${maxRetries}) in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+        throw new Error(`Failed to connect to database after ${maxRetries} attempts: ${error.message}`);
       }
-
-      // Add environment-specific logging
-      if (env === 'development') {
-        console.log('DEVELOPMENT MODE: Using development schema');
-      } else {
-        console.log('PRODUCTION MODE: Using production schema');
-      }
-
-      return client;
-    } catch (error: any) {
-      console.error(`Database connection error (${process.env.NODE_ENV}):`, error.message);
-
-      if (currentTry < maxRetries) {
-        currentTry++;
-        const delay = Math.min(1000 * Math.pow(2, currentTry), 10000);
-        console.log(`Retrying connection (attempt ${currentTry}/${maxRetries}) in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return await connect();
-      }
-      throw new Error(`Failed to connect to database after ${maxRetries} attempts: ${error.message}`);
     }
+    throw new Error('Failed to connect to database');
   };
 
   return connect();
 };
 
-let dbInstance: any;
-
-const initDb = async () => {
-  try {
-    dbInstance = await getDb();
-    return dbInstance;
-  } catch (error) {
-    console.error('Failed to initialize database:', error);
-    throw error;
-  }
-};
+let dbInstance = null;
 
 export const db = {
   get instance() {
@@ -97,7 +89,15 @@ export const db = {
     }
     return dbInstance;
   },
-  init: initDb
+  async init() {
+    try {
+      dbInstance = await getDb();
+      return dbInstance;
+    } catch (error) {
+      console.error('Failed to initialize database:', error);
+      throw error;
+    }
+  }
 };
 
 // Add a safety check function for development-only operations
@@ -114,7 +114,7 @@ export const syncDevelopmentSchema = async () => {
   try {
     console.log('Starting development schema sync...');
 
-    await db.execute(sql`
+    await db.instance.execute(sql`
       -- Create fresh development schema
       CREATE SCHEMA IF NOT EXISTS development;
 
