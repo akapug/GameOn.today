@@ -33,6 +33,7 @@ function App() {
             <Route path="/" component={Home} />
             <Route path="/create" component={CreateEvent} />
             <Route path="/events/:hash" component={Event} />
+            <Route path="/guide" component={Guide} />
             <Route path="/about" component={About} />
             <Route path="/changelog" component={Changelog} />
           </Switch>
