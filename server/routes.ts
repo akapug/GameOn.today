@@ -192,13 +192,28 @@ export function registerRoutes(app: Express): Server {
   // Get all public events
   app.get("/api/events", async (_req, res) => {
     try {
-      const allEvents = await db.query.events.findMany({
-        where: eq(events.isPrivate, false),
-        with: {
-          eventType: true,
-          participants: true,
-        },
-      });
+      const allEvents = await db.instance.select({
+        id: events.id,
+        urlHash: events.urlHash,
+        isPrivate: events.isPrivate,
+        eventTypeId: events.eventTypeId,
+        title: events.title,
+        location: events.location,
+        date: events.date,
+        participantThreshold: events.participantThreshold,
+        createdAt: events.createdAt,
+        creatorId: events.creatorId,
+        creatorName: events.creatorName,
+        timezone: events.timezone,
+        endTime: events.endTime,
+        notes: events.notes,
+        webLink: events.webLink,
+        isRecurring: events.isRecurring,
+        recurrenceFrequency: events.recurrenceFrequency,
+        parentEventId: events.parentEventId,
+      })
+      .from(events)
+      .where(eq(events.isPrivate, false));
 
       const eventsWithWeather = await Promise.all(
         allEvents.map(getEventWithWeather)
