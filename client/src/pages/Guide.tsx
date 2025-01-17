@@ -14,6 +14,14 @@ export default function Guide() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">How To Use</h1>
         <div className="prose prose-slate dark:prose-invert">
+          <h2 className="text-xl font-bold mt-6 mb-3">Logging In</h2>
+          <ul className="space-y-2 mb-4">
+            <li>Click "Sign in with Google" in the top right corner</li>
+            <li>Login is required to create and join events</li>
+            <li>Your profile picture and name will be visible to other users</li>
+            <li>You can manage your events and responses from the user menu</li>
+          </ul>
+
           <h2 className="text-xl font-bold mt-6 mb-3">Creating Events</h2>
           <ul className="space-y-2 mb-4">
             <li>Click "Create Event" on the home page</li>
