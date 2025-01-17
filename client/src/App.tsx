@@ -2,6 +2,7 @@ import { Switch, Route, Link } from "wouter";
 import Home from "./pages/Home";
 import CreateEvent from "./pages/CreateEvent";
 import Event from "./pages/Event";
+import Guide from "./pages/Guide";
 import About from "./pages/About";
 import Changelog from "./pages/Changelog";
 import { AuthProvider } from "./components/AuthProvider";
