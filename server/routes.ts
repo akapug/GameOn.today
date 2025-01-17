@@ -549,12 +549,30 @@ export function registerRoutes(app: Express): Server {
     try {
       const { hash } = req.params;
 
-      const event = await db.query.events.findFirst({
-        where: eq(events.urlHash, hash),
-      });
+      const [event] = await db.instance.select()
+        .from(events)
+        .where(eq(events.urlHash, hash));
 
-      if (!event || !event.isRecurring) {
-        return res.status(404).json({ message: "Event not found or not recurring" });
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+
+      if (!event.isRecurring) {
+        return res.status(400).json({ message: "This event is not set to recur" });
+      }
+
+      // Prevent duplicate events within 24 hours of the original event
+      const existingDuplicate = await db.instance.select()
+        .from(events)
+        .where(
+          and(
+            eq(events.parentEventId, event.id),
+            sql`${events.date} >= NOW() AND ${events.date} <= NOW() + INTERVAL '24 hours'`
+          )
+        );
+
+      if (existingDuplicate.length > 0) {
+        return res.status(409).json({ message: "Event already duplicated recently" });
       }
 
       // Calculate next occurrence date

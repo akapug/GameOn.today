@@ -10,8 +10,8 @@ const sampleEvents = [
     date: new Date("2025-01-14T18:00:00Z"),
     endTime: new Date("2025-01-14T20:00:00Z"),
     participantThreshold: 6,
-    isRecurring: true,
-    recurrenceFrequency: "weekly",
+    isRecurring: false, // Disable automatic recurrence for sample data
+    recurrenceFrequency: null,
     webLink: "https://meetup.com/sample-basketball",
     notes: "Bring both light and dark shirts for team selection",
     urlHash: "basketball-weekly",
