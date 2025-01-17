@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import CreateEvent from "./pages/CreateEvent";
 import Event from "./pages/Event";
 import About from "./pages/About";
+import Guide from "./pages/Guide";
 import Changelog from "./pages/Changelog";
 import { AuthProvider } from "./components/AuthProvider";
 import UserMenu from "./components/UserMenu";
