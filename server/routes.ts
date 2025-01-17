@@ -431,8 +431,10 @@ export function registerRoutes(app: Express): Server {
         .where(
           and(
             eq(participants.eventId, event.id),
-            email ? eq(participants.email, email) : undefined,
-            uid ? eq(participants.responseToken, uid) : undefined
+            or(
+              email ? eq(participants.email, email) : undefined,
+              uid ? eq(participants.responseToken, uid) : undefined
+            )
           )
         );
 
