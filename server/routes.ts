@@ -403,6 +403,10 @@ export function registerRoutes(app: Express): Server {
   // Join event
   app.post("/api/events/:hash/join", async (req, res) => {
     try {
+      // Set correct schema
+      const schema = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+      await db.instance.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+
       const { hash } = req.params;
       const { name, email, likelihood, uid, comment } = req.body;
 
