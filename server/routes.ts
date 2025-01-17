@@ -13,7 +13,7 @@ async function setSchemaMiddleware(req: any, res: any, next: any) {
   const schema = env === 'production' ? 'production' : 'development';
 
   try {
-    await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+    await db.instance.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
     console.log(`Set search path to ${schema} schema`);
     next();
   } catch (error) {
@@ -134,10 +134,10 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/init", async (_req, res) => {
     try {
       const schema = process.env.NODE_ENV === 'production' ? 'production' : 'development';
-      await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+      await db.instance.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
 
       // Verify schema exists and is ready
-      const schemaCheck = await db.execute(sql`
+      const schemaCheck = await db.instance.execute(sql`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
           WHERE table_schema = ${schema}
