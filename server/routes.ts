@@ -410,18 +410,13 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Name is required" });
       }
 
-      const [event] = await db.instance.select({
-        id: events.id,
-        participantThreshold: events.participantThreshold,
-      })
-      .from(events)
-      .where(eq(events.urlHash, hash))
-      .leftJoin(participants, eq(events.id, participants.eventId));
-
-      // If no event found, return 404
-      if (!event) {
-        return res.status(404).json({ message: "Event not found" });
-      }
+      const event = await db.query.events.findFirst({
+        where: eq(events.urlHash, hash),
+        columns: {
+          id: true,
+          participantThreshold: true
+        }
+      });
 
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
@@ -436,10 +431,8 @@ export function registerRoutes(app: Express): Server {
         .where(
           and(
             eq(participants.eventId, event.id),
-            or(
-              email ? eq(participants.email, email) : undefined,
-              uid ? eq(participants.responseToken, uid) : undefined
-            )
+            email ? eq(participants.email, email) : undefined,
+            uid ? eq(participants.responseToken, uid) : undefined
           )
         );
 
