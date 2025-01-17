@@ -4,6 +4,7 @@ import CreateEvent from "./pages/CreateEvent";
 import Event from "./pages/Event";
 import About from "./pages/About";
 import Changelog from "./pages/Changelog";
+import Guide from "./pages/Guide";
 import { AuthProvider } from "./components/AuthProvider";
 import UserMenu from "./components/UserMenu";
 import Footer from "./components/Footer";
