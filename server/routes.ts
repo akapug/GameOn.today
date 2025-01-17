@@ -148,8 +148,8 @@ export function registerRoutes(app: Express): Server {
       if (!schemaCheck.rows[0].exists) {
         throw new Error('Schema not ready');
       }
-      const allEventTypes = await db.instance.query('SELECT * FROM event_types');
-      console.log('Event types:', allEventTypes.rows);
+      const allEventTypes = await db.instance.select().from(eventTypes);
+      console.log('Event types:', allEventTypes);
       res.json({
         eventTypes: allEventTypes,
         serverTime: new Date().toISOString()
@@ -509,8 +509,8 @@ export function registerRoutes(app: Express): Server {
 
   app.get("/api/event-types", async (_req, res) => {
     try {
-      const types = await db.instance.query('SELECT * FROM event_types');
-      res.json(types.rows);
+      const types = await db.instance.select().from(eventTypes);
+      res.json(types);
     } catch (error) {
       console.error("Error fetching event types:", error);
       res.status(500).json({ message: "Error fetching event types" });
