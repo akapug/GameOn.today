@@ -20,6 +20,9 @@ function App() {
               <Link className="text-sm text-muted-foreground hover:text-foreground" href="/about">
                 About
               </Link>
+              <Link className="text-sm text-muted-foreground hover:text-foreground" href="/guide">
+                Guide
+              </Link>
               <Link className="text-sm text-muted-foreground hover:text-foreground" href="/changelog">
                 Changelog
               </Link>
@@ -33,6 +36,7 @@ function App() {
             <Route path="/create" component={CreateEvent} />
             <Route path="/events/:hash" component={Event} />
             <Route path="/about" component={About} />
+            <Route path="/guide" component={Guide} />
             <Route path="/changelog" component={Changelog} />
           </Switch>
         </main>
