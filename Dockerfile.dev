@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies and additional packages
+RUN npm ci
+RUN npm install pg @types/pg drizzle-orm postgres
+
+# Copy source code
+COPY . .
+
+# Expose ports for the server and Vite dev server
+EXPOSE 3000
+EXPOSE 5000
+
+# Start the development server
+CMD ["npm", "run", "dev"] 

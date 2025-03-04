@@ -1,6 +1,6 @@
-import { drizzle } from "drizzle-orm/neon-serverless";
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Pool } from "pg";
 import { sql } from "drizzle-orm";
-import ws from "ws";
 import * as schema from "@db/schema";
 
 // Environment-specific database URLs
@@ -24,24 +24,26 @@ const getDb = () => {
 
       console.log(`Attempting database connection for ${env} environment using ${schemaName} schema...`);
 
-      // Create the Drizzle client
-      const client = drizzle({
-        connection: databaseUrl,
-        schema,
-        ws: ws,
+      // Create the pg client
+      const pool = new Pool({
+        connectionString: databaseUrl,
+        ssl: process.env.DOCKER ? false : { rejectUnauthorized: false },
       });
+      
+      // Create the Drizzle client
+      const db = drizzle(pool, { schema });
 
       // Set schema explicitly before any operations
-      await client.execute(sql`SET search_path TO ${sql.identifier(schemaName)}`);
+      await pool.query(`SET search_path TO ${schemaName}`);
       console.log(`Set database search_path to schema: ${schemaName}`);
 
       // Verify schema exists and is accessible
-      const schemaTest = await client.execute(sql`
+      const schemaTest = await pool.query(`
         SELECT EXISTS (
           SELECT FROM information_schema.schemata 
-          WHERE schema_name = ${schemaName}
-        );
-      `);
+          WHERE schema_name = $1
+        )
+      `, [schemaName]);
 
       if (!schemaTest.rows[0].exists) {
         throw new Error(`Schema '${schemaName}' does not exist`);
@@ -54,7 +56,7 @@ const getDb = () => {
         console.log('PRODUCTION MODE: Using production schema');
       }
 
-      return client;
+      return db;
     } catch (error: any) {
       console.error(`Database connection error (${process.env.NODE_ENV}):`, error.message);
 
@@ -72,7 +74,21 @@ const getDb = () => {
   return connect();
 };
 
-export const db = await getDb();
+// Initialize database connection
+let db: any;
+const initDb = async () => {
+  db = await getDb();
+  return db;
+};
+
+// Export the database connection
+export { initDb };
+export const getDatabase = () => {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDb() first.');
+  }
+  return db;
+};
 
 // Add a safety check function for development-only operations
 export const ensureDevEnvironment = () => {
@@ -84,6 +100,7 @@ export const ensureDevEnvironment = () => {
 // Function to sync development schema with production structure (without data)
 export const syncDevelopmentSchema = async () => {
   ensureDevEnvironment();
+  const db = getDatabase();
 
   try {
     console.log('Starting development schema sync...');

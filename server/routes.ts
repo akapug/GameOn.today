@@ -1,6 +1,6 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
-import { db } from "@db";
+import { getDatabase } from "@db";
 import { events, participants, eventTypes } from "@db/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
 import nodemailer from "nodemailer";
@@ -13,7 +13,7 @@ async function setSchemaMiddleware(req: any, res: any, next: any) {
   const schema = env === 'production' ? 'production' : 'development';
 
   try {
-    await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+    await getDatabase().execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
     console.log(`Set search path to ${schema} schema`);
     next();
   } catch (error) {
@@ -49,7 +49,7 @@ async function generateUniqueUrlHash() {
 
   while (attempts < maxAttempts) {
     const hash = generateUrlHash();
-    const existing = await db.query.events.findFirst({
+    const existing = await getDatabase().query.events.findFirst({
       where: eq(events.urlHash, hash),
     });
 
@@ -73,46 +73,70 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Define participant interface
+interface Participant {
+  email?: string;
+  responseToken?: string;
+  likelihood?: number;
+  [key: string]: any; // For any other properties
+}
+
+// Define event interface
+interface Event {
+  id: number;
+  participants: Participant[];
+  participantThreshold: number;
+  title: string;
+  date: Date;
+  timezone?: string;
+  [key: string]: any; // For any other properties
+}
+
 async function sendEventNotification(eventId: number) {
-  const event = await db.query.events.findFirst({
-    where: eq(events.id, eventId),
-    with: {
-      eventType: true,
-      participants: {
-        columns: {
-          email: true,
-          name: true,
+  try {
+    const db = getDatabase();
+    const event = await db.query.events.findFirst({
+      where: eq(events.id, eventId),
+      with: {
+        eventType: true,
+        participants: {
+          columns: {
+            email: true,
+            name: true,
+          }
         }
-      }
-    },
-  });
+      },
+    });
 
-  if (!event) return;
+    if (!event) return;
 
-  const participantsWithEmail = event.participants.filter(participant => participant.email);
-  const formattedEventDate = formatWithTimezone(event.date, 'PPP p', event.timezone || 'UTC');
+    const participantsWithEmail = event.participants.filter((participant: Participant) => participant.email);
+    const formattedEventDate = formatWithTimezone(event.date, 'PPP p', event.timezone || 'UTC');
 
-  const emailPromises = participantsWithEmail.map(participant =>
-    transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: participant.email,
-      subject: `Event On! ${event.title} has enough participants!`,
-      html: `
-        <h2>Great news, ${participant.name}!</h2>
-        <p>The event you joined has reached its minimum participant threshold and is now confirmed to happen!</p>
-        <p>Event Details:</p>
-        <ul>
-          <li><strong>Type:</strong> ${event.eventType.name}</li>
-          <li><strong>Title:</strong> ${event.title}</li>
-          <li><strong>Location:</strong> ${event.location}</li>
-          <li><strong>Date:</strong> ${formattedEventDate}</li>
-        </ul>
-        <p>See you at the event!</p>
-      `,
-    })
-  );
+    const emailPromises = participantsWithEmail.map((participant: Participant) =>
+      transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: participant.email,
+        subject: `Event On! ${event.title} has enough participants!`,
+        html: `
+          <h2>Great news, ${participant.name}!</h2>
+          <p>The event you joined has reached its minimum participant threshold and is now confirmed to happen!</p>
+          <p>Event Details:</p>
+          <ul>
+            <li><strong>Type:</strong> ${event.eventType.name}</li>
+            <li><strong>Title:</strong> ${event.title}</li>
+            <li><strong>Location:</strong> ${event.location}</li>
+            <li><strong>Date:</strong> ${formattedEventDate}</li>
+          </ul>
+          <p>See you at the event!</p>
+        `,
+      })
+    );
 
-  await Promise.all(emailPromises).catch(console.error);
+    await Promise.all(emailPromises).catch(console.error);
+  } catch (error) {
+    console.error("Failed to send event notification:", error);
+  }
 }
 
 async function getEventWithWeather(event: any) {
@@ -130,14 +154,19 @@ export function registerRoutes(app: Express): Server {
   // Add schema middleware to all API routes
   app.use('/api', setSchemaMiddleware);
 
+  // Health check endpoint for Docker/Render
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
+  });
+
   // Init endpoint for app initialization data
   app.get("/api/init", async (_req, res) => {
     try {
       const schema = process.env.NODE_ENV === 'production' ? 'production' : 'development';
-      await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+      await getDatabase().execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
 
       // Verify schema exists and is ready
-      const schemaCheck = await db.execute(sql`
+      const schemaCheck = await getDatabase().execute(sql`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
           WHERE table_schema = ${schema}
@@ -148,7 +177,7 @@ export function registerRoutes(app: Express): Server {
       if (!schemaCheck.rows[0].exists) {
         throw new Error('Schema not ready');
       }
-      const allEventTypes = await db.query.eventTypes.findMany();
+      const allEventTypes = await getDatabase().query.eventTypes.findMany();
       res.json({
         eventTypes: allEventTypes,
         serverTime: new Date().toISOString()
@@ -168,7 +197,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "User ID is required" });
       }
 
-      const userEvents = await db.query.events.findMany({
+      const userEvents = await getDatabase().query.events.findMany({
         where: eq(events.creatorId, String(uid)),
         with: {
           eventType: true,
@@ -191,7 +220,7 @@ export function registerRoutes(app: Express): Server {
   // Get all public events
   app.get("/api/events", async (_req, res) => {
     try {
-      const allEvents = await db.query.events.findMany({
+      const allEvents = await getDatabase().query.events.findMany({
         where: eq(events.isPrivate, false),
         with: {
           eventType: true,
@@ -214,7 +243,7 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/events/:hash", async (req, res) => {
     try {
       const { hash } = req.params;
-      const event = await db.query.events.findFirst({
+      const event = await getDatabase().query.events.findFirst({
         where: eq(events.urlHash, hash),
         with: {
           eventType: true,
@@ -240,7 +269,7 @@ export function registerRoutes(app: Express): Server {
       const { eventTypeId, title, location, date, timezone, participantThreshold, creatorId, creatorName, endTime, notes, webLink, isRecurring, recurrenceFrequency, isPrivate } = req.body;
 
       // Verify event type exists first
-      const eventType = await db.query.eventTypes.findFirst({
+      const eventType = await getDatabase().query.eventTypes.findFirst({
         where: eq(eventTypes.id, Number(eventTypeId))
       });
 
@@ -269,7 +298,7 @@ export function registerRoutes(app: Express): Server {
       // Generate a unique URL hash
       const urlHash = await generateUniqueUrlHash();
 
-      const [newEvent] = await db.insert(events).values({
+      const [newEvent] = await getDatabase().insert(events).values({
         urlHash,
         eventTypeId: Number(eventTypeId),
         title: String(title || ''),
@@ -285,7 +314,7 @@ export function registerRoutes(app: Express): Server {
         isRecurring: isRecurring === true,
         recurrenceFrequency: isRecurring === true ? recurrenceFrequency : null,
         isPrivate: isPrivate === true,
-      }).returning();
+      }).returning() as any[];
 
       const eventWithWeather = await getEventWithWeather(newEvent);
       res.json(eventWithWeather);
@@ -304,7 +333,7 @@ export function registerRoutes(app: Express): Server {
 
       console.log("Update request received:", { hash, eventTypeId, creatorId });
 
-      const event = await db.query.events.findFirst({
+      const event = await getDatabase().query.events.findFirst({
         where: eq(events.urlHash, hash),
       });
 
@@ -318,7 +347,7 @@ export function registerRoutes(app: Express): Server {
 
       // Verify event type exists if it's being updated
       if (eventTypeId) {
-        const eventType = await db.query.eventTypes.findFirst({
+        const eventType = await getDatabase().query.eventTypes.findFirst({
           where: eq(eventTypes.id, Number(eventTypeId))
         });
 
@@ -328,7 +357,7 @@ export function registerRoutes(app: Express): Server {
         }
       }
 
-      const [updatedEvent] = await db
+      const [updatedEvent] = await getDatabase()
         .update(events)
         .set({
           title,
@@ -365,7 +394,7 @@ export function registerRoutes(app: Express): Server {
     try {
       const { hash } = req.params;
 
-      const event = await db.query.events.findFirst({
+      const event = await getDatabase().query.events.findFirst({
         where: eq(events.urlHash, hash),
       });
 
@@ -374,8 +403,8 @@ export function registerRoutes(app: Express): Server {
       }
 
       // Delete participants first due to foreign key constraint
-      await db.delete(participants).where(eq(participants.eventId, event.id));
-      await db.delete(events).where(eq(events.urlHash, hash));
+      await getDatabase().delete(participants).where(eq(participants.eventId, event.id));
+      await getDatabase().delete(events).where(eq(events.urlHash, hash));
 
       res.json({ success: true });
     } catch (error) {
@@ -394,7 +423,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Name is required" });
       }
 
-      const event = await db.query.events.findFirst({
+      const event = await getDatabase().query.events.findFirst({
         where: eq(events.urlHash, hash),
         with: {
           participants: true,
@@ -409,7 +438,7 @@ export function registerRoutes(app: Express): Server {
       const responseToken = uid || generateEventHash();
 
       // Check for existing participant by email or response token
-      const existingParticipant = event.participants.find(p =>
+      const existingParticipant = event.participants.find((p: Participant) =>
         (email && p.email === email) ||
         (uid && p.responseToken === uid)
       );
@@ -418,7 +447,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "You have already joined this event" });
       }
 
-      const [newParticipant] = await db.insert(participants).values({
+      const [newParticipant] = await getDatabase().insert(participants).values({
         eventId: event.id,
         name: name.trim(),
         email: email?.trim(),
@@ -427,9 +456,9 @@ export function registerRoutes(app: Express): Server {
         comment: comment?.trim(),
       }).returning();
 
-      const expectedParticipants = event.participants.reduce((sum, participant) => {
+      const expectedParticipants = event.participants.reduce((sum: number, participant: Participant) => {
         return sum + (Number(participant.likelihood) || 1);
-      }, likelihood || 1);
+      }, Number(likelihood) || 1);
 
       if (expectedParticipants >= event.participantThreshold) {
         sendEventNotification(event.id).catch(console.error);
@@ -448,7 +477,7 @@ export function registerRoutes(app: Express): Server {
       const { hash, participantId } = req.params;
       const { name, email, likelihood, responseToken, comment } = req.body;
 
-      const event = await db.query.events.findFirst({
+      const event = await getDatabase().query.events.findFirst({
         where: eq(events.urlHash, hash),
         with: {
           participants: {
@@ -466,7 +495,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Not authorized to edit response" });
       }
 
-      const [updatedParticipant] = await db
+      const [updatedParticipant] = await getDatabase()
         .update(participants)
         .set({
           name,
@@ -489,7 +518,7 @@ export function registerRoutes(app: Express): Server {
     try {
       const { hash, participantId } = req.params;
 
-      const event = await db.query.events.findFirst({
+      const event = await getDatabase().query.events.findFirst({
         where: eq(events.urlHash, hash),
       });
 
@@ -497,7 +526,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "Event not found" });
       }
 
-      await db.delete(participants).where(eq(participants.id, parseInt(participantId)));
+      await getDatabase().delete(participants).where(eq(participants.id, parseInt(participantId)));
 
       res.json({ success: true });
     } catch (error) {
@@ -508,7 +537,7 @@ export function registerRoutes(app: Express): Server {
 
   app.get("/api/event-types", async (_req, res) => {
     try {
-      const types = await db.query.eventTypes.findMany();
+      const types = await getDatabase().query.eventTypes.findMany();
       res.json(types);
     } catch (error) {
       console.error("Error fetching event types:", error);
